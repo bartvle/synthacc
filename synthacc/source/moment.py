@@ -45,7 +45,7 @@ class MomentTensor(Object):
 
         if e.is_integer():
             return int(e)
-        elif abs(e) < PRECISION:
+        elif abs(e) < 10**-PRECISION:
             return 0
         else:
             return e
@@ -196,8 +196,8 @@ class NormalizedMomentFunction(TimeSeries):
             assert(np.all(moments >= 0))
             assert(np.all(np.diff(moments) >= 0))
             assert(moments[0] == 0)
-            assert(abs(moments[-1] - 1) <= PRECISION)
-            assert(abs(moments[-2] - 1) <= PRECISION)
+            assert(abs(moments[-1] - 1) <= 10**-PRECISION)
+            assert(abs(moments[-2] - 1) <= 10**-PRECISION)
 
         self._moments = moments
 
@@ -337,7 +337,7 @@ class NormalizedMomentRateFunction(TimeSeries):
             assert(np.all(rates >= 0))
             assert(rates[+0] == 0)
             assert(rates[-1] == 0)
-            assert(np.abs((np.sum(rates) * self.time_delta) - 1) <= PRECISION)
+            assert(np.abs((np.sum(rates) * self.time_delta) - 1) <= 10**-PRECISION)
 
         self._rates = rates
 
@@ -502,7 +502,7 @@ class InstantMomentRateGenerator(Object):
     """
     """
 
-    def get_nmrf(self, time_delta=PRECISION, validate=True):
+    def get_nmrf(self, time_delta=10**-PRECISION, validate=True):
         """
         return: 'moment.NormalizedMomentRateFunction' instance
         """
@@ -545,7 +545,7 @@ class TriangularMomentRateGenerator(Object):
         if validate is True:
             assert(is_pos_number(half_duration) and is_pos_number(time_delta))
             n = int(round(half_duration / time_delta))
-            assert(abs((n * time_delta) - half_duration) <= PRECISION)
+            assert(abs((n * time_delta) - half_duration) <= 10**-PRECISION)
 
         n = int(round(half_duration / time_delta))
 

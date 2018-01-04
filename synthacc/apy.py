@@ -13,7 +13,7 @@ import numpy as np
 T, F = True, False
 
 ## Precision for float comparison
-PRECISION = 10**-10
+PRECISION = 10
 
 
 class Object(object):

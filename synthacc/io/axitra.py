@@ -397,7 +397,7 @@ def read_greens_functions(folder, n_srcs, n_rcvs, validate=True):
     stack = np.fft.irfft(freq / time_delta, axis=0)
 
     n1 = 1 / (frequencies[1] * time_delta) #
-    assert(abs(n1 - int(n1)) < PRECISION)  #
+    assert(abs(n1 - int(n1)) < 10**-PRECISION)  #
     n = int(n1) - 1                        #
     N = n//2 + 1                           #
     assert(N == len(frequencies))          #

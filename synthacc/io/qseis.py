@@ -62,7 +62,7 @@ class Wrapper(Object):
         self._ground_model = ground_model
 
         # nsamples = duration / time_delta + 1
-        # assert(abs(nsamples - int(nsamples)) < PRECISION)
+        # assert(abs(nsamples - int(nsamples)) < 10**-PRECISION)
         # nsamples = int(nsamples)
 
         self._params = dict(DEFAULT_PARAMS)

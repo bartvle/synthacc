@@ -30,11 +30,11 @@ class Point(Object):
             assert(is_number(y))
             assert(is_number(z))
 
-        if abs(x) < PRECISION:
+        if abs(x) < 10**-PRECISION:
             x = 0
-        if abs(y) < PRECISION:
+        if abs(y) < 10**-PRECISION:
             y = 0
-        if abs(z) < PRECISION:
+        if abs(z) < 10**-PRECISION:
             z = 0
 
         self._x = x
@@ -65,9 +65,9 @@ class Point(Object):
         assert(type(other) is self.__class__ or are_coordinates(other))
 
         x, y, z = other
-        x_eq = np.abs(self.x - x) < PRECISION
-        y_eq = np.abs(self.y - y) < PRECISION
-        z_eq = np.abs(self.z - z) < PRECISION
+        x_eq = np.abs(self.x - x) < 10**-PRECISION
+        y_eq = np.abs(self.y - y) < 10**-PRECISION
+        z_eq = np.abs(self.z - z) < 10**-PRECISION
 
         return (x_eq and y_eq and z_eq)
 
@@ -213,7 +213,7 @@ class Plane(Object):
         d = float(np.abs(self.a*x + self.b*y + self.c*z + self.d)
             / np.sqrt(self.a**2+self.b**2+self.c**2))
 
-        if abs(d) < PRECISION:
+        if abs(d) < 10**-PRECISION:
             d = 0
 
         return d
@@ -237,11 +237,11 @@ class Vector(Object):
             assert(is_number(y))
             assert(is_number(z))
 
-        if abs(x) < PRECISION:
+        if abs(x) < 10**-PRECISION:
             x = 0
-        if abs(y) < PRECISION:
+        if abs(y) < 10**-PRECISION:
             y = 0
-        if abs(z) < PRECISION:
+        if abs(z) < 10**-PRECISION:
             z = 0
 
         self._x = x
@@ -272,9 +272,9 @@ class Vector(Object):
         assert(type(other) is self.__class__ or are_coordinates(other))
 
         x, y, z = other
-        x_eq = np.abs(self.x - x) < PRECISION
-        y_eq = np.abs(self.y - y) < PRECISION
-        z_eq = np.abs(self.z - z) < PRECISION
+        x_eq = np.abs(self.x - x) < 10**-PRECISION
+        y_eq = np.abs(self.y - y) < 10**-PRECISION
+        z_eq = np.abs(self.z - z) < 10**-PRECISION
 
         return (x_eq and y_eq and z_eq)
 

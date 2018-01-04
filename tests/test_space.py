@@ -235,13 +235,13 @@ class TestVector(unittest.TestCase):
         """
         v1 = Vector(1, 0, 0)
         v2 = Vector(0, 1, 0)
-        self.assertTrue(abs(v1.get_angle(v2) - 90) < PRECISION)
+        self.assertTrue(abs(v1.get_angle(v2) - 90) < 10**-PRECISION)
         v1 = Vector(1, 0, 0)
         v2 = Vector(2, 0, 0)
-        self.assertTrue(abs(v1.get_angle(v2) -  0) < PRECISION)
+        self.assertTrue(abs(v1.get_angle(v2) -  0) < 10**-PRECISION)
         v1 = Vector(1, 0, 0)
         v2 = Vector(1, 1, 0)
-        self.assertTrue(abs(v1.get_angle(v2) - 45) < PRECISION)
+        self.assertTrue(abs(v1.get_angle(v2) - 45) < 10**-PRECISION)
 
         a = Vector(0, 0, 0).get_angle((1, 1, 1))
         self.assertEqual(a, None)
