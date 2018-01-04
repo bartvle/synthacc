@@ -192,6 +192,48 @@ def is_in_range(obj, min_val, max_val):
     return b
 
 
+def is_complex(obj):
+    """
+    Check if object is complex number.
+    """
+    return type(obj) is complex
+
+
+def _is_complex_array(obj, n):
+    """
+    Check if object is a n-dimensional numpy array of complex numbers.
+    """
+    return (_is_array(obj, n=n) and obj.dtype is np.dtype(np.complex128))
+
+
+def is_complex_array(obj):
+    """
+    Check if object is a numpy array of complex numbers.
+    """
+    return _is_complex_array(obj, n=None)
+
+
+def is_1d_complex_array(obj):
+    """
+    Check if object is a 1d numpy array of complex numbers.
+    """
+    return _is_complex_array(obj, n=1)
+
+
+def is_2d_complex_array(obj):
+    """
+    Check if object is a 2d numpy array of complex numbers.
+    """
+    return _is_complex_array(obj, n=2)
+
+
+def is_3d_complex_array(obj):
+    """
+    Check if object is a 3d numpy array of complex numbers.
+    """
+    return _is_complex_array(obj, n=3)
+
+
 def is_string(obj, length=None):
     """
     Check if object is string (with length).
