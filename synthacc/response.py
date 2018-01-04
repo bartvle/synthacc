@@ -6,7 +6,7 @@ The 'response' module.
 import matplotlib.pyplot as plt
 import numpy as np
 
-from .apy import Object, is_fraction, is_1d_numeric_array
+from .apy import Object, is_pos_number, is_fraction, is_1d_numeric_array
 from .units import MOTION as UNITS
 from .plot import set_space
 
@@ -127,6 +127,27 @@ class ResponseSpectrum(Object):
             png_filespec)
 
         return p
+
+
+def frf(dft_frequencies, sdofo_frequency, damping, gmt, validate=True):
+    """
+    Frequency response function (FRF) for a single degree of freedom (SDOF)
+    oscillator. Acceleration to displacement, velocity or acceleration.
+    """
+    if validate is True:
+        assert(is_pos_number(sdofo_frequency))
+        assert(is_fraction(damping))
+
+    dft_frequencies = 2 * np.pi * dft_frequencies
+    sdofo_frequency = 2 * np.pi * sdofo_frequency
+
+    dum = {'dis': 1, 'vel': 1.j * dft_frequencies,
+        'acc': -1 * (dft_frequencies**2)}[gmt[:3]]
+
+    frf = -1 * dum / (sdofo_frequency**2 - dft_frequencies**2 + 1.j *
+        (2 * damping * dft_frequencies * sdofo_frequency))
+
+    return frf
 
 
 def plot_response_spectra(response_spectra, labels=None, colors=None, styles=None, widths=None, unit=None, space='linlog', pgm_period=0.01, min_period=None, max_period=None, title=None, size=None, png_filespec=None):

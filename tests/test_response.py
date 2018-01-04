@@ -6,7 +6,10 @@ Tests for 'response' module.
 import os
 import unittest
 
-from synthacc.response import ResponseSpectrum, plot_response_spectra
+import matplotlib.pyplot as plt
+import numpy as np
+
+from synthacc.response import ResponseSpectrum, frf, plot_response_spectra
 
 
 OUTPUT_DIR = os.path.join(os.path.dirname(__file__), 'output')
@@ -79,3 +82,25 @@ class TestResponseSpectrum(unittest.TestCase):
         """
         fs = os.path.join(OUTPUT_DIR, 'response.response_spectrum.plot.png')
         self.rs.plot(png_filespec=fs)
+
+
+class Test(unittest.TestCase):
+    """
+    """
+
+    def test_frf(self):
+        """
+        """
+        frequencies = np.logspace(0, 2.4, 200)
+        for i, gmt in enumerate(['dis', 'vel', 'acc']):
+            responses = frf(frequencies, 100, 0.05, gmt)
+            mgntds, angles = np.abs(responses), np.degrees(np.angle(responses))
+            fig, axes = plt.subplots(2, sharex=True)
+            axes[0].plot(frequencies, mgntds)
+            axes[1].plot(frequencies, angles)
+            axes[0].grid()
+            axes[1].grid()
+            axes[0].set_title('Amplitude')
+            axes[1].set_title('Phase')
+
+            plt.savefig(os.path.join(OUTPUT_DIR, 'response.frf.%s.png' % gmt))
