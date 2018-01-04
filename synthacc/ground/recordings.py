@@ -18,6 +18,7 @@ from ..apy import (Object, is_boolean, is_number, is_non_neg_number,
 from ..data import TimeSeries
 from ..units import MOTION as UNITS
 from ..earth import flat as earth
+from ..spectral import DFT
 
 
 ## Allowed components
@@ -267,12 +268,30 @@ class Seismogram(Waveform):
         """
         return UNITS[self.unit].quantity
 
+    @property
+    def dft(self):
+        """
+        Discrete Fourier transform (DFT).
+        """
+        return self.get_dft()
+
+    @property
+    def fas(self):
+        """
+        Fourier amplitude spectrum (FAS).
+        """
+        return self.get_fas()
+
     def get_amplitudes(self, unit=None, validate=True):
         """
         Get amplitudes in given unit.
 
         return: 1d numeric array
         """
+        if validate is True:
+            if unit is not None:
+                assert(UNITS[unit].quantity == self.gmt)
+
         if unit is None or unit == self._unit:
             return self.amplitudes
         else:
@@ -293,6 +312,26 @@ class Seismogram(Waveform):
         return: pos number
         """
         return float(np.max(self.get_abs_amplitudes(unit=unit)))
+
+    def get_dft(self, unit=None, validate=True):
+        """
+        Discrete Fourier transform (DFT).
+        """
+        if validate is True:
+            if unit is not None:
+                assert(UNITS[unit].quantity == self.gmt)
+
+        frequencies = np.fft.rfftfreq(len(self), self._time_delta)
+        amplitudes = np.fft.rfft(self.get_amplitudes(unit))
+        amplitudes *= self._time_delta
+
+        return DFT(frequencies, amplitudes, unit or self._unit)
+
+    def get_fas(self, unit=None, validate=True):
+        """
+        Fourier amplitude spectrum (FAS).
+        """
+        return self.get_dft(unit=unit, validate=validate).fas
 
     def slice(self, from_time, till_time, validate=True):
         """
@@ -322,7 +361,7 @@ class Seismogram(Waveform):
 
         s = self.__class__(self.time_delta, amplitudes, unit=self.unit)
 
-        return s  
+        return s
 
     def plot(self, color=None, style=None, width=None, unit=None, duration=None, size=None):
         """
