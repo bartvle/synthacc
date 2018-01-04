@@ -18,7 +18,7 @@ from ..apy import (Object, is_boolean, is_number, is_non_neg_number,
 from ..data import TimeSeries
 from ..units import MOTION as UNITS
 from ..earth import flat as earth
-from ..spectral import DFT
+from ..spectral import DFT, AccDFT
 
 
 ## Allowed components
@@ -378,6 +378,63 @@ class Seismogram(Waveform):
             widths=widths, unit=unit, duration=duration, size=size)
 
         return p
+
+
+class Accelerogram(Seismogram):
+    """
+    """
+
+    def __init__(self, time_delta, amplitudes, unit, start_time=0, validate=True):
+        """
+        """
+        if validate is True:
+            assert(UNITS[unit].quantity == 'acceleration')
+
+        super().__init__(
+            time_delta, amplitudes, unit, start_time, validate)
+
+    @classmethod
+    def from_seismogram(cls, seismogram, validate=True):
+        """
+        """
+        if validate is True:
+            assert(type(seismogram) is Seismogram)
+
+        accelerogram = cls(
+            seismogram.time_delta,
+            seismogram.amplitudes,
+            seismogram.unit,
+            seismogram.start_time,
+            validate=False,
+            )
+
+        return accelerogram
+
+    @property
+    def pga(self):
+        """
+        Get the peak ground acceleration (PGA).
+        """
+        return self.get_pga()
+
+    def get_pga(self, unit=None):
+        """
+        Get the peak ground acceleration (PGA).
+        """
+        return self.get_pgm(unit)
+
+    def get_dft(self, unit=None, validate=True):
+        """
+        Discrete Fourier transform (DFT).
+        """
+        if validate is True:
+            if unit is not None:
+                assert(UNITS[unit].quantity == self.gmt)
+
+        dft = super().get_dft(unit, validate)
+        dft = AccDFT.from_dft(dft)
+
+        return dft
 
 
 class Recording(Object):
