@@ -9,7 +9,7 @@ import unittest
 from synthacc.response import ResponseSpectrum, plot_response_spectra
 
 
-FIG_DIR = os.path.join(os.path.dirname(__file__), 'visual')
+OUTPUT_DIR = os.path.join(os.path.dirname(__file__), 'output')
 
 
 ## Test data from ESGMD2 004676xa
@@ -77,5 +77,5 @@ class TestResponseSpectrum(unittest.TestCase):
     def test_plot(self):
         """
         """
-        fs = os.path.join(FIG_DIR, 'response.response_spectrum.plot.png')
+        fs = os.path.join(OUTPUT_DIR, 'response.response_spectrum.plot.png')
         self.rs.plot(png_filespec=fs)
