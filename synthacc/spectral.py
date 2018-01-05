@@ -117,6 +117,18 @@ class DFT(Object):
         """
         return UNITS[self._unit].quantity
 
+    def get_amplitudes(self, unit=None, validate=True):
+        """
+        """
+        if validate is True:
+            if unit is not None:
+                assert(UNITS[unit].quantity == self.gmt)
+
+        if unit is None or unit == self._unit:
+            return self.amplitudes
+        else:
+            return self._amplitudes * (UNITS[self._unit] / UNITS[unit])
+
     def get_response(self, frequency, damping, gmt, validate=True):
         """
         Get response of SDOF oscillator with frequency response function (FRF).
