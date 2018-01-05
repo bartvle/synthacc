@@ -8,7 +8,7 @@ Ambraseys et al. (2004).
 
 import numpy as np
 
-from ..ground.recordings import Seismogram
+from ..recordings import Seismogram
 from ..spectral import FAS
 from ..response import ResponseSpectrum
 

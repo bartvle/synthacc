@@ -12,7 +12,7 @@ The copy or the reproduction of parts of the database is not allowed.
 
 import numpy as np
 
-from ..ground.recordings import Accelerogram
+from ..recordings import Accelerogram
 from ..response import ResponseSpectrum
 
 

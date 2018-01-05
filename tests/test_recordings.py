@@ -1,5 +1,5 @@
 """
-Tests for 'ground.recordings' module.
+Tests for 'recordings' module.
 """
 
 
@@ -13,12 +13,12 @@ from synthacc.response import ResponseSpectrum, plot_response_spectra
 from synthacc.io.esgmd2 import read_fas, read_spc
 from synthacc.io.resorce2013 import read_acc, read_rs
 
-from synthacc.ground.recordings import (Waveform, Seismogram, Accelerogram,
+from synthacc.recordings import (Waveform, Seismogram, Accelerogram,
     Recording, ne_to_rt, rt_to_ne, plot_seismograms, plot_recordings)
 
 
 DATA_DIR = os.path.join(os.path.dirname(__file__), 'data', 'recordings')
-OUTPUT_DIR = os.path.join(os.path.dirname(__file__), '..', 'output')
+OUTPUT_DIR = os.path.join(os.path.dirname(__file__), 'output')
 
 TIME_DELTA = 0.005
 
@@ -59,7 +59,7 @@ class TestSeismogram(unittest.TestCase):
         self.assertEqual(type(cal_dft), DFT)
         cal_fas = cal_dft.fas
         tgt_fas = read_fas(os.path.join(DATA_DIR, '004676xa.fas'))
-        fs = os.path.join(OUTPUT_DIR, 'ground.recordings.seismogram.dft.png')
+        fs = os.path.join(OUTPUT_DIR, 'recordings.seismogram.dft.png')
         plot_fass([tgt_fas, cal_fas], labels=['tgt', 'cal'], colors=['r', 'b'],
             widths=[3, 1], title='dft calculation', png_filespec=fs)
 
@@ -103,7 +103,7 @@ class TestAccelerogram(unittest.TestCase):
         self.assertEqual(type(cal_dft), AccDFT)
         cal_fas = cal_dft.fas
         tgt_fas = read_fas(os.path.join(DATA_DIR, '004676xa.fas'))
-        fs = os.path.join(OUTPUT_DIR, 'ground.recordings.accelerogram.dft.png')
+        fs = os.path.join(OUTPUT_DIR, 'recordings.accelerogram.dft.png')
         plot_fass([tgt_fas, cal_fas], labels=['tgt', 'cal'], colors=['r', 'b'],
             widths=[2, 0.5], title='dft calculation', png_filespec=fs)
 
@@ -125,13 +125,13 @@ class TestAccelerogram(unittest.TestCase):
         labels, colors, widths = ['tgt', 'cal'], ['r', 'b'], [3, 1]
 
         fs1 = os.path.join(OUTPUT_DIR,
-            'ground.recordings.accelerogram.get_response_spectrum.1.rdis.png')
+            'recordings.accelerogram.get_response_spectrum.1.rdis.png')
         fs2 = os.path.join(OUTPUT_DIR,
-            'ground.recordings.accelerogram.get_response_spectrum.1.rvel.png')
+            'recordings.accelerogram.get_response_spectrum.1.rvel.png')
         fs3 = os.path.join(OUTPUT_DIR,
-            'ground.recordings.accelerogram.get_response_spectrum.1.aacc.png')
+            'recordings.accelerogram.get_response_spectrum.1.aacc.png')
         fs4 = os.path.join(OUTPUT_DIR,
-            'ground.recordings.accelerogram.get_response_spectrum.1.pvel.png')
+            'recordings.accelerogram.get_response_spectrum.1.pvel.png')
         plot_response_spectra([tgt_rdis_rs, cal_rdis_rs],
             labels=labels, colors=colors, widths=widths, png_filespec=fs1)
         plot_response_spectra([tgt_rvel_rs, cal_rvel_rs],
@@ -158,11 +158,11 @@ class TestAccelerogram(unittest.TestCase):
         labels, colors, widths = ['tgt', 'cal'], ['r', 'b'], [3, 1]
 
         fs1 = os.path.join(OUTPUT_DIR,
-            'ground.recordings.accelerogram.get_response_spectrum.2.02.png')
+            'recordings.accelerogram.get_response_spectrum.2.02.png')
         fs2 = os.path.join(OUTPUT_DIR,
-            'ground.recordings.accelerogram.get_response_spectrum.2.05.png')
+            'recordings.accelerogram.get_response_spectrum.2.05.png')
         fs3 = os.path.join(OUTPUT_DIR,
-            'ground.recordings.accelerogram.get_response_spectrum.2.30.png')
+            'recordings.accelerogram.get_response_spectrum.2.30.png')
         plot_response_spectra([tgt_02_rs, cal_02_rs], labels=labels,
             colors=colors, widths=widths, unit='m/s2', png_filespec=fs1)
         plot_response_spectra([tgt_05_rs, cal_05_rs], labels=labels,

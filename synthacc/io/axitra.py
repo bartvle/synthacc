@@ -20,7 +20,7 @@ from .. import space
 from ..source.mechanism import FocalMechanism
 from ..ground.models import LayerModel
 from ..greens_functions import GenericGreensFunction
-from ..ground.recordings import Seismogram, Recording
+from ..recordings import Seismogram, Recording
 
 ## Limits set in 'parameter.inc'. Axitra must be compiled with these values.
 NSP = 6

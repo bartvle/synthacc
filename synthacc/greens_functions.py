@@ -14,7 +14,7 @@ from .data import TimeSeries
 from .units import MOTION_SI as SI_UNITS
 from .earth import flat as earth
 from .source.moment import MomentTensor
-from .ground.recordings import (Seismogram, Recording, rt_to_ne,
+from .recordings import (Seismogram, Recording, rt_to_ne,
     plot_seismograms)
 
 

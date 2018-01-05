@@ -13,13 +13,13 @@ import matplotlib.pyplot as plt
 import numpy as np
 from obspy import Trace as _Trace
 
-from ..apy import (Object, is_boolean, is_number, is_non_neg_number,
+from .apy import (Object, is_boolean, is_number, is_non_neg_number,
     is_pos_number, is_pos_integer, is_1d_numeric_array, is_string)
-from ..data import TimeSeries
-from ..units import MOTION as UNITS, MOTION_SI as SI_UNITS
-from ..earth import flat as earth
-from ..spectral import DFT, AccDFT
-from ..response import ResponseSpectrum
+from .data import TimeSeries
+from .units import MOTION as UNITS, MOTION_SI as SI_UNITS
+from .earth import flat as earth
+from .spectral import DFT, AccDFT
+from .response import ResponseSpectrum
 
 
 ## Allowed components

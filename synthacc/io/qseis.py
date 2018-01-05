@@ -22,7 +22,7 @@ from ..earth import flat as earth
 from ..ground.models import ContinuousModel
 from ..source.moment import MomentTensor
 from ..greens_functions import GenericGreensFunction
-from ..ground.recordings import Seismogram, Recording
+from ..recordings import Seismogram, Recording
 
 
 QSEIS_FILENAME = 'Qseis.exe'
