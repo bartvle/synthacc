@@ -8,7 +8,8 @@ import numpy as np
 
 from .apy import (Object, is_pos_number, is_1d_numeric_array,
     is_1d_complex_array)
-from .units import MOTION as UNITS
+from .units import MOTION as UNITS, MOTION_SI as SI_UNITS
+from .response import frf
 from .plot import set_space
 
 
@@ -115,6 +116,16 @@ class DFT(Object):
         return: string
         """
         return UNITS[self._unit].quantity
+
+    def get_response(self, frequency, damping, gmt, validate=True):
+        """
+        Get response of SDOF oscillator with frequency response function (FRF).
+        """
+        amplitudes = self.get_amplitudes(unit='m/s2') * frf(
+            self.frequencies, frequency, damping, gmt, validate=validate)
+        unit = SI_UNITS[gmt]
+
+        return DFT(self.frequencies, amplitudes, unit)
 
     def inverse(self, time_delta, validate=True):
         """
