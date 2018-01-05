@@ -16,9 +16,10 @@ from obspy import Trace as _Trace
 from ..apy import (Object, is_boolean, is_number, is_non_neg_number,
     is_pos_number, is_pos_integer, is_1d_numeric_array, is_string)
 from ..data import TimeSeries
-from ..units import MOTION as UNITS
+from ..units import MOTION as UNITS, MOTION_SI as SI_UNITS
 from ..earth import flat as earth
 from ..spectral import DFT, AccDFT
+from ..response import ResponseSpectrum
 
 
 ## Allowed components
@@ -435,6 +436,38 @@ class Accelerogram(Seismogram):
         dft = AccDFT.from_dft(dft)
 
         return dft
+
+    def get_responses(self, periods, damping=0.05, gmt='acc', validate=True):
+        """
+        """
+        if validate is True:
+            assert(is_1d_numeric_array(periods))
+
+        dft = self.dft
+        frequencies = 1 / periods
+        responses = np.zeros((len(frequencies), len(self)))
+        gmt = gmt[:3]
+        for i, frequency in enumerate(frequencies):
+            response_dft = dft.get_response(float(frequency), damping, gmt)
+            responses[i] = response_dft.inverse(self._time_delta)
+            if gmt == 'acc':
+                responses[i] += self.get_amplitudes('m/s2')
+
+        return responses
+
+    def get_response_spectrum(self, periods, damping=0.05, gmt='acc', validate=True):
+        """
+        Response spectrum for SDOF oscillator. Responses are calculated with
+        frequency response function (FRF). Calculates relative displacement,
+        relative velocity or absolute acceleration. No pseudo response spectra!
+        Units are m, m/s or m/s2.
+        """
+        responses = self.get_responses(periods, damping, gmt, validate)
+        max_abs_responses = np.abs(responses).max(axis=1)
+        unit = SI_UNITS[gmt[:3]]
+        rs = ResponseSpectrum(periods, max_abs_responses, unit, damping)
+
+        return rs
 
 
 class Recording(Object):

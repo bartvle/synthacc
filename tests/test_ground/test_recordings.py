@@ -9,7 +9,8 @@ import unittest
 import numpy as np
 
 from synthacc.spectral import DFT, AccDFT, plot_fass
-from synthacc.io.esgmd2 import read_fas
+from synthacc.response import ResponseSpectrum, plot_response_spectra
+from synthacc.io.esgmd2 import read_fas, read_spc
 
 from synthacc.ground.recordings import (Waveform, Seismogram, Accelerogram,
     Recording, ne_to_rt, rt_to_ne, plot_seismograms, plot_recordings)
@@ -59,7 +60,7 @@ class TestSeismogram(unittest.TestCase):
         tgt_fas = read_fas(os.path.join(DATA_DIR, '004676xa.fas'))
         fs = os.path.join(OUTPUT_DIR, 'recordings.seismogram.dft.png')
         plot_fass([tgt_fas, cal_fas], labels=['tgt', 'cal'], colors=['r', 'b'],
-            widths=[2, 0.5], title='dft calculation', png_filespec=fs)
+            widths=[3, 1], title='dft calculation', png_filespec=fs)
 
 
 class TestAccelerogram(unittest.TestCase):
@@ -104,3 +105,37 @@ class TestAccelerogram(unittest.TestCase):
         fs = os.path.join(OUTPUT_DIR, 'recordings.accelerogram.dft.png')
         plot_fass([tgt_fas, cal_fas], labels=['tgt', 'cal'], colors=['r', 'b'],
             widths=[2, 0.5], title='dft calculation', png_filespec=fs)
+
+    def test_get_response_spectrum_1(self):
+        """
+        """
+        tgt_rdis_rs, tgt_rvel_rs, tgt_aacc_rs, tgt_pvel_rs = read_spc(
+            os.path.join(DATA_DIR, '004676xa.spc'))[2]
+        periods = tgt_rdis_rs.periods
+        cal_rdis_rs = self.acc.get_response_spectrum(
+            periods, damping=0.05, gmt='dis')
+        cal_rvel_rs = self.acc.get_response_spectrum(
+            periods, damping=0.05, gmt='vel')
+        cal_aacc_rs = self.acc.get_response_spectrum(
+            periods, damping=0.05, gmt='acc')
+        cal_pvel_rs = ResponseSpectrum(periods,
+            cal_rdis_rs.responses * 2*np.pi/periods, unit='m/s', damping=0.05)
+
+        labels, colors, widths = ['tgt', 'cal'], ['r', 'b'], [3, 1]
+
+        fs1 = os.path.join(OUTPUT_DIR,
+            'recordings.accelerogram.get_response_spectrum.1.rdis.png')
+        fs2 = os.path.join(OUTPUT_DIR,
+            'recordings.accelerogram.get_response_spectrum.1.rvel.png')
+        fs3 = os.path.join(OUTPUT_DIR,
+            'recordings.accelerogram.get_response_spectrum.1.aacc.png')
+        fs4 = os.path.join(OUTPUT_DIR,
+            'recordings.accelerogram.get_response_spectrum.1.pvel.png')
+        plot_response_spectra([tgt_rdis_rs, cal_rdis_rs],
+            labels=labels, colors=colors, widths=widths, png_filespec=fs1)
+        plot_response_spectra([tgt_rvel_rs, cal_rvel_rs],
+            labels=labels, colors=colors, widths=widths, png_filespec=fs2)
+        plot_response_spectra([tgt_aacc_rs, cal_aacc_rs],
+            labels=labels, colors=colors, widths=widths, png_filespec=fs3)
+        plot_response_spectra([tgt_pvel_rs, cal_pvel_rs],
+            labels=labels, colors=colors, widths=widths, png_filespec=fs4)
