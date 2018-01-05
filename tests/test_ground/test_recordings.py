@@ -11,6 +11,7 @@ import numpy as np
 from synthacc.spectral import DFT, AccDFT, plot_fass
 from synthacc.response import ResponseSpectrum, plot_response_spectra
 from synthacc.io.esgmd2 import read_fas, read_spc
+from synthacc.io.resorce2013 import read_acc, read_rs
 
 from synthacc.ground.recordings import (Waveform, Seismogram, Accelerogram,
     Recording, ne_to_rt, rt_to_ne, plot_seismograms, plot_recordings)
@@ -58,7 +59,7 @@ class TestSeismogram(unittest.TestCase):
         self.assertEqual(type(cal_dft), DFT)
         cal_fas = cal_dft.fas
         tgt_fas = read_fas(os.path.join(DATA_DIR, '004676xa.fas'))
-        fs = os.path.join(OUTPUT_DIR, 'recordings.seismogram.dft.png')
+        fs = os.path.join(OUTPUT_DIR, 'ground.recordings.seismogram.dft.png')
         plot_fass([tgt_fas, cal_fas], labels=['tgt', 'cal'], colors=['r', 'b'],
             widths=[3, 1], title='dft calculation', png_filespec=fs)
 
@@ -102,7 +103,7 @@ class TestAccelerogram(unittest.TestCase):
         self.assertEqual(type(cal_dft), AccDFT)
         cal_fas = cal_dft.fas
         tgt_fas = read_fas(os.path.join(DATA_DIR, '004676xa.fas'))
-        fs = os.path.join(OUTPUT_DIR, 'recordings.accelerogram.dft.png')
+        fs = os.path.join(OUTPUT_DIR, 'ground.recordings.accelerogram.dft.png')
         plot_fass([tgt_fas, cal_fas], labels=['tgt', 'cal'], colors=['r', 'b'],
             widths=[2, 0.5], title='dft calculation', png_filespec=fs)
 
@@ -124,13 +125,13 @@ class TestAccelerogram(unittest.TestCase):
         labels, colors, widths = ['tgt', 'cal'], ['r', 'b'], [3, 1]
 
         fs1 = os.path.join(OUTPUT_DIR,
-            'recordings.accelerogram.get_response_spectrum.1.rdis.png')
+            'ground.recordings.accelerogram.get_response_spectrum.1.rdis.png')
         fs2 = os.path.join(OUTPUT_DIR,
-            'recordings.accelerogram.get_response_spectrum.1.rvel.png')
+            'ground.recordings.accelerogram.get_response_spectrum.1.rvel.png')
         fs3 = os.path.join(OUTPUT_DIR,
-            'recordings.accelerogram.get_response_spectrum.1.aacc.png')
+            'ground.recordings.accelerogram.get_response_spectrum.1.aacc.png')
         fs4 = os.path.join(OUTPUT_DIR,
-            'recordings.accelerogram.get_response_spectrum.1.pvel.png')
+            'ground.recordings.accelerogram.get_response_spectrum.1.pvel.png')
         plot_response_spectra([tgt_rdis_rs, cal_rdis_rs],
             labels=labels, colors=colors, widths=widths, png_filespec=fs1)
         plot_response_spectra([tgt_rvel_rs, cal_rvel_rs],
@@ -139,3 +140,32 @@ class TestAccelerogram(unittest.TestCase):
             labels=labels, colors=colors, widths=widths, png_filespec=fs3)
         plot_response_spectra([tgt_pvel_rs, cal_pvel_rs],
             labels=labels, colors=colors, widths=widths, png_filespec=fs4)
+
+    def test_get_response_spectrum_2(self):
+        """
+        """
+        rss = read_rs(os.path.join(DATA_DIR, '15279_V.txt'))
+        tgt_02_rs, tgt_05_rs, tgt_07_rs, tgt_10_rs, tgt_20_rs, tgt_30_rs = rss
+        periods = tgt_02_rs.periods
+        acc = read_acc(os.path.join(DATA_DIR, '15279_V.cor.acc'))
+        cal_02_rs = acc.get_response_spectrum(
+            periods, damping=0.02, gmt='acc', pgm_frequency=150)
+        cal_05_rs = acc.get_response_spectrum(
+            periods, damping=0.05, gmt='acc', pgm_frequency=150)
+        cal_30_rs = acc.get_response_spectrum(
+            periods, damping=0.30, gmt='acc', pgm_frequency=150)
+
+        labels, colors, widths = ['tgt', 'cal'], ['r', 'b'], [3, 1]
+
+        fs1 = os.path.join(OUTPUT_DIR,
+            'ground.recordings.accelerogram.get_response_spectrum.2.02.png')
+        fs2 = os.path.join(OUTPUT_DIR,
+            'ground.recordings.accelerogram.get_response_spectrum.2.05.png')
+        fs3 = os.path.join(OUTPUT_DIR,
+            'ground.recordings.accelerogram.get_response_spectrum.2.30.png')
+        plot_response_spectra([tgt_02_rs, cal_02_rs], labels=labels,
+            colors=colors, widths=widths, unit='m/s2', png_filespec=fs1)
+        plot_response_spectra([tgt_05_rs, cal_05_rs], labels=labels,
+            colors=colors, widths=widths, unit='m/s2', png_filespec=fs2)
+        plot_response_spectra([tgt_30_rs, cal_30_rs], labels=labels,
+            colors=colors, widths=widths, unit='m/s2', png_filespec=fs3)

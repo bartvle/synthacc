@@ -437,11 +437,16 @@ class Accelerogram(Seismogram):
 
         return dft
 
-    def get_responses(self, periods, damping=0.05, gmt='acc', validate=True):
+    def get_responses(self, periods, damping=0.05, gmt='acc', pgm_frequency=100, validate=True):
         """
         """
         if validate is True:
             assert(is_1d_numeric_array(periods))
+            assert(is_pos_number(pgm_frequency))
+
+        if periods[0] == 0:
+            periods = periods[:]
+            periods[0] = 1 / pgm_frequency
 
         dft = self.dft
         frequencies = 1 / periods
@@ -455,14 +460,14 @@ class Accelerogram(Seismogram):
 
         return responses
 
-    def get_response_spectrum(self, periods, damping=0.05, gmt='acc', validate=True):
+    def get_response_spectrum(self, periods, damping=0.05, gmt='acc', pgm_frequency=100, validate=True):
         """
         Response spectrum for SDOF oscillator. Responses are calculated with
         frequency response function (FRF). Calculates relative displacement,
         relative velocity or absolute acceleration. No pseudo response spectra!
         Units are m, m/s or m/s2.
         """
-        responses = self.get_responses(periods, damping, gmt, validate)
+        responses = self.get_responses(periods, damping, gmt, pgm_frequency, validate)
         max_abs_responses = np.abs(responses).max(axis=1)
         unit = SI_UNITS[gmt[:3]]
         rs = ResponseSpectrum(periods, max_abs_responses, unit, damping)
