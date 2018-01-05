@@ -196,37 +196,37 @@ class LayerModel(Object):
     def thicknesses(self):
         """
         """
-        return self._thicknesses[:]
+        return np.copy(self._thicknesses)
 
     @property
     def vps(self):
         """
         """
-        return self._vps[:]
+        return np.copy(self._vps)
 
     @property
     def vss(self):
         """
         """
-        return self._vss[:]
+        return np.copy(self._vss)
 
     @property
     def densities(self):
         """
         """
-        return self._densities[:]
+        return np.copy(self._densities)
 
     @property
     def qps(self):
         """
         """
-        return self._qps[:]
+        return np.copy(self._qps)
 
     @property
     def qss(self):
         """
         """
-        return self._qss[:]
+        return np.copy(self._qss)
 
     @property
     def half_space(self):
@@ -383,37 +383,37 @@ class ContinuousModel(Object):
     def depths(self):
         """
         """
-        return self._depths[:]
+        return np.copy(self._depths)
 
     @property
     def vps(self):
         """
         """
-        return self._vps[:]
+        return np.copy(self._vps)
 
     @property
     def vss(self):
         """
         """
-        return self._vss[:]
+        return np.copy(self._vss)
 
     @property
     def densities(self):
         """
         """
-        return self._densities[:]
+        return np.copy(self._densities)
 
     @property
     def qps(self):
         """
         """
-        return self._qps[:]
+        return np.copy(self._qps)
 
     @property
     def qss(self):
         """
         """
-        return self._qss[:]
+        return np.copy(self._qss)
 
     @property
     def name(self):

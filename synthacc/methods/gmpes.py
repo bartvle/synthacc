@@ -99,7 +99,7 @@ class GMPE(Object):
         return: 1d num array or None
         """
         if self._periods is not None:
-            return self._periods[:]
+            return np.copy(self._periods)
 
     @property
     def min_period(self):

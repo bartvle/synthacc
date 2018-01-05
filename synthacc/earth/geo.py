@@ -37,19 +37,19 @@ class Path(Object):
     def points(self):
         """
         """
-        return self._points[:]
+        return np.copy(self._points)
 
     @property
     def lons(self):
         """
         """
-        return self._points[:,0][:]
+        return np.copy(self._points[:,0])
 
     @property
     def lats(self):
         """
         """
-        return self._points[:,1][:]
+        return np.copy(self._points[:,1])
 
     @property
     def begin(self):

@@ -244,7 +244,7 @@ class Seismogram(Waveform):
         """
         return: 1d numeric array
         """
-        return self._amplitudes[:]
+        return np.copy(self._amplitudes)
 
     @property
     def unit(self):
@@ -445,7 +445,7 @@ class Accelerogram(Seismogram):
             assert(is_pos_number(pgm_frequency))
 
         if periods[0] == 0:
-            periods = periods[:]
+            periods = np.copy(periods)
             periods[0] = 1 / pgm_frequency
 
         dft = self.dft

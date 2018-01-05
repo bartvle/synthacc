@@ -91,7 +91,7 @@ class Matrix(Object):
         """
         rows = []
         for i in range(self.nrows):
-            rows.append(self._array[i,:][:])
+            rows.append(np.copy(self._array[i,:]))
         return tuple(rows)
 
     @property
@@ -101,7 +101,7 @@ class Matrix(Object):
         """
         cols = []
         for i in range(self.ncols):
-            cols.append(self._array[:,i][:])
+            cols.append(np.copy(self._array[:,i]))
         return tuple(cols)
 
     def is_square(self):

@@ -44,13 +44,13 @@ class DFT(Object):
     def frequencies(self):
         """
         """
-        return self._frequencies[:]
+        return np.copy(self._frequencies)
 
     @property
     def amplitudes(self):
         """
         """
-        return self._amplitudes[:]
+        return np.copy(self._amplitudes)
 
     @property
     def unit(self):
@@ -62,13 +62,13 @@ class DFT(Object):
     def real(self):
         """
         """
-        return self._amplitudes.real[:]
+        return np.copy(self._amplitudes.real)
 
     @property
     def imag(self):
         """
         """
-        return self._amplitudes.imag[:]
+        return np.copy(self._amplitudes.imag)
 
     @property
     def magnitudes(self):
@@ -215,13 +215,13 @@ class FAS(Object):
     def frequencies(self):
         """
         """
-        return self._frequencies[:]
+        return np.copy(self._frequencies)
 
     @property
     def amplitudes(self):
         """
         """
-        return self._amplitudes[:]
+        return np.copy(self._amplitudes)
 
     @property
     def unit(self):
@@ -294,13 +294,13 @@ class FPS(Object):
     def frequencies(self):
         """
         """
-        return self._frequencies[:]
+        return np.copy(self._frequencies)
 
     @property
     def amplitudes(self):
         """
         """
-        return self._amplitudes[:]
+        return np.copy(self._amplitudes)
 
 
 def plot_fass(fass, labels=None, colors=None, styles=None, widths=None, unit=None, space='loglog', min_frequency=None, max_frequency=None, min_amplitude=None, max_amplitude=None, title=None, size=None, png_filespec=None):

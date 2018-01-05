@@ -67,14 +67,14 @@ class Sites(Object):
         """
         return: 1d numeric array, x coordinates of points on path
         """
-        return self._points[:,0][:]
+        return np.copy(self._points[:,0])
 
     @property
     def ys(self):
         """
         return: 1d numeric array, y coordinates of points on path
         """
-        return self._points[:,1][:]
+        return np.copy(self._points[:,1])
 
 
 class Grid(Object):

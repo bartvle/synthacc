@@ -117,7 +117,7 @@ class GenericGreensFunction(TimeSeries):
         if validate is True:
             assert(component in self.COMPONENTS)
 
-        return self._components[self.COMPONENTS.index(component)][:]
+        return np.copy(self._components[self.COMPONENTS.index(component)])
 
     def get_component(self, component):
         """
@@ -295,7 +295,7 @@ class GGFD(Object):
         """
         key = self._get_key(src_depth, distance, rcv_depth, validate=validate)
 
-        ggf = GenericGreensFunction(self.time_delta, self._f[key][:],
+        ggf = GenericGreensFunction(self.time_delta, np.copy(self._f[key]),
             gmt=self.gmt, src_depth=src_depth, distance=distance,
             rcv_depth=rcv_depth)
 

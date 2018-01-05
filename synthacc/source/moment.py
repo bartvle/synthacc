@@ -224,7 +224,7 @@ class NormalizedMomentFunction(TimeSeries):
     def moments(self):
         """
         """
-        return self._moments[:]
+        return np.copy(self._moments)
 
     def plot(self, model=None, title=None, size=None):
         """
@@ -283,7 +283,7 @@ class MomentFunction(TimeSeries):
     def moments(self):
         """
         """
-        return self._moments[:]
+        return np.copy(self._moments)
 
     @property
     def moment(self):
@@ -365,7 +365,7 @@ class NormalizedMomentRateFunction(TimeSeries):
         """
         return: 1d numerical array, rates (in 1/s)
         """
-        return self._rates[:]
+        return np.copy(self._rates)
 
     def get_normalized_moment_function(self):
         """
@@ -437,7 +437,7 @@ class MomentRateFunction(TimeSeries):
         """
         return: 1d numerical array, moment rates (in Nm/s)
         """
-        return self._moment_rates[:]
+        return np.copy(self._moment_rates)
 
     @property
     def moment(self):

@@ -42,13 +42,13 @@ class ResponseSpectrum(Object):
     def periods(self):
         """
         """
-        return self._periods[:]
+        return np.copy(self._periods)
 
     @property
     def responses(self):
         """
         """
-        return self._responses[:]
+        return np.copy(self._responses)
 
     @property
     def unit(self):
