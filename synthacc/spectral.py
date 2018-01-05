@@ -6,7 +6,8 @@ The 'spectral' module.
 import matplotlib.pyplot as plt
 import numpy as np
 
-from .apy import Object, is_1d_numeric_array, is_1d_complex_array
+from .apy import (Object, is_pos_number, is_1d_numeric_array,
+    is_1d_complex_array)
 from .units import MOTION as UNITS
 from .plot import set_space
 
@@ -114,6 +115,21 @@ class DFT(Object):
         return: string
         """
         return UNITS[self._unit].quantity
+
+    def inverse(self, time_delta, validate=True):
+        """
+        """
+        if validate is True:
+            is_pos_number(time_delta)
+
+        n = int(round(1 / (self._frequencies[1] * time_delta)))
+
+        if validate is True:
+            assert(len(self) == (n//2 + 1))
+
+        amplitudes = np.fft.irfft(self._amplitudes / time_delta, n)
+
+        return amplitudes
 
 
 class AccDFT(DFT):
