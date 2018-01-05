@@ -324,7 +324,7 @@ def plot_fass(fass, labels=None, colors=None, styles=None, widths=None, unit=Non
     ax.set_ylim([min_amplitude, max_amplitude])
 
     x_label = 'Frequency (1/s)'
-    y_label = 'Amplitude (%s)' % unit
+    y_label = 'Amplitude (%s * s)' % unit
 
     ax.xaxis.set_label_text(x_label)
     ax.yaxis.set_label_text(y_label)
