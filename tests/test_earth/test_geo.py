@@ -7,7 +7,29 @@ import unittest
 
 import numpy as np
 
-from synthacc.earth.geo import Path, SphericalEarth, is_lon, is_lat
+from synthacc.earth.geo import Point, Path, SphericalEarth, is_lon, is_lat
+
+
+class TestPoint(unittest.TestCase):
+    """
+    """
+
+    p = Point(0., 1., 20.1)
+
+    def test_properties(self):
+        """
+        """
+        self.assertEqual(self.p.lon, 0.)
+        self.assertEqual(self.p.lat, 1.)
+        self.assertEqual(self.p.alt, 20.1)
+        self.assertEqual(self.p.depth, -20.1)
+
+    def test___getitem__(self):
+        """
+        """
+        self.assertEqual(self.p[0], 0.)
+        self.assertEqual(self.p[1], 1.)
+        self.assertEqual(self.p[2], 20.1)
 
 
 class Test(unittest.TestCase):

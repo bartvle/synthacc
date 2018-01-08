@@ -4,8 +4,63 @@ The 'earth.geo' module.
 
 
 import numpy as np
+import pyproj
 
-from ..apy import Object, is_non_neg_number, is_1d_numeric_array, is_in_range
+from ..apy import (Object, is_number, is_non_neg_number, is_1d_numeric_array,
+    is_in_range)
+from .. import space
+
+
+class Point(Object):
+    """
+    """
+
+    def __init__(self, lon, lat, alt=0., validate=True):
+        """
+        alt: number, alt of point (in m) (default: 0.)
+        """
+        if validate is True:
+            assert(is_number(lon) and is_lon(lon))
+            assert(is_number(lat) and is_lat(lat))
+            assert(is_number(alt))
+
+        self._lon = float(lon)
+        self._lat = float(lat)
+        self._alt = float(alt)
+
+    def __getitem__(self, i):
+        """
+        """
+        return (self.lon, self.lat, self.alt)[i]
+
+    @property
+    def lon(self):
+        """
+        """
+        return self._lon
+
+    @property
+    def lat(self):
+        """
+        """
+        return self._lat
+
+    @property
+    def alt(self):
+        """
+        """
+        return self._alt
+
+    @property
+    def depth(self):
+        """
+        """
+        return self._alt * -1
+
+    def project(self, proj):
+        """
+        """
+        return space.Point(*project(self.lon, self.lat, proj), self.depth)
 
 
 class Path(Object):
@@ -104,6 +159,19 @@ class SphericalEarth(Object):
         distance: distance in degree
         """
         return distance * (self.circumference / 360)
+
+
+def project(lons, lats, proj):
+    """
+    Project lons and lats on a map.
+
+    proj: EPSG number
+    """
+    wgs84_proj_ = pyproj.Proj(init='epsg:%i' % 4326)
+    other_proj  = pyproj.Proj(init='epsg:%i' % proj)
+    ys, xs = pyproj.transform(wgs84_proj_, other_proj, lons, lats)
+
+    return xs, ys
 
 
 def is_lon(obj):
