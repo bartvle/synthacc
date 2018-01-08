@@ -141,6 +141,12 @@ class Catalog(DataBase):
 
         super().__init__(events)
 
+    def __getitem__(self, item):
+        """
+        """
+        assert(is_non_neg_number(item))
+        return self._records[item]
+
     @property
     def lons(self):
         """
@@ -152,6 +158,12 @@ class Catalog(DataBase):
         """
         """
         return np.array([e.lat for e in self])
+
+    @property
+    def mags(self):
+        """
+        """
+        return np.array([e.mag for e in self])
 
     def query(self, region=None, min_depth=None, max_depth=None, validate=True):
         """

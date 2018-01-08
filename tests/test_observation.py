@@ -91,3 +91,9 @@ class TestCatalog(unittest.TestCase):
         self.assertEqual(len(self.c), 3)
         self.assertListEqual(list(self.c.lons), [4.02, 4.03, 4.04])
         self.assertListEqual(list(self.c.lats), [51.64, 51.65, 51.66])
+        self.assertListEqual(list(self.c.mags), [5.1, 5.2, 5.3])
+
+    def test___getitem__(self):
+        """
+        """
+        self.assertEqual(self.c[1].key, 2)
