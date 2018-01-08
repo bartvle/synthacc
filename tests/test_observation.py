@@ -74,3 +74,20 @@ class TestEvent(unittest.TestCase):
         e = Event(lon, lat, depth, time, magnitude)
         self.assertEqual(e.magnitude, magnitude)
         self.assertEqual(e.mag, 6.3)
+
+
+class TestCatalog(unittest.TestCase):
+    """
+    """
+
+    e1 = Event(4.02, 51.64, 15.6, '1992-12-05 01:33:24', 5.1, 1)
+    e2 = Event(4.03, 51.65, 15.7, '1992-12-05 01:33:25', 5.2, 2)
+    e3 = Event(4.04, 51.66, 15.8, '1992-12-05 01:33:26', 5.3, 3)
+    c = Catalog([e1, e2, e3])
+
+    def test_properties(self):
+        """
+        """
+        self.assertEqual(len(self.c), 3)
+        self.assertListEqual(list(self.c.lons), [4.02, 4.03, 4.04])
+        self.assertListEqual(list(self.c.lats), [51.64, 51.65, 51.66])
