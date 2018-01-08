@@ -132,7 +132,7 @@ class GenericGreensFunction(TimeSeries):
 
         moment_tensor: 'source.moment.MomentTensor' instance
 
-        return: 'ground.recordings.Recording' instance
+        return: 'recordings.Recording' instance
         """
         if validate is True:
             assert(earth.is_azimuth(azimuth))

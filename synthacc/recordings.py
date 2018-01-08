@@ -699,7 +699,7 @@ def rt_to_ne(r, t, back_azimuth, validate=True):
 
 def plot_seismograms(seismograms, titles=None, labels=None, colors=None, styles=None, widths=None, unit=None, duration=None, scale=True, title=None, size=None, validate=True):
     """
-    seismograms: list of lists of 'ground.recordings.Seismogram' instances
+    seismograms: list of lists of 'recordings.Seismogram' instances
     titles: list of strings (default: None)
     labels: list of lists of strings (default: None)
     colors: list of lists of line colors (default: None)
@@ -841,7 +841,7 @@ def plot_seismograms(seismograms, titles=None, labels=None, colors=None, styles=
 
 def plot_recordings(recordings, labels=None, colors=None, styles=None, widths=None, unit=None, duration=None, size=None, validate=True):
     """
-    recordings: list of 'ground.recordings.Recording' instances
+    recordings: list of 'recordings.Recording' instances
     colors: list of line colors (default: None)
     styles: list of line styles (default: None)
     widths: list of line widths (default: None)

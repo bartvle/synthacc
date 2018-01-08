@@ -120,7 +120,7 @@ class Wrapper(Object):
             5: ramp, rise time
             Dirac is used when None
 
-        return: 'ground.recordings.Recording' instance
+        return: 'recordings.Recording' instance
         """
         src = space.Point(*src)
         rcv = space.Point(*rcv)
@@ -273,7 +273,7 @@ def write_input(folder, params, ground_model, src, rcv, moment=None, focal_mecha
     Helper function to write the Axitra input for one src-rcv combination.
 
     params: dict
-    ground_model: 'ground.models.LayerModel' instance
+    ground_model: 'ground_models.LayerModel' instance
     src: (x, y, z) tuple (in m)
     rcv: (x, y, z) tuple (in m)
     moment: pos number or None

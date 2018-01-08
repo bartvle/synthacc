@@ -118,7 +118,7 @@ class Wrapper(Object):
 
     def get_recording(self, src, rcv, mt, validate=True):
         """
-        return: 'ground.recordings.Recording' instance
+        return: 'recordings.Recording' instance
         """
         src = space.Point(*src)
         rcv = space.Point(*rcv)
@@ -369,7 +369,7 @@ def read_recordings(folder, filename='seis', validate=True):
     """
     Z is converted from down to up.
 
-    return: list of 'ground.recordings.Recording' instances
+    return: list of 'recordings.Recording' instances
     """
     time_delta, stack = read_zrt(folder, filename='seis', validate=validate)
 
