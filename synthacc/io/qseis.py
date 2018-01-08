@@ -19,7 +19,7 @@ from ..apy import (PRECISION, T, F, Object, is_non_neg_number, is_pos_number,
     is_string)
 from .. import space
 from ..earth import flat as earth
-from ..ground.models import ContinuousModel
+from ..ground_models import ContinuousModel
 from ..source.moment import MomentTensor
 from ..greens_functions import GenericGreensFunction
 from ..recordings import Seismogram, Recording

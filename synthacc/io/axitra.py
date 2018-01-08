@@ -18,7 +18,7 @@ from ..apy import (PRECISION, Object, is_number, is_non_neg_number,
     is_pos_number, is_pos_integer, is_string)
 from .. import space
 from ..source.mechanism import FocalMechanism
-from ..ground.models import LayerModel
+from ..ground_models import LayerModel
 from ..greens_functions import GenericGreensFunction
 from ..recordings import Seismogram, Recording
 

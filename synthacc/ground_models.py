@@ -1,11 +1,11 @@
 """
-The 'earth.models' module.
+The 'ground_models' module.
 """
 
 
 import numpy as np
 
-from ..apy import (Object, is_boolean, is_non_neg_number, is_pos_number,
+from .apy import (Object, is_boolean, is_non_neg_number, is_pos_number,
     is_integer, is_1d_numeric_array, is_string)
 
 

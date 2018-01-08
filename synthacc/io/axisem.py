@@ -8,7 +8,7 @@ I/O for the AxiSEM program. See Nissen-Meyer et al. (2014).
 import numpy as np
 
 from ..apy import is_string, is_pos_number
-from ..ground.models import ContinuousModel, qk_qm_to_qp_qs
+from ..ground_models import ContinuousModel, qk_qm_to_qp_qs
 
 
 def read_ground_model(filespec, max_depth=None, validate=True):
