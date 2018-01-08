@@ -3,6 +3,8 @@ The 'observation' module.
 """
 
 
+import numpy as np
+
 from .apy import (Object, is_number, is_non_neg_number, is_pos_integer,
     is_string)
 from .time import Time, is_time, is_date
