@@ -24,7 +24,7 @@ class PointRupture(Object):
     """
     """
 
-    def __init__(self, point, focal_mechanism, moment, nmrf=None, validate=True):
+    def __init__(self, point, focal_mechanism, moment, nmrf=None, rigidity=RIGIDITY, validate=True):
         """
         """
 
@@ -40,6 +40,7 @@ class PointRupture(Object):
         self._focal_mechanism = focal_mechanism
         self._moment = moment
         self._nmrf = nmrf
+        self._rigidity = rigidity
 
     @property
     def point(self):
@@ -64,6 +65,12 @@ class PointRupture(Object):
         """
         """
         return self._nmrf
+
+    @property
+    def rigidity(self):
+        """
+        """
+        return self._rigidity
 
     @property
     def moment_tensor(self):
