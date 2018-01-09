@@ -3,7 +3,10 @@ The 'ground_models' module.
 """
 
 
+import os
+
 import numpy as np
+from obspy.taup.taup_create import build_taup_model as _build_taup_model
 
 from .apy import (Object, is_boolean, is_non_neg_number, is_pos_number,
     is_integer, is_1d_numeric_array, is_string)
@@ -66,6 +69,18 @@ class Material(Object):
         """
         """
         return self._qs
+
+    def to_layer(self, thickness, validate=True):
+        """
+        return: instance of 'ground_models.Layer'
+        """
+        if validate is True:
+            assert(is_pos_number(thickness))
+
+        l = Layer(thickness, self.vp, self.vs, self.density, self.qp, self.qs,
+            validate=False)
+
+        return l
 
 
 class Layer(Material):
@@ -191,6 +206,27 @@ class LayerModel(Object):
         """
         for i in range(len(self)):
             yield self[i]
+
+    @classmethod
+    def from_layers(cls, layers, validate=True):
+        """
+        """
+        if validate is True:
+            for l in layers:
+                assert(type(l) is Layer)
+
+        thicknesses, vps, vss, densities, qps, qss = [], [], [], [], [], []
+        for l in layers:
+            thicknesses.append(l.thickness)
+            vps.append(l.vp)
+            vss.append(l.vs)
+            densities.append(l.density)
+            qps.append(l.qp)
+            qss.append(l.qs)
+
+        lm = cls(thicknesses, vps, vss, densities, qps, qss)
+
+        return lm
 
     @property
     def thicknesses(self):
@@ -491,3 +527,35 @@ def qk_qm_to_qp_qs(qk, qm, vp, vs, validate=True):
     qs = qm
 
     return qp, qs
+
+
+def build_taup_model(folder, ground_model, name=None, validate=True):
+    """
+    """
+    if validate is True:
+        assert(os.path.exists(folder))
+        assert(type(ground_model) in (LayerModel, ContinuousModel))
+        if name is not None:
+            assert(is_string(name))
+        assert(ground_model.name is not None or name is not None)
+
+    if type(ground_model) is LayerModel:
+        ground_model = ground_model.to_continuous_model()
+
+    name = name or ground_model.name
+
+    tvel_filespec = os.path.join(folder, name + '.tvel')
+
+    with open(tvel_filespec, 'w') as f:
+        f.write('## Comment')
+        f.write('\n')
+        f.write('## Comment')
+        f.write('\n')
+        for d, m in ground_model:
+            f.write('%s' % (d / 1000,))
+            f.write(' %s' % (m.vp / 1000,))
+            f.write(' %s' % (m.vs / 1000,))
+            f.write(' %s' % (m.density / 1000,))
+            f.write('\n')
+
+    _build_taup_model(tvel_filespec, folder)
