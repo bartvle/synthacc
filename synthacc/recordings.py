@@ -15,6 +15,7 @@ from obspy import Trace as _Trace
 
 from .apy import (Object, is_boolean, is_number, is_non_neg_number,
     is_pos_number, is_pos_integer, is_1d_numeric_array, is_string)
+from .time import is_time
 from .data import TimeSeries
 from .units import MOTION as UNITS, MOTION_SI as SI_UNITS
 from .earth import flat as earth
@@ -30,6 +31,36 @@ _COMPONENTS_SETS = [
     ('Z', 'N', 'E'),
     ('Z', 'R', 'T'),
 ]
+
+
+class Pick(Object):
+    """
+    """
+
+    def __init__(self, time, phase, validate=True):
+        """
+        """
+        if validate is True:
+            assert(is_time(time) and is_string(phase))
+
+        self._time, self._phase = time, phase
+
+    def __repr__(self):
+        """
+        """
+        return '< Pick | %s | %s >' % (self.time, self.phase)
+
+    @property
+    def time(self):
+        """
+        """
+        return self._time
+
+    @property
+    def phase(self):
+        """
+        """
+        return self._phase
 
 
 class Waveform(TimeSeries):

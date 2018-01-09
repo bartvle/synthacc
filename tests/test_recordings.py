@@ -8,12 +8,13 @@ import unittest
 
 import numpy as np
 
+from synthacc.time import Time
 from synthacc.spectral import DFT, AccDFT, plot_fass
 from synthacc.response import ResponseSpectrum, plot_response_spectra
 from synthacc.io.esgmd2 import read_fas, read_spc
 from synthacc.io.resorce2013 import read_acc, read_rs
 
-from synthacc.recordings import (Waveform, Seismogram, Accelerogram,
+from synthacc.recordings import (Pick, Waveform, Seismogram, Accelerogram,
     Recording, ne_to_rt, rt_to_ne, plot_seismograms, plot_recordings)
 
 
@@ -28,6 +29,22 @@ with open(os.path.join(DATA_DIR, 'amplitudes.txt'), 'r') as f:
 UNIT = 'm/s2'
 
 PGM = PGA = 3.8996000
+
+
+class TestPick(unittest.TestCase):
+    """
+    """
+
+    def test_properties(self):
+        """
+        """
+        time = Time('1996-07-12 23:12:45.345634')
+        phase = 'S'
+
+        pick = Pick(time, phase)
+
+        self.assertEqual(pick.time, time)
+        self.assertEqual(pick.phase, phase)
 
 
 class TestSeismogram(unittest.TestCase):
