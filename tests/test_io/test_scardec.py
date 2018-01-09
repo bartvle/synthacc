@@ -11,7 +11,7 @@ from synthacc.io.scardec import read_moment_rate_function
 
 
 DATA_DIR = os.path.join(
-    os.path.dirname(__file__), '..', '..', 'data', 'scardec')
+    os.path.dirname(__file__), 'data', 'scardec')
 
 
 class Test(unittest.TestCase):
