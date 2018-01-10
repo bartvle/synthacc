@@ -8,6 +8,7 @@ from abc import ABC, abstractmethod
 import numpy as np
 
 from .apy import Object, is_number, is_pos_number, is_pos_integer
+from .time import is_time
 
 
 class TimeSeries(ABC, Object):
@@ -16,11 +17,12 @@ class TimeSeries(ABC, Object):
 
     def __init__(self, time_delta, start_time=0, validate=True):
         """
-        time_delta: pos number, (in s)
-        start_time: any number, (in s) (default: 0)
+        time_delta: pos number (in s)
+        start_time: number (in s) or 'time.Time' instance (default: 0)
         """
         if validate is True:
-            assert(is_pos_number(time_delta) and is_number(start_time))
+            assert(is_pos_number(time_delta))
+            assert(is_number(start_time) or is_time(start_time))
 
         self._time_delta = time_delta
         self._start_time = start_time
@@ -46,11 +48,16 @@ class TimeSeries(ABC, Object):
         return self._start_time
 
     @property
-    def times(self):
+    def rel_times(self):
         """
-        return: 1d numeric array (in s)
         """
-        return self.start_time + self.time_delta * np.arange(len(self))
+        return self.time_delta * np.arange(len(self))
+
+    @property
+    def abs_times(self):
+        """
+        """
+        return [self._start_time + rel_time for rel_time in self.rel_times]
 
     @property
     def duration(self):

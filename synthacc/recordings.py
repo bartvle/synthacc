@@ -832,7 +832,7 @@ def plot_seismograms(seismograms, titles=None, labels=None, colors=None, styles=
             if duration is not None:
                 s = s.slice(0, duration)
 
-            ax.plot(s.times, s.get_amplitudes(unit), **kwargs)
+            ax.plot(s.abs_times, s.get_amplitudes(unit), **kwargs)
 
             pgms[i] = np.max([pgms[i], s.get_pgm(unit)])
 

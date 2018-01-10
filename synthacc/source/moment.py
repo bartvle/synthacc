@@ -231,11 +231,11 @@ class NormalizedMomentFunction(TimeSeries):
         """
         fig, ax = plt.subplots(figsize=size)
 
-        ax.plot(self.times, self.moments, c='dimgrey', lw=2)
-        ax.fill_between(self.times, self.moments, color='lightgrey')
+        ax.plot(self.abs_times, self.moments, c='dimgrey', lw=2)
+        ax.fill_between(self.abs_times, self.moments, color='lightgrey')
 
         if model is not None:
-            ax.plot(model.times, model.moments, c='red', lw=2)
+            ax.plot(model.abs_times, model.moments, c='red', lw=2)
 
         ax.set_xlim(ax.get_xaxis().get_data_interval())
         ax.set_ylim((0, None))
@@ -296,11 +296,11 @@ class MomentFunction(TimeSeries):
         """
         fig, ax = plt.subplots(figsize=size)
 
-        ax.plot(self.times, self.moments, c='dimgrey', lw=2)
-        ax.fill_between(self.times, self.moments, color='lightgrey')
+        ax.plot(self.abs_times, self.moments, c='dimgrey', lw=2)
+        ax.fill_between(self.abs_times, self.moments, color='lightgrey')
 
         if model is not None:
-            ax.plot(model.times, model.moments, c='red', lw=2)
+            ax.plot(model.abs_times, model.moments, c='red', lw=2)
 
         ax.set_xlim(ax.get_xaxis().get_data_interval())
         ax.set_ylim((0, None))
@@ -381,11 +381,11 @@ class NormalizedMomentRateFunction(TimeSeries):
         """
         fig, ax = plt.subplots(figsize=size)
 
-        ax.plot(self.times, self.rates, c='dimgrey', lw=2)
-        ax.fill(self.times, self.rates, c='lightgrey')
+        ax.plot(self.abs_times, self.rates, c='dimgrey', lw=2)
+        ax.fill(self.abs_times, self.rates, c='lightgrey')
 
         if model is not None:
-            ax.plot(model.times, model.rates, c='red', lw=2)
+            ax.plot(model.abs_times, model.rates, c='red', lw=2)
 
         ax.set_ylim((0, None))
 
@@ -475,11 +475,11 @@ class MomentRateFunction(TimeSeries):
         """
         fig, ax = plt.subplots(figsize=size)
 
-        ax.plot(self.times, self.moment_rates, c='dimgrey', lw=2)
-        ax.fill(self.times, self.moment_rates, c='lightgrey')
+        ax.plot(self.abs_times, self.moment_rates, c='dimgrey', lw=2)
+        ax.fill(self.abs_times, self.moment_rates, c='lightgrey')
 
         if model is not None:
-            ax.plot(model.times, model.moment_rates, c='red', lw=2)
+            ax.plot(model.abs_times, model.moment_rates, c='red', lw=2)
 
         ax.set_ylim((0, None))
 
