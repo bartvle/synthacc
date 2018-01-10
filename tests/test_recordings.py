@@ -11,7 +11,7 @@ import numpy as np
 from synthacc.time import Time
 from synthacc.spectral import DFT, AccDFT, plot_fass
 from synthacc.response import ResponseSpectrum, plot_response_spectra
-from synthacc.io.esgmd2 import read_fas, read_spc
+from synthacc.io.esgmd2 import read_cor, read_fas, read_spc
 from synthacc.io.resorce2013 import read_acc, read_rs
 
 from synthacc.recordings import (Pick, Waveform, Seismogram, Accelerogram,
@@ -186,3 +186,26 @@ class TestAccelerogram(unittest.TestCase):
             colors=colors, widths=widths, unit='m/s2', png_filespec=fs2)
         plot_response_spectra([tgt_30_rs, cal_30_rs], labels=labels,
             colors=colors, widths=widths, unit='m/s2', png_filespec=fs3)
+
+
+class TestRecording(unittest.TestCase):
+    """
+    """
+
+    x = read_cor(os.path.join(DATA_DIR, '004339xa.cor'))[-1]
+    y = read_cor(os.path.join(DATA_DIR, '004339ya.cor'))[-1]
+    z = read_cor(os.path.join(DATA_DIR, '004339za.cor'))[-1]
+    r = Recording({'X': x, 'Y': y, 'Z': z})
+
+    def test_get_component(self):
+        """
+        """
+        self.assertEqual(self.r.get_component('X'), self.x)
+        self.assertEqual(self.r.get_component('Y'), self.y)
+        self.assertEqual(self.r.get_component('Z'), self.z)
+
+    def test_plot(self):
+        """
+        """
+        fs = os.path.join(OUTPUT_DIR, 'recordings.recording.plot.png')
+        self.r.plot(png_filespec=fs)
