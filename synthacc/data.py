@@ -57,7 +57,9 @@ class TimeSeries(ABC, Object):
     def abs_times(self):
         """
         """
-        return [self._start_time + rel_time for rel_time in self.rel_times]
+        l = [self._start_time + float(rel_time) for rel_time in self.rel_times]
+
+        return l
 
     @property
     def duration(self):
