@@ -7,7 +7,8 @@ from abc import ABC, abstractmethod
 
 import numpy as np
 
-from .apy import Object, is_number, is_pos_number, is_pos_integer
+from .apy import (Object, is_number, is_non_neg_number, is_pos_number,
+    is_pos_integer)
 from .time import is_time
 
 
@@ -18,11 +19,13 @@ class TimeSeries(ABC, Object):
     def __init__(self, time_delta, start_time=0, validate=True):
         """
         time_delta: pos number (in s)
-        start_time: number (in s) or 'time.Time' instance (default: 0)
+        start_time: non neg number (in s) or
+            'time.Time' instance (default: 0)
         """
         if validate is True:
             assert(is_pos_number(time_delta))
-            assert(is_number(start_time) or is_time(start_time))
+            assert(is_non_neg_number(start_time) or
+                is_time(start_time))
 
         self._time_delta = time_delta
         self._start_time = start_time
@@ -43,7 +46,7 @@ class TimeSeries(ABC, Object):
     @property
     def start_time(self):
         """
-        return: any number (in s)
+        return: non neg number (in s)
         """
         return self._start_time
 
@@ -56,6 +59,7 @@ class TimeSeries(ABC, Object):
     @property
     def abs_times(self):
         """
+        return: list of non neg numbers or 'time.Time' instances
         """
         l = [self._start_time + float(rel_time) for rel_time in self.rel_times]
 
@@ -71,7 +75,7 @@ class TimeSeries(ABC, Object):
     @property
     def end_time(self):
         """
-        return: any number (in s)
+        return: non neg number (in s) or 'time.Time' instance
         """
         return self.start_time + self.duration
 
