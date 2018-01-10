@@ -395,7 +395,7 @@ class Seismogram(Waveform):
 
         return s
 
-    def plot(self, color=None, style=None, width=None, unit=None, duration=None, size=None):
+    def plot(self, color=None, style=None, width=None, unit=None, duration=None, size=None, png_filespec=None, validate=True):
         """
         """
         colors, styles, widths = None, None, None
@@ -407,7 +407,8 @@ class Seismogram(Waveform):
             widths = [[width]]
 
         p = plot_seismograms([[self]], colors=colors, styles=styles,
-            widths=widths, unit=unit, duration=duration, size=size)
+            widths=widths, unit=unit, duration=duration, size=size,
+            png_filespec=png_filespec, validate=validate)
 
         return p
 
@@ -670,10 +671,13 @@ class Recording(Object):
             components[c] = s.pad(before, after, validate=validate)
         return self.__class__(components, validate=False)
 
-    def plot(self, duration=None, size=None):
+    def plot(self, duration=None, size=None, png_filespec=None, validate=True):
         """
         """
-        return plot_recordings([self], duration=duration, size=size)
+        p = plot_recordings([self], duration=duration, size=size,
+            png_filespec=png_filespec, validate=validate)
+
+        return p
 
 
 def ne_to_rt(n, e, back_azimuth, validate=True):
@@ -728,7 +732,7 @@ def rt_to_ne(r, t, back_azimuth, validate=True):
     return n, e
 
 
-def plot_seismograms(seismograms, titles=None, labels=None, colors=None, styles=None, widths=None, unit=None, duration=None, scale=True, title=None, size=None, validate=True):
+def plot_seismograms(seismograms, titles=None, labels=None, colors=None, styles=None, widths=None, unit=None, duration=None, scale=True, title=None, size=None, png_filespec=None, validate=True):
     """
     seismograms: list of lists of 'recordings.Seismogram' instances
     titles: list of strings (default: None)
@@ -867,10 +871,13 @@ def plot_seismograms(seismograms, titles=None, labels=None, colors=None, styles=
     if title is not None:
         plt.suptitle(title)
 
-    plt.show()
+    if png_filespec is not None:
+        plt.savefig(png_filespec)
+    else:
+        plt.show()
 
 
-def plot_recordings(recordings, labels=None, colors=None, styles=None, widths=None, unit=None, duration=None, size=None, validate=True):
+def plot_recordings(recordings, labels=None, colors=None, styles=None, widths=None, unit=None, duration=None, size=None, png_filespec=None, validate=True):
     """
     recordings: list of 'recordings.Recording' instances
     colors: list of line colors (default: None)
@@ -920,6 +927,7 @@ def plot_recordings(recordings, labels=None, colors=None, styles=None, widths=No
         widths = [widths] * len(components)
 
     p = plot_seismograms(seismograms, titles, labels, colors, styles, widths,
-        unit=unit, duration=duration, size=size, validate=False)
+        unit=unit, duration=duration, size=size, png_filespec=png_filespec,
+        validate=False)
 
     return p
