@@ -40,7 +40,6 @@ class Time(Object):
             s = int(s[0])
             self._time = datetime.datetime(*date, int(h), int(m), s, ms)
         else:
-            assert(type(time) is datetime.datetime)
             if precision is None:
                 precision = DEFAULT_PRECISION
 
