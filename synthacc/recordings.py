@@ -15,7 +15,7 @@ from obspy import UTCDateTime as _UTCDateTime, Trace as _Trace
 
 from .apy import (Object, is_boolean, is_number, is_non_neg_number,
     is_pos_number, is_pos_integer, is_1d_numeric_array, is_string)
-from .time import is_time
+from .time import Time, is_time
 from .data import TimeSeries
 from .units import MOTION as UNITS, MOTION_SI as SI_UNITS
 from .earth import flat as earth
@@ -40,8 +40,11 @@ class Pick(Object):
     def __init__(self, time, phase, validate=True):
         """
         """
+        if not is_time(time):
+            time = Time(time, validate=validate)
+
         if validate is True:
-            assert(is_time(time) and is_string(phase))
+            assert(is_string(phase))
 
         self._time, self._phase = time, phase
 
