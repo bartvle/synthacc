@@ -11,7 +11,7 @@ horizontal components.
 
 import matplotlib.pyplot as plt
 import numpy as np
-from obspy import Trace as _Trace
+from obspy import UTCDateTime as _UTCDateTime, Trace as _Trace
 
 from .apy import (Object, is_boolean, is_number, is_non_neg_number,
     is_pos_number, is_pos_integer, is_1d_numeric_array, is_string)
@@ -78,7 +78,11 @@ class Waveform(TimeSeries):
         if validate is True:
             assert(is_1d_numeric_array(amplitudes))
 
-        self._trace = _Trace(amplitudes, header={'delta': self.time_delta})
+        header = {'delta': self.time_delta}
+        if is_time(start_time):
+            header['starttime'] = _UTCDateTime(start_time._time)
+
+        self._trace = _Trace(amplitudes, header=header)
 
     def __len__(self):
         """
@@ -103,27 +107,34 @@ class Waveform(TimeSeries):
         """
         return self.sampling_rate / 2
 
-    def _slice(self, from_time, till_time, validate=True):
+    def _slice(self, s_time, e_time, validate=True):
         """
         """
         if validate is True:
-            assert(is_non_neg_number(from_time))
-            assert(is_non_neg_number(till_time))
-            assert(till_time > from_time)
+            if is_time(self._start_time):
+                assert(is_time(s_time))
+                assert(is_time(e_time))
+            else:
+                assert(is_non_neg_number(s_time))
+                assert(is_non_neg_number(e_time))
 
-        from_time = (
-            self._trace.stats.starttime + from_time - self.start_time)
-        till_time = (
-            self._trace.stats.starttime + till_time - self.start_time)
+        if is_time(self._start_time):
+            s_time = _UTCDateTime(s_time._time)
+            e_time = _UTCDateTime(e_time._time)
+        else:
+            s_time = (
+                self._trace.stats.starttime + s_time - self._start_time)
+            e_time = (
+                self._trace.stats.starttime + e_time - self._start_time)
 
-        return self._trace.copy().slice(from_time, till_time)
+        return self._trace.copy().slice(s_time, e_time)
 
-    def slice(self, from_time, till_time, validate=True):
+    def slice(self, s_time, e_time, validate=True):
         """
         """
-        amplitudes = self._slice(from_time, till_time, validate=validate)
+        amplitudes = self._slice(s_time, t_time, validate=validate)
 
-        wf = self.__class__(self.time_delta, amplitudes)
+        wf = self.__class__(self.time_delta, amplitudes, start_time=s_time)
 
         return wf
 
@@ -365,13 +376,13 @@ class Seismogram(Waveform):
         """
         return self.get_dft(unit=unit, validate=validate).fas
 
-    def slice(self, from_time, till_time, validate=True):
+    def slice(self, s_time, e_time, validate=True):
         """
         """
-        amplitudes = self._slice(from_time, till_time, validate=validate)
+        amplitudes = self._slice(s_time, e_time, validate=validate)
 
         s = self.__class__(self.time_delta, amplitudes, self.unit,
-            validate=False)
+            start_time=s_time, validate=False)
 
         return s
 
@@ -646,12 +657,12 @@ class Recording(Object):
 
         return self.__class__(components)
 
-    def slice(self, from_time, till_time, validate=True):
+    def slice(self, s_time, e_time, validate=True):
         """
         """
         components = {}
         for c, s in self._components.items():
-            components[c] = s.slice(from_time, till_time, validate=validate)
+            components[c] = s.slice(s_time, e_time, validate=validate)
         return self.__class__(components, validate=False)
 
     def filter(self, f_type, frequency, corners=4, zero_phase=True, validate=True):
@@ -830,9 +841,13 @@ def plot_seismograms(seismograms, titles=None, labels=None, colors=None, styles=
                 kwargs['lw'] = widths[i][j]
 
             if duration is not None:
-                s = s.slice(0, duration)
+                s = s.slice(s.start_time, s.start_time+duration)
 
-            ax.plot(s.abs_times, s.get_amplitudes(unit), **kwargs)
+            times = s.abs_times
+            if is_time(times[0]):
+                times = [t._time for t in times]
+
+            ax.plot(times, s.get_amplitudes(unit), **kwargs)
 
             pgms[i] = np.max([pgms[i], s.get_pgm(unit)])
 
