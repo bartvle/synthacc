@@ -559,3 +559,5 @@ def build_taup_model(folder, ground_model, name=None, validate=True):
             f.write('\n')
 
     _build_taup_model(tvel_filespec, folder)
+
+    return os.path.join(folder, name + '.npz')
