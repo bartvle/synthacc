@@ -12,8 +12,8 @@ the Earth.
 import numpy as np
 import pyproj
 
-from ..apy import (Object, is_number, is_non_neg_number, is_1d_numeric_array,
-    is_in_range)
+from ..apy import (PRECISION, Object, is_number, is_non_neg_number,
+    is_1d_numeric_array, is_in_range)
 from .. import space
 from ..units import MOTION as UNITS
 
@@ -34,14 +34,41 @@ class Point(Object):
             assert(is_number(lat) and is_lat(lat))
             assert(is_number(alt))
 
-        self._lon = float(lon)
-        self._lat = float(lat)
-        self._alt = float(alt)
+        if abs(lon) < 10**-PRECISION:
+            lon = 0
+        if abs(lat) < 10**-PRECISION:
+            lat = 0
+        if abs(alt) < 10**-PRECISION:
+            alt = 0
+
+        self._lon = lon
+        self._lat = lat
+        self._alt = alt
+
+    def __repr__(self):
+        """
+        """
+        s = '< geo.Point | lon={:.3f}, lat={:.3f}, alt={:.3f} >'.format(
+            self.lon, self.lat, self.alt)
+        return s
 
     def __getitem__(self, i):
         """
         """
         return (self.lon, self.lat, self.alt)[i]
+
+    def __eq__(self, other):
+        """
+        return: boolean
+        """
+        assert(type(other) is self.__class__ or are_coordinates(other))
+
+        lon, lat, alt = self.__class__(*other)
+        lon_eq = np.abs(self.lon - lon) < 10**-PRECISION
+        lat_eq = np.abs(self.lat - lat) < 10**-PRECISION
+        alt_eq = np.abs(self.alt - alt) < 10**-PRECISION
+
+        return (lon_eq and lat_eq and alt_eq)
 
     @property
     def lon(self):
@@ -66,6 +93,16 @@ class Point(Object):
         """
         """
         return self._alt * -1
+
+    def get_geo_distance(self, point, unit='m', validate=True):
+        """
+        point: 'earth.geo.Point' instance or (lon, lat, (alt)) tuple
+        """
+        p1, p2 = self, Point(*point, validate=validate)
+
+        d = distance(p1.lon, p1.lat, p2.lon, p2.lat, unit, validate=validate)
+
+        return d
 
     def project(self, proj):
         """
@@ -183,6 +220,24 @@ def is_lat(obj):
     Check if object is lat (number or nd numeric array).
     """
     return is_in_range(obj,  -90,  90)
+
+
+def are_coordinates(obj):
+    """
+    Check if object are geo coordinates, i.e. a (lon, lat) or (lon, lat, alt)
+    tuple.
+    """
+    if type(obj) is not tuple:
+        return False
+    if len(obj) not in (2, 3):
+        return False
+    if not (is_number(obj[0]) and is_lon(obj[0])):
+        return False
+    if not (is_number(obj[1]) and is_lat(obj[1])):
+        return False
+    if len(obj) == 3 and not is_number(obj[2]):
+        return False
+    return True
 
 
 def distance(lon1, lat1, lon2, lat2, unit='m', validate=True):

@@ -8,7 +8,7 @@ import unittest
 import numpy as np
 
 from synthacc.earth.geo import (Point, Path, SphericalEarth, is_lon, is_lat,
-    distance, project)
+    are_coordinates, distance, project)
 
 
 class TestPoint(unittest.TestCase):
@@ -32,6 +32,17 @@ class TestPoint(unittest.TestCase):
         self.assertEqual(self.p[1], 1.)
         self.assertEqual(self.p[2], 20.1)
 
+    def test___eq__(self):
+        """
+        """
+        self.assertEqual(self.p, Point(0., 1., 20.1))
+        self.assertNotEqual(self.p, Point(0., 1., 20.10001))
+
+    def test_get_geo_distance(self):
+        """
+        """
+        self.assertEqual(self.p.get_geo_distance((0, 0)), distance(0, 0, 0, 1))
+
 
 class Test(unittest.TestCase):
     """
@@ -52,6 +63,14 @@ class Test(unittest.TestCase):
         self.assertTrue(is_lat(-89.3))
         self.assertFalse(is_lat(90.1))
         self.assertTrue(is_lat(np.array([1.2,  -89.3])))
+
+    def test_are_coordinates(self):
+        """
+        """
+        self.assertTrue(are_coordinates((0, 1)))
+        self.assertTrue(are_coordinates((0, 1, 2)))
+        self.assertFalse(are_coordinates((0, 1, '')))
+        self.assertFalse(are_coordinates((0, 91, 2)))
 
     def test_distance(self):
         """
