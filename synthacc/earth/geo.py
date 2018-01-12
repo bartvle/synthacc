@@ -15,6 +15,10 @@ import pyproj
 from ..apy import (Object, is_number, is_non_neg_number, is_1d_numeric_array,
     is_in_range)
 from .. import space
+from ..units import MOTION as UNITS
+
+
+_G = pyproj.Geod(ellps='WGS84') ## The WGS84 reference ellipsoid
 
 
 class Point(Object):
@@ -167,19 +171,6 @@ class SphericalEarth(Object):
         return distance * (self.circumference / 360)
 
 
-def project(lons, lats, proj):
-    """
-    Project lons and lats on a map.
-
-    proj: EPSG number
-    """
-    wgs84_proj_ = pyproj.Proj(init='epsg:%i' % 4326)
-    other_proj  = pyproj.Proj(init='epsg:%i' % proj)
-    ys, xs = pyproj.transform(wgs84_proj_, other_proj, lons, lats)
-
-    return xs, ys
-
-
 def is_lon(obj):
     """
     Check if object is lon (number or nd numeric array).
@@ -192,3 +183,74 @@ def is_lat(obj):
     Check if object is lat (number or nd numeric array).
     """
     return is_in_range(obj,  -90,  90)
+
+
+def distance(lon1, lat1, lon2, lat2, unit='m', validate=True):
+    """
+    Geodesic distance, i.e. the shortest distance between two points on the
+    Earth's surface.
+
+    lon1 : numeric, if array then shape must equal that of lat1
+    lat1 : numeric, if array then shape must equal that of lon1
+    lon2 : numeric, if array then shape must equal that of lat2
+    lat2 : numeric, if array then shape must equal that of lon2
+    unit : string, unit of distance (default: 'm')
+
+    return: numeric (shape is 1.shape + 2.shape), distances in unit.
+
+    NOTE: Gives the same result as Geographiclib and Obspy (up to mm level).
+    """
+    if validate is True:
+        assert(is_lon(lon1))
+        assert(is_lat(lat1))
+        assert(is_lon(lon2))
+        assert(is_lat(lat2))
+
+    lon1 = np.asarray(lon1, dtype=float)
+    lat1 = np.asarray(lat1, dtype=float)
+    lon2 = np.asarray(lon2, dtype=float)
+    lat2 = np.asarray(lat2, dtype=float)
+
+    if validate is True:
+        assert(UNITS[unit].quantity == 'displacement')
+        assert(lon1.shape == lat1.shape)
+        assert(lon2.shape == lat2.shape)
+
+    s1 = lon1.shape
+    s2 = lon2.shape
+    s = s1 + s2  ## output shape
+
+    lon1 = np.tile(
+        lon1[(Ellipsis,)+tuple([None]*len(s2))], tuple([1]*len(s1)) + s2)
+    lat1 = np.tile(
+        lat1[(Ellipsis,)+tuple([None]*len(s2))], tuple([1]*len(s1)) + s2)
+    lon2 = np.tile(
+        lon2[tuple([None]*len(s1))+(Ellipsis,)], s1 + tuple([1]*len(s2)))
+    lat2 = np.tile(
+        lat2[tuple([None]*len(s1))+(Ellipsis,)], s1 + tuple([1]*len(s2)))
+
+    lon1 = lon1.flatten()
+    lat1 = lat1.flatten()
+    lon2 = lon2.flatten()
+    lat2 = lat2.flatten()
+
+    d = np.reshape(_G.inv(lon1, lat1, lon2, lat2)[-1], s)
+    d *= (UNITS['m'] / UNITS[unit])
+
+    if d.ndim == 0:
+        d = float(d)
+
+    return d
+
+
+def project(lons, lats, proj):
+    """
+    Project lons and lats on a map.
+
+    proj: EPSG number
+    """
+    wgs84_proj_ = pyproj.Proj(init='epsg:%i' % 4326)
+    other_proj  = pyproj.Proj(init='epsg:%i' % proj)
+    ys, xs = pyproj.transform(wgs84_proj_, other_proj, lons, lats)
+
+    return xs, ys
