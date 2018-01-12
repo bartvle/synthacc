@@ -1,5 +1,11 @@
 """
 The 'earth.geo' module.
+
+
+Module for an Earth modelled as an oblate spheroid with the WGS84 reference
+ellipsoid and datum. Longitudes and latitudes are geodetic (not geocentric). In
+WGS84 the center of the reference ellipsoid coincide with the center of mass of
+the Earth.
 """
 
 
