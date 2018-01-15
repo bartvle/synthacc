@@ -41,9 +41,9 @@ class Point(Object):
         if abs(alt) < 10**-PRECISION:
             alt = 0
 
-        self._lon = lon
-        self._lat = lat
-        self._alt = alt
+        self._lon = float(lon)
+        self._lat = float(lat)
+        self._alt = float(alt)
 
     def __repr__(self):
         """
