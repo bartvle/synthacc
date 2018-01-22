@@ -13,6 +13,18 @@ from .apy import Object, is_non_neg_number, is_string
 DEFAULT_PRECISION = 6
 
 
+def _get_timedelta_from_seconds(seconds):
+    """
+    """
+    assert(is_non_neg_number(seconds))
+
+    m, s = math.modf(seconds)
+    m, s = int(round(m*10**6)), int(s)
+    td = datetime.timedelta(seconds=s, microseconds=m)
+
+    return td
+
+
 class Time(Object):
     """
     Immutable time.
@@ -42,7 +54,6 @@ class Time(Object):
         else:
             if precision is None:
                 precision = DEFAULT_PRECISION
-
             rest = '{:06}'.format(time.microsecond)[precision:]
             assert(rest == '' or int(rest) == 0)
 
@@ -114,27 +125,23 @@ class Time(Object):
 
     def __add__(self, value):
         """
-        value: pos int, seconds
+        value: non neg number (in seconds)
         """
-        assert(is_non_neg_number(value))
-
-        m, s = math.modf(value)
-        m, s = int(round(m*10**6)), int(s)
-        dt = self._time + datetime.timedelta(seconds=s, microseconds=m)
+        dt = self._time + _get_timedelta_from_seconds(value)
 
         return self.__class__(dt, precision=self.precision)
 
-    def __sub__(self, value):
+    def __sub__(self, other):
         """
-        value: pos int, seconds
+        other: non neg number (in seconds) or 'Time' instance
         """
-        assert(is_non_neg_number(value))
-
-        m, s = math.modf(value)
-        m, s = int(round(m*10**6)), int(s)
-        dt = self._time - datetime.timedelta(seconds=s, microseconds=m)
-
-        return self.__class__(dt, precision=self.precision)
+        if is_time(other):
+            assert(other < self)
+            print(self._time - other._time)
+            return (self._time - other._time).total_seconds()
+        else:
+            dt = self._time - _get_timedelta_from_seconds(other)
+            return self.__class__(dt, precision=self.precision)
 
     @property
     def year(self):

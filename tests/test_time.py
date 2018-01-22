@@ -100,6 +100,8 @@ class TestTime(unittest.TestCase):
         self.assertEqual(self.t7 - 5, Time(datetime.datetime(2016, 9, 16, 14, 51, 12, 20000), precision=3))
         self.assertEqual(self.t5 - 5.51, Time(datetime.datetime(2016, 9, 16, 14, 51, 11, 502345)))
 
+        self.assertEqual(self.t9 - self.t5, 0.111111)
+
 
 class TestDate(unittest.TestCase):
     """
