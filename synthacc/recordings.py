@@ -898,9 +898,11 @@ def plot_seismograms(seismograms, titles=None, labels=None, colors=None, styles=
             if duration is not None:
                 s = s.slice(s.start_time, s.start_time+duration)
 
-            times = s.abs_times
-            if is_time(times[0]):
-                times = [t._time for t in times]
+            if is_time(s.start_time):
+                times = [s.start_time._time + datetime.timedelta(
+                    microseconds=t*10**6) for t in s.rel_times]
+            else:
+                times = [s.start_time + t for t in s.rel_times]
 
             ax.plot(times, s.get_amplitudes(unit), **kwargs)
 
