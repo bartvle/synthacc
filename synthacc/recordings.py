@@ -440,7 +440,7 @@ class Seismogram(Waveform):
 
         return s
 
-    def plot(self, color=None, style=None, width=None, unit=None, duration=None, size=None, png_filespec=None, validate=True):
+    def plot(self, color=None, style=None, width=None, unit=None, duration=None, picks=[], size=None, png_filespec=None, validate=True):
         """
         """
         colors, styles, widths = None, None, None
@@ -452,8 +452,8 @@ class Seismogram(Waveform):
             widths = [[width]]
 
         p = plot_seismograms([[self]], colors=colors, styles=styles,
-            widths=widths, unit=unit, duration=duration, size=size,
-            png_filespec=png_filespec, validate=validate)
+            widths=widths, unit=unit, duration=duration, picks=picks, 
+            size=size, png_filespec=png_filespec, validate=validate)
 
         return p
 
@@ -737,10 +737,10 @@ class Recording(Object):
             components[c] = s.integrate(validate=validate)
         return self.__class__(components, validate=False)
 
-    def plot(self, duration=None, size=None, png_filespec=None, validate=True):
+    def plot(self, duration=None, picks=[], size=None, png_filespec=None, validate=True):
         """
         """
-        p = plot_recordings([self], duration=duration, size=size,
+        p = plot_recordings([self], duration=duration, picks=picks, size=size,
             png_filespec=png_filespec, validate=validate)
 
         return p
@@ -798,7 +798,7 @@ def rt_to_ne(r, t, back_azimuth, validate=True):
     return n, e
 
 
-def plot_seismograms(seismograms, titles=None, labels=None, colors=None, styles=None, widths=None, unit=None, duration=None, scale=True, title=None, size=None, png_filespec=None, validate=True):
+def plot_seismograms(seismograms, titles=None, labels=None, colors=None, styles=None, widths=None, unit=None, duration=None, scale=True, picks=[], title=None, size=None, png_filespec=None, validate=True):
     """
     seismograms: list of lists of 'recordings.Seismogram' instances
     titles: list of strings (default: None)
@@ -908,6 +908,9 @@ def plot_seismograms(seismograms, titles=None, labels=None, colors=None, styles=
 
             pgms[i] = np.max([pgms[i], s.get_pgm(unit)])
 
+            for p in picks:
+                ax.axvline(x=p.time._time, color='r', ls='--')
+
         if titles is not None:
             ax.text(0.990, 0.925, s=titles[i], horizontalalignment='right',
                 verticalalignment='top', transform=ax.transAxes,
@@ -949,7 +952,7 @@ def plot_seismograms(seismograms, titles=None, labels=None, colors=None, styles=
         plt.show()
 
 
-def plot_recordings(recordings, labels=None, colors=None, styles=None, widths=None, unit=None, duration=None, size=None, png_filespec=None, validate=True):
+def plot_recordings(recordings, labels=None, colors=None, styles=None, widths=None, unit=None, duration=None, picks=[], title=None, size=None, png_filespec=None, validate=True):
     """
     recordings: list of 'recordings.Recording' instances
     colors: list of line colors (default: None)
@@ -999,7 +1002,7 @@ def plot_recordings(recordings, labels=None, colors=None, styles=None, widths=No
         widths = [widths] * len(components)
 
     p = plot_seismograms(seismograms, titles, labels, colors, styles, widths,
-        unit=unit, duration=duration, size=size, png_filespec=png_filespec,
-        validate=False)
+        unit=unit, duration=duration, picks=picks, title=title, size=size,
+        png_filespec=png_filespec, validate=False)
 
     return p
