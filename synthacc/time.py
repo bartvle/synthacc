@@ -137,7 +137,6 @@ class Time(Object):
         """
         if is_time(other):
             assert(other < self)
-            print(self._time - other._time)
             return (self._time - other._time).total_seconds()
         else:
             dt = self._time - _get_timedelta_from_seconds(other)
