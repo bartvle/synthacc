@@ -739,6 +739,17 @@ class Recording(Object):
             components[c] = s.integrate(validate=validate)
         return self.__class__(components, validate=False)
 
+    def convolve(self, a, validate=True):
+        """
+        """
+        if validate is True:
+            assert(is_1d_numeric_array(a))
+
+        components = {}
+        for c, s in self._components.items():
+            components[c] = s.convolve(a, validate=False)
+        return self.__class__(components, validate=False)
+
     def plot(self, duration=None, picks=[], size=None, png_filespec=None, validate=True):
         """
         """
