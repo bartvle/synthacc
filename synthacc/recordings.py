@@ -269,7 +269,8 @@ class Seismogram(Waveform):
         assert(is_number(other))
 
         amplitudes = self._amplitudes * other
-        s = self.__class__(self._time_delta, amplitudes, self._unit)
+        s = self.__class__(self._time_delta, amplitudes, self._unit,
+            self.start_time)
 
         return s
 
@@ -645,18 +646,23 @@ class Recording(Object):
             r, t = ne_to_rt(self.get_component('N').amplitudes,
                             self.get_component('E').amplitudes, back_azimuth,
                             validate=validate)
-            components['R'] = Seismogram(self._time_delta, r, self._unit)
-            components['T'] = Seismogram(self._time_delta, t, self._unit)
+            components['R'] = Seismogram(
+                self._time_delta, r, self._unit, self.start_time)
+            components['T'] = Seismogram(
+                self._time_delta, t, self._unit, self.start_time)
 
         elif component_set == zrt:
             n, e = rt_to_ne(self.get_component('R').amplitudes,
                             self.get_component('T').amplitudes, back_azimuth,
                             validate=validate)
-            components['N'] = Seismogram(self._time_delta, n, self._unit)
-            components['E'] = Seismogram(self._time_delta, e, self._unit)
+            components['N'] = Seismogram(self._time_delta, n, self._unit,
+                self.start_time)
+            components['E'] = Seismogram(self._time_delta, e, self._unit,
+                self.start_time)
 
         Z = self.get_component('Z').amplitudes
-        components['Z'] = Seismogram(self._time_delta, Z, self._unit)
+        components['Z'] = Seismogram(self._time_delta, Z, self._unit,
+            self.start_time)
 
         return self.__class__(components)
 
