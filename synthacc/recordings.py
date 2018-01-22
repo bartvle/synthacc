@@ -410,6 +410,36 @@ class Seismogram(Waveform):
 
         return s
 
+    def differentiate(self, validate=True):
+        """
+        """
+        if self.unit == 'm':
+            unit = 'm/s'
+        elif self.unit == 'm/s':
+            unit = 'm/s2'
+        else:
+            raise
+
+        s = self.__class__(self.time_delta, self._trace.copy().differentiate(),
+            unit, self.start_time, validate=False)
+
+        return s
+
+    def integrate(self, validate=True):
+        """
+        """
+        if self.unit == 'm/s2':
+            unit = 'm/s'
+        elif self.unit == 'm/s':
+            unit = 'm'
+        else:
+            raise
+
+        s = self.__class__(self.time_delta, self._trace.copy().integrate(),
+            unit, self.start_time, validate=False)
+
+        return s
+
     def plot(self, color=None, style=None, width=None, unit=None, duration=None, size=None, png_filespec=None, validate=True):
         """
         """
@@ -689,6 +719,22 @@ class Recording(Object):
         components = {}
         for c, s in self._components.items():
             components[c] = s.pad(before, after, validate=validate)
+        return self.__class__(components, validate=False)
+
+    def differentiate(self, validate=True):
+        """
+        """
+        components = {}
+        for c, s in self._components.items():
+            components[c] = s.differentiate(validate=validate)
+        return self.__class__(components, validate=False)
+
+    def integrate(self, validate=True):
+        """
+        """
+        components = {}
+        for c, s in self._components.items():
+            components[c] = s.integrate(validate=validate)
         return self.__class__(components, validate=False)
 
     def plot(self, duration=None, size=None, png_filespec=None, validate=True):
