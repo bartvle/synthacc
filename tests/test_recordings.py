@@ -80,6 +80,28 @@ class TestSeismogram(unittest.TestCase):
         plot_fass([tgt_fas, cal_fas], labels=['tgt', 'cal'], colors=['r', 'b'],
             widths=[3, 1], title='dft calculation', png_filespec=fs)
 
+    def test_differentiate(self):
+        """
+        """
+        _, vel, tgt = read_cor(os.path.join(DATA_DIR, '004339za.cor'))
+        cal = vel.differentiate()
+        fs = os.path.join(
+            OUTPUT_DIR, 'recordings.seismogram.differentiate.png')
+        plot_seismograms([[tgt, cal]], labels=[['tgt', 'cal']],
+            colors=[['r', 'b']], widths=[[3, 1]], title='differentiate',
+            size=(15, 10), png_filespec=fs)
+
+    def test_integrate(self):
+        """
+        """
+        tgt, vel, _ = read_cor(os.path.join(DATA_DIR, '004339za.cor'))
+        cal = vel.integrate()
+        fs = os.path.join(
+            OUTPUT_DIR, 'recordings.seismogram.integrate.png')
+        plot_seismograms([[tgt, cal]], labels=[['tgt', 'cal']],
+            colors=[['r', 'b']], widths=[[3, 1]], title='integrate',
+            size=(15, 10), png_filespec=fs)
+
 
 class TestAccelerogram(unittest.TestCase):
     """
@@ -203,6 +225,34 @@ class TestRecording(unittest.TestCase):
         self.assertEqual(self.r.get_component('X'), self.x)
         self.assertEqual(self.r.get_component('Y'), self.y)
         self.assertEqual(self.r.get_component('Z'), self.z)
+
+    def test_differentiate(self):
+        """
+        """
+        _, x_vel, x_tgt = read_cor(os.path.join(DATA_DIR, '004339xa.cor'))
+        _, y_vel, y_tgt = read_cor(os.path.join(DATA_DIR, '004339ya.cor'))
+        _, z_vel, z_tgt = read_cor(os.path.join(DATA_DIR, '004339za.cor'))
+        vel = Recording({'X': x_vel, 'Y': y_vel, 'Z': z_vel})
+        tgt = Recording({'X': x_tgt, 'Y': y_tgt, 'Z': z_tgt})
+        cal = vel.differentiate()
+        fs = os.path.join(
+            OUTPUT_DIR, 'recordings.recording.differentiate.png')
+        plot_recordings([tgt, cal], labels=['tgt', 'cal'], colors=['r', 'b'],
+            widths=[3, 1], title='differentiate', png_filespec=fs)
+
+    def test_integrate(self):
+        """
+        """
+        x_tgt, x_vel, _ = read_cor(os.path.join(DATA_DIR, '004339xa.cor'))
+        y_tgt, y_vel, _ = read_cor(os.path.join(DATA_DIR, '004339ya.cor'))
+        z_tgt, z_vel, _ = read_cor(os.path.join(DATA_DIR, '004339za.cor'))
+        vel = Recording({'X': x_vel, 'Y': y_vel, 'Z': z_vel})
+        tgt = Recording({'X': x_tgt, 'Y': y_tgt, 'Z': z_tgt})
+        cal = vel.integrate()
+        fs = os.path.join(
+            OUTPUT_DIR, 'recordings.recording.integrate.png')
+        plot_recordings([tgt, cal], labels=['tgt', 'cal'], colors=['r', 'b'],
+            widths=[3, 1], title='differentiate', png_filespec=fs)
 
     def test_plot(self):
         """
