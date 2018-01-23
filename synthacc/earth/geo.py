@@ -2,10 +2,10 @@
 The 'earth.geo' module.
 
 
-Module for an Earth modelled as an oblate spheroid with the WGS84 reference
-ellipsoid and datum. Longitudes and latitudes are geodetic (not geocentric). In
-WGS84 the center of the reference ellipsoid coincide with the center of mass of
-the Earth.
+Module for an oblate spheroid Earth (WGS84 reference ellipsoid). Longitudes and
+latitudes are geodetic (not geocentric). For projections the WGS84 geographic
+coordinate system is used. The center of the reference ellipsoid coincides with
+the center of mass of the Earth. Z points to the north pole.
 """
 
 
@@ -69,6 +69,19 @@ class Point(Object):
         alt_eq = np.abs(self.alt - alt) < 10**-PRECISION
 
         return (lon_eq and lat_eq and alt_eq)
+
+    @classmethod
+    def from_projection(cls, point, proj, validate=True):
+        """
+        proj: EPSG number
+        """
+        p = space.Point(*point, validate=validate)
+
+        other_proj = pyproj.Proj(init='epsg:%i' % proj)
+        wgs84_proj = pyproj.Proj(init='epsg:%i' % 4326)
+        lon, lat = pyproj.transform(other_proj, wgs84_proj, p.y, p.x)
+
+        return cls(lon, lat, -p.z)
 
     @property
     def lon(self):
@@ -300,12 +313,13 @@ def distance(lon1, lat1, lon2, lat2, unit='m', validate=True):
 
 def project(lons, lats, proj):
     """
-    Project lons and lats on a map.
+    Project lons and lats on a map. The projected coordinate system is defined
+    by its EPSG number.
 
     proj: EPSG number
     """
-    wgs84_proj_ = pyproj.Proj(init='epsg:%i' % 4326)
-    other_proj  = pyproj.Proj(init='epsg:%i' % proj)
-    ys, xs = pyproj.transform(wgs84_proj_, other_proj, lons, lats)
+    wgs84_proj = pyproj.Proj(init='epsg:%i' % 4326)
+    other_proj = pyproj.Proj(init='epsg:%i' % proj)
+    ys, xs = pyproj.transform(wgs84_proj, other_proj, lons, lats)
 
     return xs, ys
