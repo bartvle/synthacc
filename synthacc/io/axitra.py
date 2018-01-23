@@ -112,7 +112,7 @@ class Wrapper(Object):
 
         return gf
 
-    def get_recording(self, src, rcv, moment, focal_mechanism=None, stf=None, t0=0, gmt='dis', validate=True):
+    def get_recording(self, src, rcv, moment, focal_mechanism=None, stf=None, start_time=0, gmt='dis', validate=True):
         """
         stf: tuple (type, parameter) or None,
             1: Ricker, pseudo period
@@ -133,7 +133,7 @@ class Wrapper(Object):
                 assert(stf[0] in (1, 2, 4, 5))
 
         write_input(self.folder, self._params, self._ground_model, src, rcv,
-            moment, focal_mechanism, t0, validate=validate)
+            moment, focal_mechanism, t0=0, validate=validate)
 
         self._run(AXITRA_GF_FILENAME)
 
@@ -146,7 +146,7 @@ class Wrapper(Object):
 
         self._run(AXITRA_SS_FILENAME, com)
 
-        r = read_recording(self.folder, gmt)
+        r = read_recording(self.folder, start_time, gmt)
 
         return r
 
@@ -432,7 +432,7 @@ def read_greens_function(folder, validate=True):
     return gf
 
 
-def read_seismogram(filespec, gmt, validate=True):
+def read_seismogram(filespec, start_time, gmt, validate=True):
     """
     """
     if validate is True:
@@ -448,23 +448,23 @@ def read_seismogram(filespec, gmt, validate=True):
         data.extend(line.split())
     data = np.array(data, dtype=float)
 
-    s = Seismogram(time_delta, data, unit=SI_UNITS[gmt])
+    s = Seismogram(time_delta, data, unit=SI_UNITS[gmt], start_time=start_time)
 
     return s
 
 
-def read_recording(folder, gmt, validate=True):
+def read_recording(folder, start_time, gmt, validate=True):
     """
     """
     if validate is True:
         assert(is_string(folder))
 
     x = read_seismogram(
-        os.path.join(folder, 'outputX_ 1   .dat'), gmt, validate=False)
+        os.path.join(folder, 'outputX_ 1   .dat'), start_time, gmt, False)
     y = read_seismogram(
-        os.path.join(folder, 'outputY_ 1   .dat'), gmt, validate=False)
+        os.path.join(folder, 'outputY_ 1   .dat'), start_time, gmt, False)
     z = read_seismogram(
-        os.path.join(folder, 'outputZ_ 1   .dat'), gmt, validate=False)
+        os.path.join(folder, 'outputZ_ 1   .dat'), start_time, gmt, False)
 
     r = Recording(components={'N': x, 'E': y, 'Z': z})
 
