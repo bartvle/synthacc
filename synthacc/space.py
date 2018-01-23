@@ -443,17 +443,60 @@ class Vector(Object):
 
 class RotationMatrix(SquareMatrix):
     """
+    Rotate around origin. To rotate around a point first translate the origin
+    to that point, then do the rotation and finally translate back to the
+    point.
     """
 
     def __init__(self, array, validate=True):
         """
         """
-        array = np.asarray(array, dtype=float)
+        super().__init__(array, validate=validate)
 
         if validate is True:
-            assert(array.shape == (3, 3))
+            assert(self.order == (3, 3))
 
-        self._array = array
+    @classmethod
+    def from_basic_rotations(cls, x=0, y=0, z=0, validate=True):
+        """
+        Rotation in x-y-z order.
+
+        x: angle (in degrees) around the x axis (default: 0)
+        y: angle (in degrees) around the y axis (default: 0)
+        z: angle (in degrees) around the z axis (default: 0)
+        """
+        if validate is True:
+            assert(is_number(x))
+            assert(is_number(y))
+            assert(is_number(z))
+
+        x = np.radians(x)
+        y = np.radians(y)
+        z = np.radians(z)
+
+        r_x = np.array([
+            [1, 0, 0],
+            [0, +np.cos(x), -np.sin(x)],
+            [0, +np.sin(x), +np.cos(x)],
+            ])
+        r_y = np.array([
+            [+np.cos(y), 0, +np.sin(y)],
+            [0, 1, 0],
+            [-np.sin(y), 0, +np.cos(y)],
+            ])
+        r_z = np.array([
+            [+np.cos(z), -np.sin(z), 0],
+            [+np.sin(z), +np.cos(z), 0],
+            [0, 0, 1],
+            ])
+
+        r_x[np.abs(r_x) < 10**-PRECISION] = 0
+        r_y[np.abs(r_y) < 10**-PRECISION] = 0
+        r_z[np.abs(r_z) < 10**-PRECISION] = 0
+
+        r = r_z.dot(r_y).dot(r_x)
+
+        return cls(r)
 
 
 def are_coordinates(obj):

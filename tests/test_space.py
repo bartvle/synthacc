@@ -9,8 +9,8 @@ import numpy as np
 
 from synthacc.apy import PRECISION, is_number
 from synthacc.math.matrices import Matrix
-from synthacc.space import (Point, Plane, Vector, are_coordinates,
-    prepare_coordinates, distance, nearest)
+from synthacc.space import (Point, Plane, Vector, RotationMatrix,
+    are_coordinates, prepare_coordinates, distance, nearest)
 
 
 class TestPoint(unittest.TestCase):
@@ -247,6 +247,30 @@ class TestVector(unittest.TestCase):
         self.assertEqual(a, None)
         a = Vector(1, 1, 1).get_angle((0, 0, 0))
         self.assertEqual(a, None)
+
+
+class TestRotationMatrix(unittest.TestCase):
+    """
+    """
+
+    def test_from_basic_rotations(self):
+        """
+        """
+        r1 = RotationMatrix.from_basic_rotations(000., 000., 000.)
+        r2 = RotationMatrix.from_basic_rotations(360., 360., 360.)
+        r3 = RotationMatrix.from_basic_rotations(000., 000., 090.)
+        r4 = RotationMatrix.from_basic_rotations(090., 000., 000.)
+        r5 = RotationMatrix.from_basic_rotations(090., 000., 090.)
+        self.assertTrue((r1._array == np.array(
+            [[+1, +0, +0], [+0, +1, +0] ,[+0, +0, +1]])).all())
+        self.assertTrue((r2._array == np.array(
+            [[+1, +0, +0], [+0, +1, +0] ,[+0, +0, +1]])).all())
+        self.assertTrue((r3._array == np.array(
+            [[+0, -1, +0], [+1, +0, +0] ,[+0, +0, +1]])).all())
+        self.assertTrue((r4._array == np.array(
+            [[+1, +0, +0], [+0, +0, -1] ,[+0, +1, +0]])).all())
+        self.assertTrue((r5._array == np.array(
+            [[+0, +0, +1], [+1, +0, +0] ,[+0, +1, +0]])).all())
 
 
 class Test(unittest.TestCase):
