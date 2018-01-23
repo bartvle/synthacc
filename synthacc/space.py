@@ -1,8 +1,8 @@
 """
 The 'space' module.
 
-Module for 3d Euclidean space in a right-handed Cartesian coordinate system (x,
-y, z)
+Module for 3d Euclidean space in a right-handed Cartesian coordinate system
+with coordinates x, y and z.
 """
 
 
@@ -19,8 +19,6 @@ class Point(Object):
 
     def __init__(self, x, y, z=0, validate=True):
         """
-        Defined by x, y and z coordinates.
-
         x: number, x coordinate
         y: number, y coordinate
         z: number, z coordinate (default: 0)
@@ -125,8 +123,6 @@ class Plane(Object):
 
     def __init__(self, a, b, c, d, validate=True):
         """
-        Defined by a, b, c and parameters.
-
         a: number, a parameter
         b: number, b parameter
         c: number, c parameter
@@ -226,8 +222,6 @@ class Vector(Object):
 
     def __init__(self, x, y, z=0, validate=True):
         """
-        Defined by x, y and z coordinates.
-
         x: number, x coordinate
         y: number, y coordinate
         z: number, z coordinate (default: 0)
