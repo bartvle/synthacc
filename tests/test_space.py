@@ -286,3 +286,16 @@ class Test(unittest.TestCase):
         self.assertFalse(are_coordinates((1, None, 3)))
         self.assertFalse(are_coordinates((1, 2, None)))
         self.assertFalse(are_coordinates([1, 2, 3]))
+
+    def test_prepare_coordinates(self):
+        """
+        """
+        c1, c2, c3 = prepare_coordinates(1, 2, 3)
+        self.assertEqual(c1, 1)
+        self.assertEqual(c2, 2)
+        self.assertEqual(c3, 3)
+
+        c1, c2, c3 = prepare_coordinates(1., 2., np.array([3, 3]))
+        self.assertListEqual(list(c1), [1., 1.])
+        self.assertListEqual(list(c2), [2., 2.])
+        self.assertListEqual(list(c3), [3., 3.])
