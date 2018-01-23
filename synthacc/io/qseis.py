@@ -116,7 +116,7 @@ class Wrapper(Object):
 
         return gf
 
-    def get_recording(self, src, rcv, mt, validate=True):
+    def get_recording(self, src, rcv, mt, start_time=0, components='ZNE', gmt='dis', validate=True):
         """
         return: 'recordings.Recording' instance
         """
@@ -135,7 +135,16 @@ class Wrapper(Object):
 
         self._run()
 
-        [r] = read_recordings(self.folder)
+        [r] = read_recordings(self.folder, start_time=start_time)
+
+        if components == 'ZNE':
+            ba = earth.azimuth(rcv.x, rcv.y, src.x, src.y)
+            r = r.rotate(back_azimuth=ba)
+
+        if gmt != 'dis':
+            r = r.differentiate()
+        if gmt == 'acc':
+            r = r.differentiate()
 
         return r
 
@@ -365,20 +374,20 @@ def read_zrt(folder, filename='seis', validate=True):
     return time_delta, stack
 
 
-def read_recordings(folder, filename='seis', validate=True):
+def read_recordings(folder, filename='seis', start_time=0, validate=True):
     """
     Z is converted from down to up.
 
     return: list of 'recordings.Recording' instances
     """
-    time_delta, stack = read_zrt(folder, filename='seis', validate=validate)
+    time_delta, stack = read_zrt(folder, filename, validate=validate)
 
     recordings = []
     for i in range(stack.shape[0]):
         components = {
-            'Z': Seismogram(time_delta, stack[i,:,0], 'm') * -1,
-            'R': Seismogram(time_delta, stack[i,:,1], 'm'),
-            'T': Seismogram(time_delta, stack[i,:,2], 'm'),
+            'Z': Seismogram(time_delta, stack[i,:,0], 'm', start_time) * -1,
+            'R': Seismogram(time_delta, stack[i,:,1], 'm', start_time),
+            'T': Seismogram(time_delta, stack[i,:,2], 'm', start_time),
         }
         recordings.append(Recording(components))
 
