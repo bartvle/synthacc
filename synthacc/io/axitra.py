@@ -23,6 +23,7 @@ from ..ground_models import LayerModel
 from ..greens_functions import GenericGreensFunction
 from ..recordings import Seismogram, Recording
 
+
 ## Limits set in 'parameter.inc'. Axitra must be compiled with these values.
 NSP = 6
 NRP = 6
@@ -112,7 +113,7 @@ class Wrapper(Object):
 
         return gf
 
-    def get_recording(self, src, rcv, moment, focal_mechanism=None, stf=None, start_time=0, gmt='dis', validate=True):
+    def get_recording(self, src, rcv, moment, focal_mechanism=None, stf=None, gmt='dis', validate=True):
         """
         stf: tuple (type, parameter) or None,
             1: Ricker, pseudo period
@@ -146,7 +147,7 @@ class Wrapper(Object):
 
         self._run(AXITRA_SS_FILENAME, com)
 
-        r = read_recording(self.folder, start_time, gmt)
+        r = read_recording(self.folder, gmt)
 
         return r
 
@@ -432,7 +433,7 @@ def read_greens_function(folder, validate=True):
     return gf
 
 
-def read_seismogram(filespec, start_time, gmt, validate=True):
+def read_seismogram(filespec, gmt, validate=True):
     """
     """
     if validate is True:
@@ -448,23 +449,23 @@ def read_seismogram(filespec, start_time, gmt, validate=True):
         data.extend(line.split())
     data = np.array(data, dtype=float)
 
-    s = Seismogram(time_delta, data, unit=SI_UNITS[gmt], start_time=start_time)
+    s = Seismogram(time_delta, data, unit=SI_UNITS[gmt])
 
     return s
 
 
-def read_recording(folder, start_time, gmt, validate=True):
+def read_recording(folder, gmt, validate=True):
     """
     """
     if validate is True:
         assert(is_string(folder))
 
     x = read_seismogram(
-        os.path.join(folder, 'outputX_ 1   .dat'), start_time, gmt, False)
+        os.path.join(folder, 'outputX_ 1   .dat'), gmt, False)
     y = read_seismogram(
-        os.path.join(folder, 'outputY_ 1   .dat'), start_time, gmt, False)
+        os.path.join(folder, 'outputY_ 1   .dat'), gmt, False)
     z = read_seismogram(
-        os.path.join(folder, 'outputZ_ 1   .dat'), start_time, gmt, False)
+        os.path.join(folder, 'outputZ_ 1   .dat'), gmt, False)
 
     r = Recording(components={'N': x, 'E': y, 'Z': z})
 
