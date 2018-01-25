@@ -24,6 +24,7 @@ Clone the Synthacc repository and add its folder to the PYTHONPATH environment v
 * Cotton F. and Coutant O. (1997). Dynamic stress variations due to shear faults in a plane-layered medium. Geophysical Journal International, 128, 676-688.
 * Jost M.L. and Herrmann R.B. (1989). A Student's Guide to and Review of Moment Tensors. Seismological Research Letters, 60(2), 37-57.
 * Kikuchi M. and Kanamori H. (1991). Inversion of complex body waves - part III. Bulletin of the Seismological Society of America, 81(6), 2335-2350.
+* Krischer L., Hutko A., van Driel M., Stähler S.C., Bahavar M., Trabant C. and Nissen-Meyer T. (2017). On-demand custom broadband synthetic seismograms, Seismological Research Lettets, 88(4), 1127-1140.
 * Mai, P.M. and Beroza, G.C. (2002). A spatial random field model to characterize complexity in earthquake slip. Journal of Geophysical Research, 107, B11, ESE 10-1–ESE 10-21.
 * Minson S.E. and Dreger D.S. (2008). Stable inversions for complete moment tensors. Geophysical Journal International, 174, 585-592.
 * Nissen-Meyer T., van Driel M., Stähler S.C., Hosseini K., Hempel S., Auer L., Colombi A. and Fournier A. (2014). AxiSEM: broadband 3-D seismic wavefields in axisymmetric media. Solid Earth, 5, 425-445.
@@ -32,4 +33,5 @@ Clone the Synthacc repository and add its folder to the PYTHONPATH environment v
 * Stein S. and Wyession M. (2003). An Introduction to Seismology, Earthquakes, and Earth Structure. Blackwell Publishing.
 * Vallée M. and Douet V. (2016). A new database of source time functions (STFs) extracted from the SCARDEC method. Physics of the Earth and Planetary Interiors, 257, 149-157.
 * Vallée M., Charléty J., Ferreira A.M.G., Delouis B. and Vergoz J. (2011). SCARDEC: a new technique for the rapid determination of seismic moment magnitude, focal mechanism and source time functions for large earthquakes using body-wave deconvolution. Geophysical Journal International, 184, 338-358.
+* van Driel M., Krischer L., Stähler S.C., Hosseini K. and Nissen-Meyer T. (2015). Instaseis: instant global seismograms based on a broadband waveform database. Solid Earth, 6, 701-717.
 * Wang R. (1999). A Simple Orthonormalization Method for Stable and Efficient Computation of Green’s Functions. Bulletin of the Seismological Society of America, 89(3), 733–741.
