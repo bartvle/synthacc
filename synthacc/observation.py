@@ -56,7 +56,7 @@ class Event(Object):
     """
     """
 
-    def __init__(self, lon, lat, depth, time, magnitude, key=None, validate=True):
+    def __init__(self, lon, lat, depth, time, magnitude, name=None, key=None, validate=True):
         """
         """
         if validate is True:
@@ -64,6 +64,8 @@ class Event(Object):
             assert(is_number(lat) and is_lat(lat))
             assert(is_non_neg_number(depth))
             assert(is_number(magnitude) or type(magnitude) is Magnitude)
+            if name is not None:
+                assert(is_string(name))
             if key is not None:
                 assert(is_pos_integer(key))
 
@@ -76,6 +78,7 @@ class Event(Object):
         self._time = time
 
         self._magnitude = magnitude
+        self._name = name
         self._key = key
 
     @property
@@ -107,6 +110,12 @@ class Event(Object):
         """
         """
         return self._magnitude
+
+    @property
+    def name(self):
+        """
+        """
+        return self._name
 
     @property
     def key(self):

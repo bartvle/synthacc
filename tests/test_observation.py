@@ -60,15 +60,16 @@ class TestEvent(unittest.TestCase):
     def test_properties(self):
         """
         """
-        lon, lat, depth, time, magnitude = (
-            4.02, 51.64, 15.6, '1992-12-05 01:33:24', 5.1)
-        e = Event(lon, lat, depth, time, magnitude)
+        lon, lat, depth, time, magnitude, name = (
+            4.02, 51.64, 15.6, '1992-12-05 01:33:24', 5.1, 'Test')
+        e = Event(lon, lat, depth, time, magnitude, name)
         self.assertEqual(e.lon, lon)
         self.assertEqual(e.lat, lat)
         self.assertEqual(e.depth, depth)
         self.assertEqual(e.time, Time(time))
         self.assertEqual(e.magnitude, magnitude)
         self.assertEqual(e.mag, magnitude)
+        self.assertEqual(e.name, name)
 
         magnitude = Magnitude(mw=6.3)
         e = Event(lon, lat, depth, time, magnitude)
@@ -80,9 +81,9 @@ class TestCatalog(unittest.TestCase):
     """
     """
 
-    e1 = Event(4.02, 51.64, 15.6, '1992-12-05 01:33:24', 5.1, 1)
-    e2 = Event(4.03, 51.65, 15.7, '1992-12-05 01:33:25', 5.2, 2)
-    e3 = Event(4.04, 51.66, 15.8, '1992-12-05 01:33:26', 5.3, 3)
+    e1 = Event(4.02, 51.64, 15.6, '1992-12-05 01:33:24', 5.1, key=1)
+    e2 = Event(4.03, 51.65, 15.7, '1992-12-05 01:33:25', 5.2, key=2)
+    e3 = Event(4.04, 51.66, 15.8, '1992-12-05 01:33:26', 5.3, key=3)
     c = Catalog([e1, e2, e3])
 
     def test_properties(self):
