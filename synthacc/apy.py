@@ -26,11 +26,15 @@ class Object(object):
         """
         The intended behavior is purely achieved by this '__setattr__' method.
         """
-        ## TODO: see issue 1
-        if attr.startswith('_') or attr in type(self).__dict__:
+        if attr.startswith('_'):
             super().__setattr__(attr, val)
         else:
-            raise AttributeError('This object has no attribute "%s"' % attr)
+            prop = getattr(type(self), attr, None)
+            if prop is not None and prop.fset is not None:
+                super().__setattr__(attr, val)
+            else:
+                raise AttributeError(
+                    'This object has no attribute "%s"' % attr)
 
 
 def is_boolean(obj):

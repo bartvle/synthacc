@@ -47,11 +47,12 @@ class TestObject(unittest.TestCase):
     def test_3(self):
         """
         Public attribute as private attribute with property and setter works.
+        Also if property is set on superclass!
         """
         class X(Object):
 
             def __init__(self, x):
-                self.x = x
+                self._x = x
 
             @property
             def x(self):
@@ -61,6 +62,9 @@ class TestObject(unittest.TestCase):
             def x(self, val):
                 self._x = val
 
+        o = Object()
+        o._o = 0
+
         x = X(x=True)
         self.assertTrue(x._x)
         self.assertTrue(x.x)
@@ -68,3 +72,15 @@ class TestObject(unittest.TestCase):
         x.x = False
         self.assertFalse(x._x)
         self.assertFalse(x.x)
+
+        class Y(X):
+            pass
+
+        y = Y(x=True)
+
+        self.assertTrue(y._x)
+        self.assertTrue(y.x)
+
+        y.x = False
+        self.assertFalse(y._x)
+        self.assertFalse(y.x)
