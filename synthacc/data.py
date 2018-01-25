@@ -28,7 +28,7 @@ class TimeSeries(ABC, Object):
                 is_time(start_time))
 
         self._time_delta = time_delta
-        self._start_time = start_time
+        self.start_time = start_time
 
     @abstractmethod
     def __len__(self):
@@ -49,6 +49,12 @@ class TimeSeries(ABC, Object):
         return: non neg number (in s)
         """
         return self._start_time
+
+    @start_time.setter
+    def start_time(self, start_time):
+        """
+        """
+        self._start_time = start_time
 
     @property
     def rel_times(self):

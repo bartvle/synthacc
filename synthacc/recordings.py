@@ -586,6 +586,14 @@ class Recording(Object):
         """
         return self._start_time
 
+    @start_time.setter
+    def start_time(self, start_time):
+        """
+        """
+        for c in self.components:
+            self._components[c].start_time = start_time
+        self._start_time = start_time
+
     @property
     def time_delta(self):
         """
