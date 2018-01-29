@@ -1,5 +1,5 @@
 # Synthacc
-A Python library for earthquake ground motion modelling!
+A Python interface for earthquake ground motion modelling software! It does *not* contain any simulation code.
 
 The current version is 0.0.1, which means *totally not ready to be used by someone else*, but if you want you can try and help me improving the library! For the moment, I will only add the things I need for my PhD.
 
