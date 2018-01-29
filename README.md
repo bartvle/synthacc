@@ -22,6 +22,7 @@ Clone the Synthacc repository and add its folder to the PYTHONPATH environment v
 * Ambraseys N., Smit P., Douglas J., Margaris B., Sigbjornsson R., Olafsson S., Suhadolc P. and Costa G. (2004). Internet-Site for European Strong-Motion Data. Bollettino di Geofisica Teorica ed Applicata, 45(3), 113-129.
 * Beyreuther M., Barsch R., Krischer L., Megies T., Behr Y. and Wassermann J. (2010). ObsPy: A Python Toolbox for Seismology. Seismological Research Letters, 81(3), 530-533.
 * Cotton F. and Coutant O. (1997). Dynamic stress variations due to shear faults in a plane-layered medium. Geophysical Journal International, 128, 676-688.
+* Hanks T.C. and Kanamori H. (1979). A Moment Magnitude Scale. Journal of Geophysical Research, 84(B5), 2348-2350.
 * Jost M.L. and Herrmann R.B. (1989). A Student's Guide to and Review of Moment Tensors. Seismological Research Letters, 60(2), 37-57.
 * Kikuchi M. and Kanamori H. (1991). Inversion of complex body waves - part III. Bulletin of the Seismological Society of America, 81(6), 2335-2350.
 * Krischer L., Hutko A., van Driel M., Stähler S.C., Bahavar M., Trabant C. and Nissen-Meyer T. (2017). On-demand custom broadband synthetic seismograms, Seismological Research Lettets, 88(4), 1127-1140.
