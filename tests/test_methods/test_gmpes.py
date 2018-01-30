@@ -6,6 +6,8 @@ Tests for 'methods.gmpes' module.
 import os
 import unittest
 
+import numpy as np
+
 from synthacc.methods.gmpes import TECTONIC_REGIONS, GMPES, GMPE, find_gmpes
 
 
@@ -45,10 +47,35 @@ class TestGMPE(unittest.TestCase):
         self.assertTrue(self.gmpe.is_dependent('vs30'))
         self.assertFalse(self.gmpe.is_dependent('rrup'))
 
+    def test_get_pga(self):
+        """
+        """
+        parameters = {'mag': 6.5, 'rjb': 40000}
+        self.gmpe.get_pga(parameters, unit='g')
+
+    def test_get_sa(self):
+        """
+        """
+        parameters = {'mag': 6.5, 'rjb': 40000}
+        self.gmpe.get_sa(
+            parameters, period=float(self.gmpe.periods[0]), unit='g')
+
     def test_get_response_spectrum(self):
         """
         """
-        parameters = {'mag': 6.5, 'rjb': 40}
+        parameters = {'mag': 6.5, 'rjb': 40000}
         rs = self.gmpe.get_response_spectrum(parameters, unit='g')
         rs.plot(png_filespec=os.path.join(
             OUTPUT_DIR, 'methods.gmpes.gmpe.get_response_spectrum.png'))
+
+    def test_plot(self):
+        """
+        Compare with fig 9 of Akkar et al 2013.
+        """
+        distances = np.linspace(1000, 200000, 100)
+        magnitude = 7.5
+        parameters = {'vs30': 750, 'rake': 0}
+        png_filespec = os.path.join(OUTPUT_DIR, 'methods.gmpes.gmpe.plot.png')
+        self.gmpe.plot('pga', distances, magnitude, parameters, unit='g',
+            min_dis=1000, max_dis=200000, min_val=0.0001, max_val=1,
+            png_filespec=png_filespec)

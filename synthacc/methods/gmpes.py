@@ -6,6 +6,7 @@ use the OpenQuake Engine (Pagani et al., 2014).
 """
 
 
+import matplotlib.pyplot as plt
 import numpy as np
 
 from openquake.hazardlib.const import TRT as _TRT
@@ -17,7 +18,7 @@ from openquake.hazardlib.imt import (PGD as _PGD, PGV as _PGV, PGA as _PGA,
                                      SA as _SA)
 from openquake.hazardlib.const import StdDev as _SD_TYPES
 
-from ..apy import Object, is_boolean
+from ..apy import Object, is_boolean, is_pos_number, is_string
 from ..response import ResponseSpectrum
 
 
@@ -72,7 +73,7 @@ class GMPE(Object):
                 setattr(rc, p, parameters[p])
 
             elif p in _DC._slots_:
-                val = np.asarray(parameters[p] / 1000)
+                val = np.asarray(parameters[p] / 1000) ## m to km
                 if val.ndim == 0:
                     val = val[np.newaxis]
                 setattr(dc, p, val)
@@ -199,6 +200,25 @@ class GMPE(Object):
         """
         raise NotImplementedError
 
+    def get_sa(self, parameters, period, damping=0.05, unit='m/s2', validate=True):
+        """
+        """
+        if validate is True:
+            assert(self.has_sa())
+            assert(is_pos_number(period) and period in self.periods)
+
+        rc, dc, sc = self(parameters)
+
+        imt = _SA(period, damping * 100)
+
+        sa = np.exp(self._gmpe.get_mean_and_stddevs(
+            sc, rc, dc, imt, [_SD_TYPES.TOTAL])[0][0])
+
+        if unit != 'g':
+            raise
+
+        return sa
+
     def get_response_spectrum(self, parameters, damping=0.05, unit='m/s2', validate=True):
         """
         """
@@ -229,6 +249,40 @@ class GMPE(Object):
         rs = ResponseSpectrum(periods, responses, unit=unit, damping=damping)
 
         return rs
+
+    def plot(self, parameter, distances, magnitude, parameters={}, unit='m/s2', min_dis=None, max_dis=None, min_val=None, max_val=None, size=None, png_filespec=None, validate=True):
+        """
+        """
+        if validate is True:
+            if is_string(parameter):
+                assert(getattr(self, 'has_%s' % parameter)())
+            else:
+                assert(parameter in self.periods)
+
+        if unit != 'g':
+            raise
+
+        values = []
+        if is_string(parameter):
+            f = getattr(self, 'get_%s' % parameter)
+            for d in distances:
+                values.append(f({**{'mag': magnitude, self.distance_metric: d}, **parameters}, unit, validate=False))
+        else:
+            pass
+
+        fig, ax = plt.subplots()
+
+        plt.loglog(distances, values)
+
+        ax.grid(which='both')
+        ax.set_xlim([min_dis, max_dis])
+        ax.set_ylim([min_val, max_val])
+
+        if png_filespec is not None:
+            plt.savefig(png_filespec)
+        else:
+            plt.show()
+        plt.close(fig)
 
 
 def find_gmpes(tectonic_region=None, sa=None, pga=None, pgv=None, pgd=None, distance_metric=None, validate=True):
