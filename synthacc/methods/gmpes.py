@@ -27,6 +27,8 @@ _GSIMS = _get_available_gsims()
 TECTONIC_REGIONS = [
     v.lower() for k, v in _TRT.__dict__.items() if not k.startswith('__')]
 
+DISTANCE_METRICS = ('rhypo', 'repi', 'rrup', 'rjb')
+
 DEFAULT_PARAMETERS = {'rake': 0, 'vs30': 800}
 
 
@@ -252,6 +254,8 @@ def find_gmpes(tectonic_region=None, sa=None, pga=None, pgv=None, pgd=None, dist
             assert(is_boolean(pgv))
         if pgd is not None:
             assert(is_boolean(pgd))
+        if distance_metric is not None:
+            assert(distance_metric in DISTANCE_METRICS)
 
     gmpes = []
     for name, gsim in _GSIMS.items():
