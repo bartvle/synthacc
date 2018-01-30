@@ -3,6 +3,8 @@ The 'faults' module.
 """
 
 
+import matplotlib.pyplot as plt
+
 from ..apy import Object, is_pos_number
 from ..earth.flat import RectangularSurface
 from .moment import calculate as calculate_moment, m0_to_mw
@@ -79,6 +81,29 @@ class SingularFault(Object):
         return: number, maximum moment magnitude
         """
         return m0_to_mw(self.get_max_moment(slip, validate), validate=False)
+
+    def plot(self):
+        """
+        """
+        fig, ax = plt.subplots()
+
+        ulc, urc, llc, lrc = self.surface.corners
+
+        ax.plot([ulc.y, urc.y], [ulc.x, urc.x], c='r', lw=2)
+
+        ax.fill(
+            [ulc.y, urc.y, lrc.y, llc.y],
+            [ulc.x, urc.x, lrc.x, llc.x],
+            color='coral', alpha=0.5,
+            )
+
+        ax.axis('equal')
+
+        x_label, y_label = 'East (m)', 'North (m)'
+        ax.xaxis.set_label_text(x_label)
+        ax.yaxis.set_label_text(y_label)
+
+        plt.show()
 
 
 class ComposedFault(Object):
