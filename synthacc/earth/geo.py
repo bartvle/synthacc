@@ -16,6 +16,7 @@ from ..apy import (PRECISION, Object, is_number, is_non_neg_number,
     is_1d_numeric_array, is_in_range)
 from .. import space
 from ..units import MOTION as UNITS
+from . import flat
 
 
 _G = pyproj.Geod(ellps='WGS84') ## The WGS84 reference ellipsoid
@@ -177,6 +178,13 @@ class Path(Object):
         """
         """
         return float(self._points[:,0][-1]), float(self._points[:,1][-1])
+
+    def project(self, proj):
+        """
+        """
+        xs, ys = project(self._points[:,0], self._points[:,1], proj=proj)
+
+        return flat.Path(xs, ys)
 
 
 class SphericalEarth(Object):
