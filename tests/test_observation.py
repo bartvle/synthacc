@@ -7,7 +7,8 @@ import unittest
 
 from synthacc.time import Time
 
-from synthacc.observation import Magnitude, Event, Catalog, Station, Network
+from synthacc.observation import (Magnitude, Event, EventRecord, Catalog,
+    Station, StationRecord, Network)
 
 
 class TestMagnitude(unittest.TestCase):
@@ -81,9 +82,9 @@ class TestCatalog(unittest.TestCase):
     """
     """
 
-    e1 = Event(4.02, 51.64, 15.6, '1992-12-05 01:33:24', 5.1, key=1)
-    e2 = Event(4.03, 51.65, 15.7, '1992-12-05 01:33:25', 5.2, key=2)
-    e3 = Event(4.04, 51.66, 15.8, '1992-12-05 01:33:26', 5.3, key=3)
+    e1 = EventRecord(1, 4.02, 51.64, 15.6, '1992-12-05 01:33:24', 5.1)
+    e2 = EventRecord(2, 4.03, 51.65, 15.7, '1992-12-05 01:33:25', 5.2)
+    e3 = EventRecord(3, 4.04, 51.66, 15.8, '1992-12-05 01:33:26', 5.3)
     c = Catalog([e1, e2, e3])
 
     def test_properties(self):

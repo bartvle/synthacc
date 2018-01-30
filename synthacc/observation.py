@@ -8,7 +8,7 @@ import numpy as np
 from .apy import (Object, is_number, is_non_neg_number, is_pos_integer,
     is_string)
 from .time import Time, is_time, is_date
-from .data import DataBase
+from .data import DataRecord, DataBase
 from .earth.geo import is_lon, is_lat
 
 
@@ -56,7 +56,7 @@ class Event(Object):
     """
     """
 
-    def __init__(self, lon, lat, depth, time, magnitude, name=None, key=None, validate=True):
+    def __init__(self, lon, lat, depth, time, magnitude, name=None, validate=True):
         """
         """
         if validate is True:
@@ -66,8 +66,6 @@ class Event(Object):
             assert(is_number(magnitude) or type(magnitude) is Magnitude)
             if name is not None:
                 assert(is_string(name))
-            if key is not None:
-                assert(is_pos_integer(key))
 
         self._lon = lon
         self._lat = lat
@@ -79,7 +77,6 @@ class Event(Object):
 
         self._magnitude = magnitude
         self._name = name
-        self._key = key
 
     @property
     def lon(self):
@@ -133,6 +130,18 @@ class Event(Object):
             return self._magnitude
 
 
+class EventRecord(DataRecord, Event):
+    """
+    """
+
+    def __init__(self, key, lon, lat, depth, time, magnitude, name=None, validate=True):
+        """
+        """
+        DataRecord.__init__(self, key, validate=validate)
+        Event.__init__(
+            self, lon, lat, depth, time, magnitude, name, validate=validate)
+
+
 class Catalog(DataBase):
     """
     """
@@ -140,15 +149,7 @@ class Catalog(DataBase):
     def __init__(self, events=[], validate=True):
         """
         """
-        if validate is True:
-            assert(type(events) is list)
-            keys = []
-            for e in events:
-                assert(type(e) is Event)
-                keys.append(e.key)
-            assert(len(keys) == len(set(keys)))
-
-        super().__init__(events)
+        super().__init__(events, EventRecord, validate=validate)
 
     def __getitem__(self, item):
         """
@@ -212,7 +213,7 @@ class Station(Object):
     """
     """
 
-    def __init__(self, code, lon, lat, alt, s_date=None, e_date=None, key=None, validate=True):
+    def __init__(self, code, lon, lat, alt, s_date=None, e_date=None, validate=True):
         """
         """
         if validate is True:
@@ -225,8 +226,6 @@ class Station(Object):
             if e_date is not None:
                 assert(is_date(e_date))
                 assert(s_date <= e_date)
-            if key is not None:
-                assert(is_pos_integer(key))
 
         self._code = code
         self._lon = lon
@@ -234,7 +233,6 @@ class Station(Object):
         self._alt = alt
         self._s_date = s_date
         self._e_date = e_date
-        self._key = key
 
     @property
     def code(self):
@@ -279,6 +277,18 @@ class Station(Object):
         return self._key
 
 
+class StationRecord(DataRecord, Station):
+    """
+    """
+
+    def __init__(self, key, code, lon, lat, alt, s_date=None, e_date=None, validate=True):
+        """
+        """
+        DataRecord.__init__(self, key, validate=validate)
+        Station.__init__(
+            self, code, lon, lat, alt, s_date, e_date, validate=validate)
+
+
 class Network(DataBase):
     """
     """
@@ -286,15 +296,7 @@ class Network(DataBase):
     def __init__(self, stations, validate=True):
         """
         """
-        if validate is True:
-            assert(type(stations) is list)
-            keys = []
-            for s in stations:
-                assert(type(s) is Station)
-                keys.append(s.key)
-            assert(len(keys) == len(set(keys)))
-
-        super().__init__(stations)
+        super().__init__(stations, StationRecord, validate=validate)
 
     @property
     def lons(self):
