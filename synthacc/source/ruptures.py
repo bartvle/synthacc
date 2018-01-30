@@ -4,6 +4,8 @@ The 'ruptures' module. Rectangular ruptures from a
 """
 
 
+from abc import ABC
+
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import make_axes_locatable
@@ -453,7 +455,18 @@ class KinematicRupture(Object):
         self._plot(self.slip, 'Slip (m)', 'Slip distribution')
 
 
-class RandomKinematicRuptureGenerator(Object):
+class RuptureGenerator(ABC, Object):
+    """
+    """
+
+    @abstractmethod
+    def get_rupture(self):
+        """
+        """
+        pass
+
+
+class RandomKinematicRuptureGenerator(RuptureGenerator):
     """
     Generator for a random kinematic rupture.
     """
