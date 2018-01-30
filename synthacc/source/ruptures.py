@@ -4,7 +4,7 @@ The 'ruptures' module. Rectangular ruptures from a
 """
 
 
-from abc import ABC
+from abc import ABC, abstractmethod
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
