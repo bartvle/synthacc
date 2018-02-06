@@ -15,7 +15,13 @@ from ..data import TimeSeries
 class MomentTensor(Object):
     """
     A general moment tensor following the NED convection (x is north, y is east
-    and z is down).
+    and z is down). Each of the nine Mij elements represents a pair of opposing
+    forces pointing in the i direction, separated in the j direction (a force
+    couple). The moment is the product of the magnitude of the forces and the
+    separation distance. To conserve angular moment Mij = Mji, leaving only six
+    indepent elements. Each force couple represents a fault mechanism, but
+    beacause Mij = Mji, a double-couple always represents two fault mechanisms.
+    The force at positve j points to positive i.
     """
 
     COMPONENTS = ('xx', 'yy', 'zz', 'xy', 'yz', 'zx')
@@ -142,8 +148,7 @@ class MomentTensor(Object):
     @property
     def moment(self):
         """
-        Seismic moment (in Nm). This is the Frobenius norm of the tensor
-        divided by the square root of 2.
+        Seismic moment (in Nm). See Shearer (2009) p. 247.
         """
         return float(np.sqrt(np.sum(e**2 for e in self._m)) / np.sqrt(2))
 
