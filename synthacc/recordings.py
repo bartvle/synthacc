@@ -930,7 +930,11 @@ def plot_seismograms(seismograms, titles=None, labels=None, colors=None, styles=
             pgms[i] = np.max([pgms[i], s.get_pgm(unit)])
 
             for p in picks:
-                ax.axvline(x=p.time._time, color='r', ls='--')
+                if type(p) is Pick:
+                    time = p.time._time
+                else:
+                    time = p
+                ax.axvline(x=time, color='r', ls='--')
 
         if titles is not None:
             ax.text(0.990, 0.925, s=titles[i], horizontalalignment='right',
