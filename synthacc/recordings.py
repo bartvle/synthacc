@@ -13,7 +13,7 @@ import datetime
 
 import matplotlib.pyplot as plt
 import numpy as np
-from obspy import UTCDateTime as _UTCDateTime, Trace as _Trace
+from obspy import UTCDateTime as _UTCDateTime, Trace as _Trace, read as _read
 
 from .apy import (Object, is_boolean, is_number, is_non_neg_number,
     is_pos_number, is_pos_integer, is_1d_numeric_array, is_string)
@@ -93,6 +93,17 @@ class Waveform(TimeSeries):
         """
         """
         return len(self._amplitudes)
+
+    @classmethod
+    def from_trace(cls, trace, validate=True):
+        """
+        """
+        if validate is True:
+            assert(type(trace) is _Trace)
+
+        td, a = float(trace.meta.delta), np.array(trace.data, dtype=float)
+
+        return cls(td, a)
 
     @property
     def _amplitudes(self):
@@ -1031,3 +1042,18 @@ def plot_recordings(recordings, labels=None, colors=None, styles=None, widths=No
         png_filespec=png_filespec, validate=False)
 
     return p
+
+
+def read(filespec, unit=None, validate=True):
+    """
+    """
+    if validate is True:
+        assert(is_string(filespec) and filespec.endswith('.sac'))
+
+    [t] = _read(filespec)
+
+    if unit is None:
+        return Waveform.from_trace(t)
+    else:
+        return Seismogram.from_trace(t)
+
