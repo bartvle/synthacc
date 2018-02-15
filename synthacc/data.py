@@ -54,6 +54,7 @@ class TimeSeries(ABC, Object):
     def start_time(self, start_time):
         """
         """
+        assert(is_non_neg_number(start_time) or is_time(start_time))
         self._start_time = start_time
 
     @property
