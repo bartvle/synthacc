@@ -8,6 +8,7 @@ import unittest
 
 import numpy as np
 
+from synthacc.apy import PRECISION
 from synthacc.time import Time
 from synthacc.spectral import DFT, AccDFT, plot_fass
 from synthacc.response import ResponseSpectrum, plot_response_spectra
@@ -259,3 +260,46 @@ class TestRecording(unittest.TestCase):
         """
         fs = os.path.join(OUTPUT_DIR, 'recordings.recording.plot.png')
         self.r.plot(png_filespec=fs)
+
+
+class Test(unittest.TestCase):
+    """
+    """
+
+    def test_ne_to_rt(self):
+        """
+        """
+        n = np.ones(1)*2
+        e = np.ones(1)*3
+
+        r,t = ne_to_rt(n, e, 000.)
+        np.testing.assert_allclose(r, -n, rtol=10**-PRECISION)
+        np.testing.assert_allclose(t, -e, rtol=10**-PRECISION)
+        r,t = ne_to_rt(n, e, 090.)
+        np.testing.assert_allclose(r, -e, rtol=10**-PRECISION)
+        np.testing.assert_allclose(t, +n, rtol=10**-PRECISION)
+        r,t = ne_to_rt(n, e, 180.)
+        np.testing.assert_allclose(r, +n, rtol=10**-PRECISION)
+        np.testing.assert_allclose(t, +e, rtol=10**-PRECISION)
+        r,t = ne_to_rt(n, e, 270.)
+        np.testing.assert_allclose(r, +e, rtol=10**-PRECISION)
+        np.testing.assert_allclose(t, -n, rtol=10**-PRECISION)
+
+    def test_rt_to_ne(self):
+        """
+        """
+        r = np.ones(1)*2
+        t = np.ones(1)*3
+
+        n,e = rt_to_ne(r, t, 000.)
+        np.testing.assert_allclose(n, -r, rtol=10**-PRECISION)
+        np.testing.assert_allclose(e, -t, rtol=10**-PRECISION)
+        n,e = rt_to_ne(r, t, 090.)
+        np.testing.assert_allclose(n, +t, rtol=10**-PRECISION)
+        np.testing.assert_allclose(e, -r, rtol=10**-PRECISION)
+        n,e = rt_to_ne(r, t, 180.)
+        np.testing.assert_allclose(n, +r, rtol=10**-PRECISION)
+        np.testing.assert_allclose(e, +t, rtol=10**-PRECISION)
+        n,e = rt_to_ne(r, t, 270.)
+        np.testing.assert_allclose(n, -t, rtol=10**-PRECISION)
+        np.testing.assert_allclose(e, +r, rtol=10**-PRECISION)

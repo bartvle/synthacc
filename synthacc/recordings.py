@@ -781,7 +781,7 @@ class Recording(Object):
 def ne_to_rt(n, e, back_azimuth, validate=True):
     """
     Rotate north and east components to radial and transversal components. See
-    Stein & Wysession (2003) p. 456.
+    Havskov & Otttemöller (2010) p. 95.
 
     See the docstring of the module for the definition of the components.
 
@@ -797,9 +797,9 @@ def ne_to_rt(n, e, back_azimuth, validate=True):
         assert(len(n) == len(e))
         assert(earth.is_azimuth(back_azimuth))
 
-    a = np.radians(back_azimuth + 180)
-    r = + n * np.cos(a) + e * np.sin(a)
-    t = - n * np.sin(a) + e * np.cos(a)
+    ba = np.radians(back_azimuth)
+    r = - n * np.cos(ba) - e * np.sin(ba)
+    t = + n * np.sin(ba) - e * np.cos(ba)
 
     return r, t
 
@@ -807,7 +807,7 @@ def ne_to_rt(n, e, back_azimuth, validate=True):
 def rt_to_ne(r, t, back_azimuth, validate=True):
     """
     Rotate radial and transversal components to north and east components. See
-    Stein & Wysession (2003) p. 456.
+    Havskov & Otttemöller (2010) p. 95.
 
     See the docstring of the module for the definition of the components.
 
@@ -823,9 +823,9 @@ def rt_to_ne(r, t, back_azimuth, validate=True):
         assert(len(r) == len(t))
         assert(earth.is_azimuth(back_azimuth))
 
-    a = np.radians(180 - back_azimuth)
-    n = + r * np.cos(a) + t * np.sin(a)
-    e = - r * np.sin(a) + t * np.cos(a)
+    ba = np.radians(back_azimuth)
+    n = - r * np.cos(ba) + t * np.sin(ba)
+    e = - r * np.sin(ba) - t * np.cos(ba)
 
     return n, e
 
