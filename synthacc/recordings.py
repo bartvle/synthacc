@@ -123,11 +123,17 @@ class Waveform(TimeSeries):
         """
         return self.sampling_rate / 2
 
-    def _slice(self, s_time, e_time, validate=True):
+    def _slice(self, s_time=None, e_time=None, validate=True):
         """
+        If 'self.start_time' is 'Time' instance, 's_time' and 'e_time' are too.
         """
+        if s_time is None:
+            s_time = self.start_time
+        if e_time is None:
+            e_time = self.end_time
+
         if validate is True:
-            if is_time(self._start_time):
+            if is_time(self.start_time):
                 assert(is_time(s_time))
                 assert(is_time(e_time))
             else:
@@ -145,7 +151,7 @@ class Waveform(TimeSeries):
 
         return self._trace.copy().slice(s_time, e_time)
 
-    def slice(self, s_time, e_time, validate=True):
+    def slice(self, s_time=None, e_time=None, validate=True):
         """
         """
         amplitudes = self._slice(s_time, t_time, validate=validate)
@@ -393,7 +399,7 @@ class Seismogram(Waveform):
         """
         return self.get_dft(unit=unit, validate=validate).fas
 
-    def slice(self, s_time, e_time, validate=True):
+    def slice(self, s_time=None, e_time=None, validate=True):
         """
         """
         amplitudes = self._slice(s_time, e_time, validate=validate)
@@ -717,7 +723,7 @@ class Recording(Object):
 
         return self.__class__(components)
 
-    def slice(self, s_time, e_time, validate=True):
+    def slice(self, s_time=None, e_time=None, validate=True):
         """
         """
         components = {}
