@@ -1044,7 +1044,7 @@ def plot_recordings(recordings, labels=None, colors=None, styles=None, widths=No
     return p
 
 
-def read(filespec, unit=None, validate=True):
+def read(filespec, unit, validate=True):
     """
     """
     if validate is True:
@@ -1052,8 +1052,4 @@ def read(filespec, unit=None, validate=True):
 
     [t] = _read(filespec)
 
-    if unit is None:
-        return Waveform.from_trace(t)
-    else:
-        return Seismogram.from_trace(t)
-
+    return Seismogram.from_trace(t, unit, validate)
