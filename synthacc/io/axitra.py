@@ -432,7 +432,7 @@ def read_greens_function(folder, validate=True):
     return gf
 
 
-def read_seismogram(filespec, gmt, validate=True):
+def read_seismogram(filespec, gmt='dis', validate=True):
     """
     """
     if validate is True:
@@ -453,7 +453,7 @@ def read_seismogram(filespec, gmt, validate=True):
     return s
 
 
-def read_recording(folder, number, gmt, validate=True):
+def read_recording(folder, number=1, gmt='dis', validate=True):
     """
     """
     if validate is True:
