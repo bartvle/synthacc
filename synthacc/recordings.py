@@ -156,6 +156,9 @@ class Waveform(TimeSeries):
         """
         amplitudes = self._slice(s_time, t_time, validate=validate)
 
+        if s_time is None:
+            s_time = self.start_time
+
         wf = self.__class__(self.time_delta, amplitudes, start_time=s_time)
 
         return wf
@@ -403,6 +406,9 @@ class Seismogram(Waveform):
         """
         """
         amplitudes = self._slice(s_time, e_time, validate=validate)
+
+        if s_time is None:
+            s_time = self.start_time
 
         s = self.__class__(self.time_delta, amplitudes, self.unit,
             start_time=s_time, validate=False)
