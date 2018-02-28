@@ -64,11 +64,6 @@ class FocalMechanism(NodalPlane):
     """
     """
 
-    def __init__(self, strike, dip, rake, validate=True):
-        """
-        """
-        super().__init__(strike, dip, rake, validate=validate)
-
     @property
     def normal_vector(self):
         """
