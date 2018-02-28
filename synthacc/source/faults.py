@@ -1,5 +1,5 @@
 """
-The 'faults' module.
+The 'source.faults' module.
 """
 
 

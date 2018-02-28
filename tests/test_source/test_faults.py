@@ -1,5 +1,5 @@
 """
-Tests for 'faults' module.
+Tests for 'source.faults' module.
 """
 
 
