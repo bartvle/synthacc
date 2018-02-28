@@ -72,7 +72,7 @@ class Material(Object):
 
     def to_layer(self, thickness, validate=True):
         """
-        return: instance of 'ground_models.Layer'
+        return: 'ground_models.Layer' instance
         """
         if validate is True:
             assert(is_pos_number(thickness))
