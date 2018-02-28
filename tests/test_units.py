@@ -5,7 +5,8 @@ Tests for 'unit' module.
 
 import unittest
 
-from synthacc.units import SI_PREFIXES, MOTION, Unit, make_motion_units
+from synthacc.units import (SI_PREFIXES, MOTION, Unit, make_motion_units,
+    round_to_significant)
 
 
 class TestUnit(unittest.TestCase):
@@ -39,3 +40,18 @@ class Test(unittest.TestCase):
         self.assertEqual(MOTION['mm'].symbol, 'mm')
         self.assertEqual(MOTION['mm'].si_scale, 0.001)
         self.assertEqual(MOTION['mm'].quantity, 'displacement')
+
+    def test_round_to_significant(self):
+        """
+        """
+        x = 12.345
+        self.assertEqual(round_to_significant(x, 1), 10)
+        self.assertEqual(round_to_significant(x, 2), 12)
+        self.assertEqual(round_to_significant(x, 3), 12.3)
+        self.assertEqual(round_to_significant(x, 4), 12.34)
+        self.assertEqual(round_to_significant(x, 5), 12.345)
+        self.assertEqual(type(round_to_significant(x, 1)), int)
+        self.assertEqual(type(round_to_significant(x, 2)), int)
+        self.assertEqual(type(round_to_significant(x, 3)), float)
+        self.assertEqual(type(round_to_significant(x, 4)), float)
+        self.assertEqual(type(round_to_significant(x, 5)), float)
