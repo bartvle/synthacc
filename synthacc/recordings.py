@@ -78,20 +78,18 @@ class Waveform(Object):
         start_time: non neg number (in s) or
             'time.Time' instance (default: 0)
         """
-        super().__init__(time_delta, start_time, validate=validate)
-
         amplitudes = np.asarray(amplitudes, dtype=float)
 
         if validate is True:
             assert(is_pos_number(time_delta))
             assert(is_1d_numeric_array(amplitudes))
-            assert(is_non_neg_number(start_time) or is_time(start_time))
+
+        self._time_delta = time_delta
 
         header = {'delta': self.time_delta}
         if is_time(start_time):
             header['starttime'] = _UTCDateTime(start_time._time)
 
-        self._time_delta = time_delta
         self._trace = _Trace(amplitudes, header=header)
         self.start_time = start_time
 

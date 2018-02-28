@@ -10,7 +10,6 @@ import numpy as np
 
 from .apy import (Object, is_non_neg_number, is_pos_number, is_non_neg_integer,
     is_pos_integer, is_2d_numeric_array, is_string)
-from .data import TimeSeries
 from .units import MOTION_SI as SI_UNITS
 from .earth import flat as earth
 from .source.moment import MomentTensor
@@ -18,7 +17,7 @@ from .recordings import (Seismogram, Recording, rt_to_ne,
     plot_seismograms)
 
 
-class GenericGreensFunction(TimeSeries):
+class GenericGreensFunction(Object):
     """
     A Green's function for a certain src depth, distance and rcv depth. The ten
     components are ZSS, RSS, TSS, ZDS, RDS, TDS, ZDD, RDD, ZEP and REP. SS is a
@@ -52,6 +51,7 @@ class GenericGreensFunction(TimeSeries):
         components = np.asarray(components, dtype=float)
 
         if validate is True:
+            assert(is_pos_number(time_delta))
             assert(is_2d_numeric_array(components) and len(components) == 10)
             assert(gmt[:3] in SI_UNITS)
             if src_depth is not None:
@@ -63,6 +63,7 @@ class GenericGreensFunction(TimeSeries):
             if model is not None:
                 assert(is_string(model))
 
+        self._time_delta = time_delta
         self._components = components
         self._gmt = gmt
         self._src_depth = src_depth
@@ -74,6 +75,12 @@ class GenericGreensFunction(TimeSeries):
         """
         """
         return self._components.shape[1]
+
+    @property
+    def time_delta(self):
+        """
+        """
+        return self._time_delta
 
     @property
     def src_depth(self):

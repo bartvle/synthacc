@@ -31,6 +31,6 @@ def read_moment_rate_function(filespec):
     time_delta = float(times[1] - times[0])
     start_time = float(times[0])
 
-    mrf = MomentRateFunction(time_delta, rates, start_time=0)
+    mrf = MomentRateFunction(time_delta, rates, start_time)
 
     return mrf

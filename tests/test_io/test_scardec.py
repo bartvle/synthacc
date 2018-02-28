@@ -40,8 +40,7 @@ class Test(unittest.TestCase):
             'fctmoysource_20110312_014715_OFF_EAST_COAST_OF_HONSHU__JAPAN'))
 
         self.assertEqual(mrf.time_delta, 7.03125000*10**-2)
-        self.assertEqual(len(mrf.moment_rates), 245)
-        self.assertListEqual(list(mrf.moment_rates[:+16]), f_moment_rates)
-        self.assertListEqual(list(mrf.moment_rates[-16:]), l_moment_rates)
-        # self.assertEqual(mrf.start_time, -1.1250000)
-        self.assertEqual(mrf.start_time, 0)
+        self.assertEqual(len(mrf.rates), 245)
+        self.assertListEqual(list(mrf.rates[:+16]), f_moment_rates)
+        self.assertListEqual(list(mrf.rates[-16:]), l_moment_rates)
+        self.assertEqual(mrf.start_time, -1.1250000)
