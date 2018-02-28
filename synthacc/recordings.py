@@ -18,7 +18,6 @@ from obspy import UTCDateTime as _UTCDateTime, Trace as _Trace, read as _read
 from .apy import (Object, is_boolean, is_number, is_non_neg_number,
     is_pos_number, is_pos_integer, is_1d_numeric_array, is_string)
 from .time import Time, is_time
-from .data import TimeSeries
 from .units import MOTION as UNITS, MOTION_SI as SI_UNITS
 from .earth import flat as earth
 from .spectral import DFT, AccDFT
@@ -68,26 +67,33 @@ class Pick(Object):
         return self._phase
 
 
-class Waveform(TimeSeries):
+class Waveform(Object):
     """
     A waveform (has no unit).
     """
 
     def __init__(self, time_delta, amplitudes, start_time=0, validate=True):
         """
+        time_delta: pos number (in s)
+        start_time: non neg number (in s) or
+            'time.Time' instance (default: 0)
         """
         super().__init__(time_delta, start_time, validate=validate)
 
         amplitudes = np.asarray(amplitudes, dtype=float)
 
         if validate is True:
+            assert(is_pos_number(time_delta))
             assert(is_1d_numeric_array(amplitudes))
+            assert(is_non_neg_number(start_time) or is_time(start_time))
 
         header = {'delta': self.time_delta}
         if is_time(start_time):
             header['starttime'] = _UTCDateTime(start_time._time)
 
+        self._time_delta = time_delta
         self._trace = _Trace(amplitudes, header=header)
+        self.start_time = start_time
 
     def __len__(self):
         """
@@ -112,6 +118,27 @@ class Waveform(TimeSeries):
         return self._trace.data
 
     @property
+    def time_delta(self):
+        """
+        return: pos number (in s)
+        """
+        return self._time_delta
+
+    @property
+    def start_time(self):
+        """
+        return: non neg number (in s)
+        """
+        return self._start_time
+
+    @start_time.setter
+    def start_time(self, start_time):
+        """
+        """
+        assert(is_non_neg_number(start_time) or is_time(start_time))
+        self._start_time = start_time
+
+    @property
     def sampling_rate(self):
         """
         """
@@ -122,6 +149,35 @@ class Waveform(TimeSeries):
         """
         """
         return self.sampling_rate / 2
+
+    @property
+    def rel_times(self):
+        """
+        """
+        return self.time_delta * np.arange(len(self))
+
+    @property
+    def abs_times(self):
+        """
+        return: list of non neg numbers or 'time.Time' instances
+        """
+        l = [self._start_time + float(rel_time) for rel_time in self.rel_times]
+
+        return l
+
+    @property
+    def duration(self):
+        """
+        return: pos number (in s)
+        """
+        return self.time_delta * (len(self) - 1)
+
+    @property
+    def end_time(self):
+        """
+        return: non neg number (in s) or 'time.Time' instance
+        """
+        return self.start_time + self.duration
 
     def _slice(self, s_time=None, e_time=None, validate=True):
         """
@@ -267,7 +323,7 @@ class Seismogram(Waveform):
         Add another seismogram to this one. This can for example be used to
         stack synthetic seismograms from subruptures.
 
-        return: new instance of self.__class__
+        return: new self.__class__ instance
         """
         ## validation of other
         assert(type(other) is self.__class__)
