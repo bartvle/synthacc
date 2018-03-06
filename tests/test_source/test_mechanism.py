@@ -8,6 +8,32 @@ import unittest
 from synthacc.source.mechanism import NodalPlane, FocalMechanism, is_rake
 
 
+STRIKE, DIP, RAKE = 143., 68., -87.
+MOMENT = 1.32*10**17 ## in Nm
+
+
+class TestNodalPlane(unittest.TestCase):
+    """
+    """
+
+    np = NodalPlane(STRIKE, DIP, RAKE)
+
+    def test_properties(self):
+        """
+        """
+        self.assertEqual(self.np.strike, STRIKE)
+        self.assertEqual(self.np.dip, DIP)
+        self.assertEqual(self.np.rake, RAKE)
+
+    def test___getitem__(self):
+        """
+        """
+        strike, dip, rake = self.np
+        self.assertEqual(strike, STRIKE)
+        self.assertEqual(dip, DIP)
+        self.assertEqual(rake, RAKE)
+
+
 class TestFocalMechanism(unittest.TestCase):
     """
     """
