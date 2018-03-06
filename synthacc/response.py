@@ -202,3 +202,4 @@ def plot_response_spectra(response_spectra, labels=None, colors=None, styles=Non
         plt.savefig(png_filespec)
     else:
         plt.show()
+    plt.close(fig)
