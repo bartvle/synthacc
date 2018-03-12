@@ -5,7 +5,7 @@ Tests for 'data' module.
 
 import unittest
 
-from synthacc.data import TimeSeries, DataRecord, DataBase
+from synthacc.data import DataRecord, DataBase
 
 
 class DummyDataRecord(DataRecord):
