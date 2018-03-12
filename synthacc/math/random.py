@@ -100,109 +100,82 @@ class SpatialRandomFieldGenerator(Object):
     """
     """
 
-    def __init__(self, dimension, spacing, acf, cd, seed=None, validate=True):
+    def __init__(self, dimension, spacing, acf, acd, seed=None, validate=True):
         """
-        dimension: (width, length)
+        dimension: number of samples (width, length), must be odd
         spacing: (d_w, d_l)
         acf: autocorrelation function
-        cd: correlation distance
+        acd: autocorrelation distance
         seed: integer
         """
         if validate is True:
             assert(len(dimension) == 2)
-            assert(is_pos_number(dimension[0]))
-            assert(is_pos_number(dimension[1]))
+            assert(is_pos_integer(dimension[0]) and dimension[0] % 2 == 1)
+            assert(is_pos_integer(dimension[1]) and dimension[1] % 2 == 1)
             assert(len(spacing) == 2)
-            assert(is_pos_number(spacing[0]) and spacing[0] <= dimension[0])
-            assert(is_pos_number(spacing[1]) and spacing[1] <= dimension[1])
+            assert(is_pos_number(spacing[0]))
+            assert(is_pos_number(spacing[1]))
             assert(isinstance(acf, ACF))
-            assert(len(cd) == 2)
-            assert(is_pos_number(cd[0]))
-            assert(is_pos_number(cd[1]))
+            assert(len(acd) == 2)
+            assert(is_pos_number(acd[0]))
+            assert(is_pos_number(acd[1]))
             if seed is not None:
                 assert(is_pos_integer(seed))
 
-        n_w = int(dimension[0]/spacing[0])
-        n_l = int(dimension[1]/spacing[1])
-
-        ## check if w / d_w and l / d_l give even int
-        assert(dimension[0] % spacing[0] == 0 and n_w % 2 == 0)
-        assert(dimension[1] % spacing[1] == 0 and n_l % 2 == 0)
-
-        ## ifft needs odd number of points in each direction
-        self._r_w = int(n_w / 2)
-        self._r_l = int(n_l / 2)
-
-        self._n_w = n_w + 1
-        self._n_l = n_l + 1
+        self._n_w = dimension[0]
+        self._n_l = dimension[1]
 
         self._d_w = spacing[0]
         self._d_l = spacing[1]
 
         self._acf = acf
-        self._a_w = cd[0]
-        self._a_l = cd[1]
+        self._a_w = acd[0]
+        self._a_l = acd[1]
 
         self._seed = seed
 
     def __call__(self):
         """
         """
-        r_w = self._r_w
-        r_l = self._r_l
+        r_w = self._n_w // 2 ## index of middle row
+        r_l = self._n_l // 2 ## index of middle col
 
-        psd = self.psd[:self._r_w+1]
+        ## Take upper half of psd (including middle row)
+        psd = self.psd[:r_w+1]
 
-        ## normalize psd for iFFT
+        ## Normalize PSD for iFFT
         amplitudes = np.sqrt(psd/psd.max())
+        # amplitudes = np.sqrt(psd)
 
-        ## Set DC-component to 0 (zero-mean field)
-        amplitudes[r_w,r_l] = 0
+        ## Set DC-component to 0
+        amplitudes[r_w, r_l] = 0
 
-        ## random phases
+        ## Get random phases
         if self.seed is not None:
             np.random.seed(self.seed)
-
         phases = 2 * np.pi * np.random.random(size=amplitudes.shape)
 
-        ## Construct DFT (without negative frequency terms)
+        ## Construct DFT for upper half (positive frequency rows)
         Y = amplitudes * np.cos(phases) + 1j * amplitudes * np.sin(phases)
 
-        ## Include negative frequency terms (complex conjugates of positive ones)
-        U = np.zeros((self.n_w, self.n_l), dtype=complex)
-        Y = np.concatenate((Y, np.conj(np.fliplr(np.flipud(Y[0:r_w,:])))))
+        ## Construct DFT for lower half (negative frequency rows)
+        Y = np.concatenate((Y, np.conj(np.fliplr(np.flipud(Y[:-1])))))
 
-        for i in range(0,r_l):
-            Y[r_w,-i+self.n_l-1] = np.conj(Y[r_w,i])
+        ## Construct DFT for for middle row (zero frequency row)
+        Y[r_w,:r_l:-1] = np.conj(Y[r_w,:r_l])
 
-        ## Set ULQ of U with LRQ of Y (including midpoint)
-        for i in range(0,r_w+1):
-            for j in range(0,r_l+1):
-                U[i,j] = Y[i+r_w,j+r_l]
+        ## Shift
+        dft = np.fft.ifftshift(Y)
 
-        ## Set LRQ of U with ULQ of Y
-        for i in range(r_w+1, self.n_w):
-            for j in range(r_l+1, self.n_l):
-                U[i,j] = Y[i-r_w-1,j-r_l-1]
+        ## inverse 2D complex FFT
+        ## remaining imaginary part is due to machine precision
+        field = np.real(np.fft.ifft2(dft))
 
-        ## Set URQ of U with LLQ of Y
-        for i in range(0,r_w+1):
-            for j in range(r_l+1, self.n_l):
-                U[i,j] = Y[i+r_w,j-r_l-1]
-
-        ## Set LLQ of U with URQ of Y
-        for i in range(r_w+1, self.n_w):
-            for j in range(0,r_l+1):
-                U[i,j] = Y[i-1-r_w,j+r_l]
-
-        ## 2D inverse FFT (remaining imaginary parts are due to machine precision)
-        field = np.real(np.fft.ifft2(U))
-
-        ## Remove mean and scale to unit variance
+        # Remove mean and scale to unit variance
         field = field / np.std(field, ddof=1)
 
-        if np.mean(field) < 0:
-            field *= -1 # (small) positive mean
+        # if np.mean(field) < 0:
+            # field *= -1 # (small) positive mean
 
         return field
 
@@ -251,18 +224,26 @@ class SpatialRandomFieldGenerator(Object):
     @property
     def k_w(self):
         """
+        n_w wavenumbers from -half the sampling rate to +half the sampling rate
+
+        For an odd n_w this is in practice not the sampling rate but
+        (n_w//2 / n_w) * (1/d_w)) * np.linspace(-2*np.pi, 2*np.pi, self.n_w)
+
+        returns k_w from - over 0 to +
         """
-        k_w = ((self._r_w/(self.n_w*self.d_w)) *
-            np.linspace(-2*np.pi, 2*np.pi, self.n_w))
-        return k_w
+        return 2*np.pi * np.fft.fftshift(np.fft.fftfreq(self._n_w, self._d_w))
 
     @property
     def k_l(self):
         """
+        n_l wavenumbers from -half the sampling rate to +half the sampling rate
+
+        For an odd n_l this is in practice not the sampling rate but
+        (n_l//2 / n_l) * (1/d_l) * np.linspace(-2*np.pi, 2*np.pi, self.n_l)
+
+        returns k_l from - over 0 to +
         """
-        k_l = ((self._r_l/(self.n_l*self.d_l)) *
-            np.linspace(-2*np.pi, 2*np.pi, self.n_l))
-        return k_l
+        return 2*np.pi * np.fft.fftshift(np.fft.fftfreq(self._n_l, self._d_l))
 
     @property
     def k_r(self):
@@ -279,7 +260,7 @@ class SpatialRandomFieldGenerator(Object):
     def psd(self):
         """
         """
-        return self.acf.get_psd(self.k_r, self.a_w*self.a_l)   
+        return self.acf.get_psd(self.k_r, a=self.a_w*self.a_l)
 
     @property
     def seed(self):
