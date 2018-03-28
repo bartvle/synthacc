@@ -1,5 +1,5 @@
 """
-The 'methods.gmpes' module.
+The 'gmpes' module.
 
 For using Ground Motion Prediction Equations (GMPEs). For our implementation we
 use the OpenQuake Engine (Pagani et al., 2014).
@@ -18,11 +18,11 @@ from openquake.hazardlib.imt import (PGD as _PGD, PGV as _PGV, PGA as _PGA,
                                      SA as _SA)
 from openquake.hazardlib.const import StdDev as _SD_TYPES
 
-from ..apy import Object, is_boolean, is_pos_number, is_string
-from ..units import MOTION as UNITS
-from ..response import (ResponseSpectrum, plot_response_spectra as
+from .apy import Object, is_boolean, is_pos_number, is_string
+from .units import MOTION as UNITS
+from .response import (ResponseSpectrum, plot_response_spectra as
     _plot_response_spectra)
-from ..plot import set_space
+from .plot import set_space
 
 
 _AVAILABLE_GSIMS = _get_available_gsims()

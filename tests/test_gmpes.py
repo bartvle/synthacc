@@ -1,5 +1,5 @@
 """
-Tests for 'methods.gmpes' module.
+Tests for 'gmpes' module.
 """
 
 
@@ -8,12 +8,12 @@ import unittest
 
 import numpy as np
 
-from synthacc.methods.gmpes import (TECTONIC_REGIONS, DISTANCE_METRICS,
+from synthacc.gmpes import (TECTONIC_REGIONS, DISTANCE_METRICS,
     AVAILABLE_GMPES, GMPE, find_gmpes, plot_gmpes_distance,
     plot_gmpes_magnitude, plot_gmpes_spectrum)
 
 
-OUTPUT_DIR = os.path.join(os.path.dirname(__file__), '..', 'output')
+OUTPUT_DIR = os.path.join(os.path.dirname(__file__), 'output')
 
 
 class TestGMPE(unittest.TestCase):
