@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from numba import jit
 import numpy as np
+import numpy.ma as ma
 import scipy.special
 
 from ..apy import (Object, is_number, is_pos_number, is_pos_integer,
@@ -42,11 +43,12 @@ class Surface(Object):
             assert(is_pos_number(l))
             assert(is_pos_number(dw))
             assert(is_pos_number(dl))
-            assert(w % dw == 0)
-            assert(l % dl == 0)
 
-        nw = w // dw
-        nl = l // dl
+        nw = round(w / dw)
+        nl = round(l / dl)
+
+        dw = w / nw
+        dl = l / nl
 
         xs = np.linspace(0+dl/2, l-dl/2, nl)
         ys = np.linspace(0+dw/2, w-dw/2, nw)
@@ -591,6 +593,12 @@ class SlipDistribution(Surface):
 
         self._slip = slip
 
+    @property
+    def slip(self):
+        """
+        """
+        return self._slip
+
     def plot(self, size=None, png_filespec=None, validate=True):
         """
         """
@@ -725,8 +733,8 @@ class RFSlipDistributionGenerator(Object):
             assert(is_pos_number(l))
             assert(is_pos_number(dw))
             assert(is_pos_number(dl))
-            assert(w % dw == 0 and (w // dw) % 2 == 1)
-            assert(l % dl == 0 and (l // dl) % 2 == 1)
+            assert(round(w / dw) % 2 == 1)
+            assert(round(l / dl) % 2 == 1)
             assert(isinstance(acf, ACF))
             assert(is_pos_number(aw))
             assert(is_pos_number(al))
@@ -1026,3 +1034,162 @@ class MASlipDistributionGenerator(Object):
     Multiple asperity slip distribution generator.
     """
     pass
+
+
+class LiuEtAl2006NormalizedSlipRateGenerator(Object):
+    """
+    Normalized slip rate generator of Liu et al. (2006).
+    """
+
+    def __init__(self, time_delta, validate=True):
+        """
+        """
+        if validate is True:
+            assert(is_pos_number(time_delta))
+
+        self._time_delta = time_delta
+
+    def __call__(self, rise_time, validate=True):
+        """
+        See Liu et al. (2006) p. 2121 eq. 7a and 7b.
+        """
+        if validate is True:
+            assert(is_pos_number(rise_time))
+
+        t1 = 0.13*rise_time
+        t2 = rise_time - t1
+        cn = np.pi / (1.4*np.pi*t1 + 1.2*t1 + 0.3*np.pi*t2)
+
+        times = self.time_delta * np.arange(
+            np.round(rise_time / self.time_delta) + 1)
+
+        i1 = times < t1
+        i3 = times >= 2*t1
+        i2 = ~(i1 | i3)
+
+        f = np.zeros_like(times)
+        f[i1] = (0.7 - 0.7*np.cos(np.pi*times[i1]/t1) +
+                    0.6*np.sin(np.pi*times[i1]/(2.*t1)))
+        f[i2] = (1.0 - 0.7*np.cos(np.pi*times[i2]/t1) +
+                    0.3*np.cos(np.pi*(times[i2]-t1)/t2))
+        f[i3] = (0.3 + 0.3*np.cos(np.pi*(times[i3]-t1)/t2))
+
+        return cn * f
+
+    @property
+    def time_delta(self):
+        """
+        """
+        return self._time_delta
+
+
+class GP2016KinematicRuptureGenerator(Object):
+    """
+    Graves & Pitarka (2016) kinematic rupture generator (GP15.4).
+    """
+
+    def __init__(self, time_delta, velocity, rigidity=RIGIDITY, validate=True):
+        """
+        """
+        if validate is True:
+            assert(is_pos_number(time_delta))
+            assert(is_pos_number(velocity))
+            assert(is_pos_number(rigidity))
+
+        self._time_delta = time_delta
+        self._velocity = velocity
+        self._rigidity = rigidity
+
+    def __call__(self, surface, rake, magnitude, validate=True):
+        """
+        """
+        if validate is True:
+            assert(type(surface) is RectangularSurface)
+            assert(is_rake(rake))
+            assert(is_number(magnitude))
+
+        moment = mw_to_m0(magnitude)
+
+        hypo = surface.get_random()
+
+        w, l = surface.width, surface.length
+
+        nw = int(w / 100 // 2 * 2 + 1)
+        nl = int(l / 100 // 2 * 2 + 1)
+
+        surface = surface.get_discretized(shape=(nw, nl))
+
+        dw = surface.spacing[0]
+        dl = surface.spacing[1]
+
+        acf = VonKarmanACF(h=0.75)
+
+        aw = 10**(1/3*magnitude-1.6) * 1000
+        al = 10**(1/2*magnitude-2.5) * 1000
+
+        g = RFSlipDistributionGenerator(w, l, dw, dl, acf, aw, al)
+
+        sd = g(magnitude, self.rigidity)
+
+        _, _, depths = np.rollaxis(surface.centers, 2)
+        rise_times = self._get_rise_times(depths, sd.slip)
+
+        average = self._get_average_rise_time(surface.dip, moment)
+        rise_times *= (average / rise_times.mean())
+
+        onsets = (space.distance(*hypo, *np.rollaxis(surface.centers, 2)) /
+            self.velocity)
+
+        n_onsets = np.round(onsets / self.time_delta).astype(np.int)
+
+        n_rise_times = np.round(rise_times / self.time_delta).astype(np.int)
+
+        n = n_onsets + n_rise_times
+
+        slip_rates = np.zeros(surface.shape + (n.max()+2,))
+
+        nsrf_g = LiuEtAl2006NormalizedSlipRateGenerator(self.time_delta)
+
+        for i in np.ndindex(surface.shape):
+            t = rise_times[i]
+            if t != 0:
+                srf = nsrf_g(float(t))
+                slip_rates[i][n_onsets[i]:n_onsets[i]+len(srf)] = srf * sd.slip[i]
+
+        rupture = KinematicRupture(surface, hypo, rake, self._time_delta,
+            slip_rates, self._rigidity)
+
+        return rupture
+
+    @property
+    def time_delta(self):
+        """
+        """
+        return self._time_delta
+
+    @property
+    def velocity(self):
+        """
+        """
+        return self._velocity
+
+    @property
+    def rigidity(self):
+        """
+        """
+        return self._rigidity
+
+    def _get_average_rise_time(self, dip, moment):
+        """
+        See Graves & Pitarka (2010) p. 2099 eq. 8 and 9. Adjusted for moment in
+        Nm instead of dyn-cm.
+        """
+        factor = np.interp(dip, [45, 60], [0.82, 1])
+        t = factor * 1.6 * 10**-9 * (10**7*moment)**(1/3)
+        return t
+
+    def _get_rise_times(self, depths, slip):
+        """
+        See Graves & Pitarka (2010) p. 2098 eq. 7.
+        """
+        return np.interp(depths, [5000, 8000], [2, 1]) * (slip/100)**(1/2)
