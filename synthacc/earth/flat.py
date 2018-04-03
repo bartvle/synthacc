@@ -508,6 +508,31 @@ class DiscretizedRectangularSurface(Object):
         return self._centers
 
     @property
+    def dip(self):
+        """
+        """
+        return self._outline.dip
+
+    @property
+    def length(self):
+        """
+        """
+        return self._outline.length
+
+    @property
+    def width(self):
+        """
+        """
+        return self._outline.width
+
+    @property
+    def area(self):
+        """
+        return: pos number
+        """
+        return self._outline.area
+
+    @property
     def cell_area(self):
         """
         return: pos number
