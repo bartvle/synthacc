@@ -6,6 +6,7 @@ with coordinates x, y and z.
 """
 
 
+from numba import jit
 import numpy as np
 
 from .apy import PRECISION, Object, is_number, is_array, is_numeric
@@ -578,6 +579,13 @@ def prepare_coordinates(c1, c2, c3, validate=True):
     return c1, c2, c3
 
 
+@jit
+def _distance(x1, y1, z1, x2, y2, z2):
+    """
+    """
+    return np.sqrt((x2-x1)**2+(y2-y1)**2+(z2-z1)**2)
+
+
 def distance(x1, y1, z1, x2, y2, z2, validate=True):
     """
     Calculate distance.
@@ -601,7 +609,7 @@ def distance(x1, y1, z1, x2, y2, z2, validate=True):
                      tuple([1]*len(y1.shape)) + y2.shape)
         z1 = np.tile(z1[(Ellipsis,)+tuple([None]*len(z2.shape))],
                      tuple([1]*len(z1.shape)) + z2.shape)
-    distance = np.sqrt((x2-x1)**2+(y2-y1)**2+(z2-z1)**2)
+    distance = _distance(x1, y1, z1, x2, y2, z2)
 
     if not is_array(distance):
         distance = float(distance)
