@@ -8,7 +8,7 @@ import unittest
 import numpy as np
 
 from synthacc.apy import PRECISION, is_number
-from synthacc.math.matrices import Matrix
+from synthacc.math import Matrix
 from synthacc.space import (Point, Plane, Vector, RotationMatrix,
     are_coordinates, prepare_coordinates, distance, nearest)
 

@@ -1,11 +1,11 @@
 """
-The 'math.matrices' module.
+The 'math' module.
 """
 
 
 import numpy as np
 
-from ..apy import Object, is_number, is_pos_integer, is_2d_numeric_array
+from .apy import Object, is_number, is_pos_integer, is_2d_numeric_array
 
 
 class Matrix(Object):

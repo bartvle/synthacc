@@ -1,5 +1,5 @@
 """
-Tests for 'math.matrices' module.
+Tests for 'math' module.
 """
 
 
@@ -7,7 +7,7 @@ import unittest
 
 import numpy as np
 
-from synthacc.math.matrices import Matrix, SquareMatrix, IdentityMatrix
+from synthacc.math import Matrix, SquareMatrix, IdentityMatrix
 
 
 class TestMatrix(unittest.TestCase):

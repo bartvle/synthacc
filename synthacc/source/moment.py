@@ -10,7 +10,7 @@ import numpy as np
 
 from ..apy import (PRECISION, Object, is_number, is_pos_number,
     is_1d_numeric_array)
-from ..math.matrices import SquareMatrix
+from ..math import SquareMatrix
 
 
 class MomentTensor(Object):

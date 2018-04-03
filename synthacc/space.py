@@ -10,7 +10,7 @@ from numba import jit
 import numpy as np
 
 from .apy import PRECISION, Object, is_number, is_array, is_numeric
-from .math.matrices import Matrix, SquareMatrix
+from .math import Matrix, SquareMatrix
 
 
 class Point(Object):
