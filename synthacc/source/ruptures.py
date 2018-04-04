@@ -33,6 +33,7 @@ def _distance(x1, y1, x2, y2):
 
 class Surface(Object):
     """
+    A two-dimensional rupture surface.
     """
 
     def __init__(self, w, l, dw, dl, validate=True):
@@ -594,6 +595,12 @@ class SlipDistribution(Surface):
         self._slip = slip
 
     @property
+    def surface(self):
+        """
+        """
+        return Surface(self.w, self.l, self.dw, self.dl, validate=False)
+
+    @property
     def slip(self):
         """
         """
@@ -1081,6 +1088,19 @@ class LiuEtAl2006NormalizedSlipRateGenerator(Object):
         """
         """
         return self._time_delta
+
+
+class KinematicRuptureGenerator(Object):
+    """
+    """
+
+    def __init__(self, time_delta, sdg, rfg, ttc, validate=True):
+        """
+        """
+
+    def __call__(self):
+        """
+        """
 
 
 class GP2016KinematicRuptureGenerator(Object):

@@ -5,6 +5,8 @@ Tests for 'source.ruptures' module.
 
 import unittest
 
+import numpy as np
+
 from synthacc.source.ruptures import (Surface, PointRupture, SimpleRupture,
     KinematicRupture, SlipDistribution, GaussianACF, ExponentialACF,
     VonKarmanACF, RFSlipDistribution, RFSlipDistributionGenerator,
@@ -31,7 +33,8 @@ class TestSurface(unittest.TestCase):
         """
         self.assertEqual(self.s.w, self.w)
         self.assertEqual(self.s.l, self.l)
-        self.assertEqual(self.s.w, self.w)
+        self.assertEqual(self.s.dw, self.dw)
+        self.assertEqual(self.s.dl, self.dl)
         self.assertEqual(self.s.shape, (60, 80))
         self.assertEqual(self.s.area, 72000000)
 
@@ -55,6 +58,37 @@ class TestSimpleRupture(unittest.TestCase):
         """
         surface = RectangularSurface(0, 0, 10000, 0, 0, 5000, 90)
         r = SimpleRupture(surface, (0, 0, 5000), 0, 1)
+
+
+class TestSlipDistribution(unittest.TestCase):
+    """
+    """
+
+    w = 6000
+    l = 12000
+    dw = 100
+    dl = 150
+    s = SlipDistribution(w, l, np.random.random((60, 80)))
+
+    def test_properties(self):
+        """
+        """
+        self.assertEqual(self.s.w, self.w)
+        self.assertEqual(self.s.l, self.l)
+        self.assertEqual(self.s.dw, self.dw)
+        self.assertEqual(self.s.dl, self.dl)
+        self.assertEqual(self.s.shape, (60, 80))
+        self.assertEqual(self.s.area, 72000000)
+
+    def test_surface(self):
+        """
+        """
+        s = self.s.surface
+        self.assertEqual(s.w, self.w)
+        self.assertEqual(s.l, self.l)
+        self.assertEqual(s.dw, self.dw)
+        self.assertEqual(s.dl, self.dl)
+        self.assertEqual(s.shape, (60, 80))
 
 
 class TestGP2016KinematicRuptureGenerator(unittest.TestCase):
