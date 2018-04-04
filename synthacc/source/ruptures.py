@@ -15,7 +15,7 @@ import scipy.special
 
 from ..apy import (Object, is_number, is_pos_number, is_pos_integer,
     is_2d_numeric_array, is_3d_numeric_array)
-from .. import space
+from .. import space3
 from ..earth.flat import RectangularSurface, DiscretizedRectangularSurface
 from .moment import (NormalizedMomentRateFunction, MomentRateFunction,
     NormalizedSlipRateFunction, calculate as calculate_moment, m0_to_mw,
@@ -149,7 +149,7 @@ class PointRupture(Object):
     def __init__(self, point, focal_mechanism, moment, nmrf=None, validate=True):
         """
         """
-        point = space.Point(*point, validate=validate)
+        point = space3.Point(*point, validate=validate)
 
         if validate is True:
             assert(type(focal_mechanism) is FocalMechanism)
@@ -200,7 +200,7 @@ class SimpleRupture(Object):
     def __init__(self, surface, hypo, rake, slip, nsrf=None, rigidity=RIGIDITY, validate=True):
         """
         """
-        hypo = space.Point(*hypo, validate=validate)
+        hypo = space3.Point(*hypo, validate=validate)
 
         if validate is True:
             assert(type(surface) is RectangularSurface)
@@ -267,7 +267,7 @@ class SimpleRupture(Object):
     def epi(self):
         """
         """
-        return space.Point(self.hypo.x, self.hypo.y, 0)
+        return space3.Point(self.hypo.x, self.hypo.y, 0)
 
     @property
     def focal_mechanism(self):
@@ -295,27 +295,27 @@ class SimpleRupture(Object):
         """
         return: pos number
         """
-        p = space.Point(*point)
+        p = space3.Point(*point)
         if validate is True:
             assert(p.z == 0)
-        d = space.distance(*self.hypo, *p)
+        d = space3.distance(*self.hypo, *p)
         return d
 
     def get_epi_distance(self, point, validate=True):
         """
         return: pos number
         """
-        p = space.Point(*point)
+        p = space3.Point(*point)
         if validate is True:
             assert(p.z == 0)
-        d = space.distance(*self.epi, *p)
+        d = space3.distance(*self.epi, *p)
         return d
 
     def get_rup_distance(self, point, spacing=1000, validate=True):
         """
         return: pos number
         """
-        p = space.Point(*point)
+        p = space3.Point(*point)
         if validate is True:
             assert(p.z == 0)
             assert(is_pos_number(spacing))
@@ -329,8 +329,8 @@ class SimpleRupture(Object):
 
         xs, ys, zs = np.rollaxis(self._discretized.corners, 2)
 
-        x, y, z = space.nearest(*p, xs, ys, zs)
-        d = space.distance(x, y, z, *p)
+        x, y, z = space3.nearest(*p, xs, ys, zs)
+        d = space3.distance(x, y, z, *p)
 
         return d
 
@@ -338,7 +338,7 @@ class SimpleRupture(Object):
         """
         return: pos number
         """
-        p = space.Point(*point)
+        p = space3.Point(*point)
         if validate is True:
             assert(p.z == 0)
             assert(is_pos_number(spacing))
@@ -353,8 +353,8 @@ class SimpleRupture(Object):
         xs, ys, zs = np.rollaxis(self._discretized.corners, 2)
         zs = np.zeros_like(zs)
 
-        x, y, z = space.nearest(*p, xs, ys, zs)
-        d = space.distance(x, y, z, *p)
+        x, y, z = space3.nearest(*p, xs, ys, zs)
+        d = space3.distance(x, y, z, *p)
 
         return d
 
@@ -391,7 +391,7 @@ class KinematicRupture(Object):
     def __init__(self, surface, hypo, rake, time_delta, slip_rates, rigidity=RIGIDITY, validate=True):
         """
         """
-        hypo = space.Point(*hypo, validate=validate)
+        hypo = space3.Point(*hypo, validate=validate)
 
         if validate is True:
             assert(type(surface) is DiscretizedRectangularSurface)
@@ -434,7 +434,7 @@ class KinematicRupture(Object):
             x = float(x)
             y = float(y)
             z = float(z)
-            point = space.Point(x, y, z)
+            point = space3.Point(x, y, z)
 
             nmrf = NormalizedMomentRateFunction(
             self.time_delta, self._slip_rates[i] / slip[i])
@@ -1157,7 +1157,7 @@ class GP2016KinematicRuptureGenerator(Object):
         average = self._get_average_rise_time(surface.dip, moment)
         rise_times *= (average / rise_times.mean())
 
-        onsets = (space.distance(*hypo, *np.rollaxis(surface.centers, 2)) /
+        onsets = (space3.distance(*hypo, *np.rollaxis(surface.centers, 2)) /
             self.velocity)
 
         n_onsets = np.round(onsets / self.time_delta).astype(np.int)

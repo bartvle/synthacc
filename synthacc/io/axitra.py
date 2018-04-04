@@ -16,7 +16,7 @@ import numpy as np
 
 from ..apy import (PRECISION, Object, is_number, is_non_neg_number,
     is_pos_number, is_pos_integer, is_string)
-from .. import space
+from .. import space3
 from ..units import MOTION_SI as SI_UNITS
 from ..source.mechanism import FocalMechanism
 from ..ground_models import LayerModel
@@ -123,8 +123,8 @@ class Wrapper(Object):
 
         return: 'recordings.Recording' instance
         """
-        src = space.Point(*src)
-        rcv = space.Point(*rcv)
+        src = space3.Point(*src)
+        rcv = space3.Point(*rcv)
 
         if validate is True:
             assert(src.z != rcv.z) ## Limitation of Axitra methodology

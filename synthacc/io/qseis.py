@@ -17,7 +17,7 @@ import numpy as np
 
 from ..apy import (PRECISION, T, F, Object, is_non_neg_number, is_pos_number, 
     is_string)
-from .. import space
+from .. import space3
 from ..earth import flat as earth
 from ..ground_models import ContinuousModel
 from ..source.moment import MomentTensor
@@ -120,14 +120,14 @@ class Wrapper(Object):
         """
         return: 'recordings.Recording' instance
         """
-        src = space.Point(*src)
-        rcv = space.Point(*rcv)
+        src = space3.Point(*src)
+        rcv = space3.Point(*rcv)
 
         if validate is True:
             assert(src.z != rcv.z) ## Limitation of Qseis methodology
 
         filespec = os.path.join(self.folder, INPUT_FILENAME)
-        d = space.distance(src.x, src.y, 0, rcv.x, rcv.y, 0)
+        d = space3.distance(src.x, src.y, 0, rcv.x, rcv.y, 0)
         azimuth = earth.azimuth(src.x, src.y, rcv.x, rcv.y)
 
         write_input(filespec, self._params, self._ground_model, src.z, [d], rcv.z,

@@ -1,5 +1,5 @@
 """
-Tests for 'space' module.
+Tests for 'space3' module.
 """
 
 
@@ -9,7 +9,7 @@ import numpy as np
 
 from synthacc.apy import PRECISION, is_number
 from synthacc.math import Matrix
-from synthacc.space import (Point, Plane, Vector, RotationMatrix,
+from synthacc.space3 import (Point, Plane, Vector, RotationMatrix,
     are_coordinates, prepare_coordinates, distance, nearest)
 
 

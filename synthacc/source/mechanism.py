@@ -11,7 +11,7 @@ right of the strike.
 import numpy as np
 
 from ..apy import Object, is_number, is_pos_number
-from .. import space
+from .. import space3
 from ..earth.flat import is_strike, is_dip
 from .moment import MomentTensor
 
@@ -73,7 +73,7 @@ class FocalMechanism(NodalPlane):
         west and z up. Jost and Herrmann (1989) p. 40. show the formulas with
         correct orientation.
 
-        return: 'space.Vector' instance
+        return: 'space3.Vector' instance
         """
         s, d, _ = self._radians
 
@@ -81,7 +81,7 @@ class FocalMechanism(NodalPlane):
         w = float(-np.sin(d) * np.cos(s))
         u = float(+np.cos(d))
 
-        return space.Vector(n, -w, -u)
+        return space3.Vector(n, -w, -u)
 
     @property
     def slip_vector(self):
@@ -92,7 +92,7 @@ class FocalMechanism(NodalPlane):
         west and z up. Jost and Herrmann (1989) p. 40. show the formulas with
         correct orientation.
 
-        return: 'space.Vector' instance
+        return: 'space3.Vector' instance
         """
         s, d, r = self._radians
 
@@ -100,7 +100,7 @@ class FocalMechanism(NodalPlane):
         w = float(-np.cos(r)*np.sin(s) + np.sin(r)*np.cos(d)*np.cos(s))
         u = float(+np.sin(r)*np.sin(d))
 
-        return space.Vector(n, -w, -u)
+        return space3.Vector(n, -w, -u)
 
     def get_moment_tensor(self, moment, validate=True):
         """

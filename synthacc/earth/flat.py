@@ -14,7 +14,7 @@ from shapely.geometry import (Point as _Point, LineString as _LineString,
 
 from ..apy import (T, F, Object, is_number, is_non_neg_number, is_pos_number,
     is_integer, is_pos_integer, is_1d_numeric_array)
-from .. import space
+from .. import space3
 
 
 class Sites(Object):
@@ -172,7 +172,7 @@ class Path(Sites):
         for i in range(len(self)-1):
             x1, y1, = self[i+0]
             x2, y2, = self[i+1]
-            length += space.distance(x1, y1, 0, x2, y2, 0, validate=False)
+            length += space3.distance(x1, y1, 0, x2, y2, 0, validate=False)
 
         return length
 
@@ -236,7 +236,7 @@ class RectangularSurface(Object):
     def __contains__(self, point):
         """
         """
-        point = space.Point(*point)
+        point = space3.Point(*point)
 
         ulc, urc, llc, lrc = self.corners
         _polygon = _Polygon((
@@ -254,28 +254,28 @@ class RectangularSurface(Object):
     @property
     def ulc(self):
         """
-        return: 'space.Point' instance
+        return: 'space3.Point' instance
         """
-        return space.Point(self._x1, self._y1, self.upper_depth)
+        return space3.Point(self._x1, self._y1, self.upper_depth)
 
     @property
     def urc(self):
         """
-        return: 'space.Point' instance
+        return: 'space3.Point' instance
         """
-        return space.Point(self._x2, self._y2, self.upper_depth)
+        return space3.Point(self._x2, self._y2, self.upper_depth)
 
     @property
     def llc(self):
         """
-        return: 'space.Point' instance
+        return: 'space3.Point' instance
         """
         return self.ulc.get_translated(self.ad_vector)
 
     @property
     def lrc(self):
         """
-        return: 'space.Point' instance
+        return: 'space3.Point' instance
         """
         return self.urc.get_translated(self.ad_vector)
 
@@ -345,7 +345,7 @@ class RectangularSurface(Object):
         """
         x = float(self.surface_width * np.cos(np.radians(self.dip_azimuth)))
         y = float(self.surface_width * np.sin(np.radians(self.dip_azimuth)))
-        return space.Vector(x, y, self.depth_range)
+        return space3.Vector(x, y, self.depth_range)
 
     @property
     def length(self):
@@ -378,16 +378,16 @@ class RectangularSurface(Object):
     @property
     def center(self):
         """
-        return: 'space.Point' instance
+        return: 'space3.Point' instance
         """
         return self.ulc.get_translated((self.as_vector + self.ad_vector) / 2)
 
     @property
     def plane(self):
         """
-        return: 'space.Plane' instance
+        return: 'space3.Plane' instance
         """
-        return space.Plane.from_points(self.ulc, self.urc, self.llc)
+        return space3.Plane.from_points(self.ulc, self.urc, self.llc)
 
     def get_discretized(self, shape, validate=True):
         """
@@ -409,13 +409,13 @@ class RectangularSurface(Object):
         """
         Get a random point on the surface.
 
-        return: 'space.Point' instance
+        return: 'space3.Point' instance
         """
         l_vector = self.as_vector * np.random.uniform(0, 1)
         w_vector = self.ad_vector * np.random.uniform(0, 1)
         x, y, z = self.ulc.get_translated(l_vector + w_vector)
 
-        return space.Point(x, y, z)
+        return space3.Point(x, y, z)
 
     def plot(self):
         """

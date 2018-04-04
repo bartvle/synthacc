@@ -14,7 +14,7 @@ import pyproj
 
 from ..apy import (PRECISION, Object, is_number, is_non_neg_number,
     is_1d_numeric_array, is_in_range)
-from .. import space
+from .. import space3
 from ..units import MOTION as UNITS
 from . import flat
 
@@ -76,7 +76,7 @@ class Point(Object):
         """
         proj: EPSG number
         """
-        p = space.Point(*point, validate=validate)
+        p = space3.Point(*point, validate=validate)
 
         other_proj = pyproj.Proj(init='epsg:%i' % proj)
         wgs84_proj = pyproj.Proj(init='epsg:%i' % 4326)
@@ -121,7 +121,7 @@ class Point(Object):
     def project(self, proj):
         """
         """
-        return space.Point(*project(self.lon, self.lat, proj), self.depth)
+        return space3.Point(*project(self.lon, self.lat, proj), self.depth)
 
 
 class Path(Object):

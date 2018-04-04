@@ -1,5 +1,5 @@
 """
-The 'space' module.
+The 'space3' module.
 
 Module for 3d Euclidean space in a right-handed Cartesian coordinate system
 with coordinates x, y and z.
@@ -43,7 +43,7 @@ class Point(Object):
     def __repr__(self):
         """
         """
-        s = '< space.Point | '
+        s = '< space3.Point | '
         s += 'x={:{}.3f}'.format(self.x, '+' if self.x else '')
         s += ', '
         s += 'y={:{}.3f}'.format(self.y, '+' if self.y else '')
@@ -94,7 +94,7 @@ class Point(Object):
     @property
     def vector(self):
         """
-        return: 'space.Vector' instance, position vector
+        return: 'space3.Vector' instance, position vector
         """
         return Vector(*self)
 
@@ -102,7 +102,7 @@ class Point(Object):
         """
         Translate point by a vector.
 
-        vector: 'space.Vector' instance or coordinates
+        vector: 'space3.Vector' instance or coordinates
 
         return: class instance
         """
@@ -193,7 +193,7 @@ class Plane(Object):
     @property
     def normal(self):
         """
-        return: 'space.Vector' instance
+        return: 'space3.Vector' instance
         """
         return Vector(self.a, self.b, self.c, validate=False)
 
@@ -201,7 +201,7 @@ class Plane(Object):
         """
         Get distance of a point to the plane.
 
-        p: 'space.Point' instance or coordinates
+        p: 'space3.Point' instance or coordinates
 
         return: pos number
         """
@@ -246,7 +246,7 @@ class Vector(Object):
     def __repr__(self):
         """
         """
-        s = '< space.Vector | '
+        s = '< space3.Vector | '
         s += 'x={:{}.3f}'.format(self.x, '+' if self.x else '')
         s += ', '
         s += 'y={:{}.3f}'.format(self.y, '+' if self.y else '')
