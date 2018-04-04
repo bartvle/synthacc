@@ -15,6 +15,7 @@ import scipy.special
 
 from ..apy import (Object, is_number, is_pos_number, is_pos_integer,
     is_2d_numeric_array, is_3d_numeric_array)
+from .. import space2
 from .. import space3
 from ..earth.flat import RectangularSurface, DiscretizedRectangularSurface
 from .moment import (NormalizedMomentRateFunction, MomentRateFunction,
@@ -22,13 +23,6 @@ from .moment import (NormalizedMomentRateFunction, MomentRateFunction,
     mw_to_m0)
 from .mechanism import FocalMechanism, is_rake
 from .faults import RIGIDITY
-
-
-@jit(nopython=True)
-def _distance(x1, y1, x2, y2):
-    """
-    """
-    return np.sqrt((x2-x1)**2+(y2-y1)**2)
 
 
 class Surface(Object):
@@ -965,7 +959,7 @@ class FCSlipDistributionGenerator(Object):
         x1 = np.tile(self.surface.xgrid[(Ellipsis,None)], (1,1,len(sources)))
         y1 = np.tile(self.surface.ygrid[(Ellipsis,None)], (1,1,len(sources)))
 
-        distances = _distance(x1, y1, sources[:,0], sources[:,1])
+        distances = space2.distance(x1, y1, sources[:,0], sources[:,1])
 
         constant = ((1.5 / np.pi) * (mw_to_m0(magnitude) /
             (np.sqrt(self.surface.l*self.surface.w/np.pi)**3 * rigidity)))
