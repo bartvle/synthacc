@@ -42,6 +42,54 @@ class VelocityDistribution(Distribution):
         return self._values
 
 
+class RFVelocityDistributionGenerator(Object):
+    """
+    """
+
+    def __init__(self, w, l, dw, dl, acf, aw, al, validate=True):
+        """
+        """
+        if validate is True:
+            assert(is_pos_number(w))
+            assert(is_pos_number(l))
+            assert(is_pos_number(dw))
+            assert(is_pos_number(dl))
+
+        nw = int(round(w / dw) // 2 * 2 + 1)
+        nl = int(round(l / dl) // 2 * 2 + 1)
+
+        dw = w / nw
+        dl = l / nl
+
+        self._surface = space2.DiscretizedRectangularSurface(
+            w, l, dw, dl, validate=False)
+
+        self._srfg = space2.SpatialRandomFieldGenerator(
+            self._surface.nw, self._surface.nl,
+            self._surface.dw, self._surface.dl,
+            acf, aw, al, validate=validate)
+
+    def __call__(self, velocity, std=1, validate=True):
+        """
+        """
+        if validate is True:
+            pass
+
+        field = self.srfg()
+
+        velocities = velocity * (1 + field * std)
+
+        vd = VelocityDistribution(self._surface.w, self._surface.l, velocities)
+
+        return vd
+
+    @property
+    def srfg(self):
+        """
+        """
+        return self._srfg
+
+
 class TravelTimes(Distribution):
     """
     """
