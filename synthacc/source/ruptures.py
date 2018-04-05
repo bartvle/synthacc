@@ -3,7 +3,7 @@ The 'source.ruptures' module.
 """
 
 
-from abc import ABC, abstractmethod
+from abc import ABC
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
@@ -22,117 +22,6 @@ from .moment import (NormalizedMomentRateFunction, MomentRateFunction,
     mw_to_m0)
 from .mechanism import FocalMechanism, is_rake
 from .faults import RIGIDITY
-
-
-class Surface(Object):
-    """
-    A two-dimensional rupture surface.
-    """
-
-    def __init__(self, w, l, dw, dl, validate=True):
-        """
-        """
-        if validate is True:
-            assert(is_pos_number(w))
-            assert(is_pos_number(l))
-            assert(is_pos_number(dw))
-            assert(is_pos_number(dl))
-
-        nw = round(w / dw)
-        nl = round(l / dl)
-
-        dw = w / nw
-        dl = l / nl
-
-        xs = np.linspace(0+dl/2, l-dl/2, nl)
-        ys = np.linspace(0+dw/2, w-dw/2, nw)
-        self._grid = np.dstack(np.meshgrid(xs, ys))
-
-        self._w = w
-        self._l = l
-        self._dw = dw
-        self._dl = dl
-
-    def __len__(self):
-        """
-        """
-        return np.prod(self.shape)
-
-    @property
-    def w(self):
-        """
-        """
-        return self._w
-
-    @property
-    def l(self):
-        """
-        """
-        return self._l
-
-    @property
-    def dw(self):
-        """
-        """
-        return self._dw
-
-    @property
-    def dl(self):
-        """
-        """
-        return self._dl
-
-    @property
-    def shape(self):
-        """
-        """
-        return self._grid.shape[:2]
-
-    @property
-    def nw(self):
-        """
-        """
-        return self.shape[0]
-
-    @property
-    def nl(self):
-        """
-        """
-        return self.shape[1]
-
-    @property
-    def xs(self):
-        """
-        return: 1d numerical array
-        """
-        return self._grid[0,:,0]
-
-    @property
-    def ys(self):
-        """
-        return: 1d numerical array
-        """
-        return self._grid[:,0,1]
-
-    @property
-    def xgrid(self):
-        """
-        return: 2d numerical array
-        """
-        return self._grid[:,:,0]
-
-    @property
-    def ygrid(self):
-        """
-        return: 2d numerical array
-        """
-        return self._grid[:,:,1]
-
-    @property
-    def area(self):
-        """
-        """
-        return self.w * self.l
 
 
 class PointRupture(Object):
@@ -534,7 +423,7 @@ class KinematicRupture(Object):
         pass
 
 
-class Distribution(ABC, Surface):
+class Distribution(ABC, space2.DiscretizedRectangularSurface):
     """
     """
 
@@ -542,7 +431,9 @@ class Distribution(ABC, Surface):
     def surface(self):
         """
         """
-        return Surface(self.w, self.l, self.dw, self.dl, validate=False)
+        s = space2.DiscretizedRectangularSurface(
+            self.w, self.l, self.dw, self.dl, validate=False)
+        return s
 
     def plot(self, contours=False, size=None, png_filespec=None, validate=True):
         """
@@ -602,91 +493,6 @@ class SlipDistribution(Distribution):
         return self._values
 
 
-class ACF(ABC, Object):
-    """
-    An autocorrelation function.
-    """
-
-    @abstractmethod
-    def __call__(self):
-        """
-        """
-        pass
-
-    @abstractmethod
-    def get_psd(self, k, a=1):
-        """
-        a is product of a of each dimension.
-        """
-        pass
-
-
-class GaussianACF(ACF):
-    """
-    The Gaussian autocorrelation function. See Mai & Beroza (2002).
-    """
-
-    def __call__(self, r, a=1):
-        """
-        """
-        return np.exp(-(r/a)**2)
-
-    def get_psd(self, k, a=1):
-        """
-        """
-        return 0.5*a*np.exp(-0.25*k**2)
-
-
-class ExponentialACF(ACF):
-    """
-    The exponential autocorrelation function. See Mai & Beroza (2002).
-    """
-
-    def __call__(self, r, a=1):
-        """
-        """
-        return np.exp(-r/a)
-
-    def get_psd(self, k, a=1):
-        """
-        """
-        return a/(1+k**2)**1.5
-
-
-class VonKarmanACF(ACF):
-    """
-    The von Karman autocorrelation function. See Mai & Beroza (2002).
-    """
-
-    def __init__(self, h, validate=True):
-        """
-        h: Hurst exponent
-        """
-        if validate is True:
-            assert(0 <= h <= 1)
-
-        self._h = h
-
-    @property
-    def h(self):
-        """
-        """
-        return self._h
-
-    def __call__(self, r, a=1):
-        """
-        """
-        r = r + (r[1]-r[0])
-        acf = r**self.h * scipy.special.kv(self.h, r/a)
-        acf /= acf[0]
-        return acf
-
-    def get_psd(self, k, a=1):
-        """
-        """
-        return a/(1+k**2)**(self.h+1)
-
-
 class RFSlipDistribution(SlipDistribution):
     """
     Random field slip distribution.
@@ -713,11 +519,12 @@ class RFSlipDistributionGenerator(Object):
             assert(is_pos_number(dl))
             assert(round(w / dw) % 2 == 1)
             assert(round(l / dl) % 2 == 1)
-            assert(isinstance(acf, ACF))
+            assert(isinstance(acf, space2.ACF))
             assert(is_pos_number(aw))
             assert(is_pos_number(al))
 
-        self._surface = Surface(w, l, dw, dl, validate=False)
+        self._surface = space2.DiscretizedRectangularSurface(
+            w, l, dw, dl, validate=False)
 
         self._acf = acf
         self._aw = aw
@@ -905,7 +712,8 @@ class FCSlipDistributionGenerator(Object):
         if validate is True:
             assert(is_pos_number(dimension))
 
-        self._surface = Surface(w, l, d, d, validate=validate)
+        self._surface = space2.DiscretizedRectangularSurface(
+            w, l, d, d, validate=validate)
 
         self._rmin = rmin * d
         self._rmax = rmax * w
@@ -1103,7 +911,7 @@ class GP2016KinematicRuptureGenerator(Object):
         dw = surface.spacing[0]
         dl = surface.spacing[1]
 
-        acf = VonKarmanACF(h=0.75)
+        acf = space2.VonKarmanACF(h=0.75)
 
         aw = 10**(1/3*magnitude-1.6) * 1000
         al = 10**(1/2*magnitude-2.5) * 1000

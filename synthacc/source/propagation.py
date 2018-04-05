@@ -10,7 +10,7 @@ import skfmm
 from ..apy import (Object, is_non_neg_number, is_pos_number,
     is_2d_numeric_array)
 from .. import space2
-from .ruptures import Surface, Distribution
+from .ruptures import Distribution
 
 
 class VelocityDistribution(Distribution):
@@ -79,7 +79,7 @@ class ConstantVelocityTravelTimeCalculator(Object):
         """
         """
         if validate is True:
-            assert(type(surface) is Surface)
+            assert(type(surface) is space2.DiscretizedRectangularSurface)
             assert(is_pos_number(velocity))
 
         self._surface = surface
