@@ -10,7 +10,6 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from numba import jit
 import numpy as np
-import numpy.ma as ma
 import scipy.special
 
 from ..apy import (Object, is_number, is_pos_number, is_pos_integer,
@@ -496,13 +495,15 @@ class KinematicRupture(Object):
     def slip(self):
         """
         """
-        return np.sum(self._slip_rates, axis=2) * self._time_delta
+        w, l = self.surface.width, self.surface.length
+        slip = np.sum(self._slip_rates, axis=2) * self._time_delta
+        return SlipDistribution(w, l, slip)
 
     @property
     def mean_slip(self):
         """
         """
-        return np.mean(self.slip)
+        return self.slip.mean
 
     @property
     def mrf(self):
@@ -527,66 +528,15 @@ class KinematicRupture(Object):
         """
         return m0_to_mw(self.moment)
 
-    def _plot(self, data, label, title=None, validate=True):
+    def play(self):
         """
         """
-        if validate is True:
-            assert(data.shape == self._surface.shape)
-
-        f, ax = plt.subplots()
-        xs, ys = self.surface.get_front_projected_corners()
-
-        m = ma.masked_where(np.isnan(data), data)
-
-        p = ax.pcolormesh(xs, ys, m)
-
-        ax.axis('scaled')
-        ax.set_xlim(ax.get_xaxis().get_data_interval())
-        ax.set_ylim(ax.get_yaxis().get_data_interval())
-        ax.invert_yaxis()
-
-        x_label, y_label = 'Along strike (m)', 'Along dip (m)'
-        ax.xaxis.set_label_text(x_label)
-        ax.yaxis.set_label_text(y_label)
-
-        cax = make_axes_locatable(ax).append_axes('right', size='1%', pad=0.25)
-        cbar = f.colorbar(p, cax=cax, norm=mpl.colors.Normalize(vmin=0))
-        cbar.set_label(label)
-
-        ax.set_title(title)
-
-        plt.show()
-
-    def plot_onsets(self):
-        """
-        """
-        self._plot(self.onsets, 'Onset (s)', 'Rupture onset')
-
-    def plot_slip(self):
-        """
-        """
-        self._plot(self.slip, 'Slip (m)', 'Slip distribution')
+        pass
 
 
-class SlipDistribution(Surface):
+class Distribution(ABC, Surface):
     """
-    A spatial slip distribution.
     """
-
-    def __init__(self, w, l, slip, validate=True):
-        """
-        """
-        if validate is True:
-            assert(is_pos_number(w))
-            assert(is_pos_number(l))
-            assert(is_2d_numeric_array(slip))
-
-        dw = w / slip.shape[0]
-        dl = l / slip.shape[1]
-
-        super().__init__(w, l, dw, dl, validate=False)
-
-        self._slip = slip
 
     @property
     def surface(self):
@@ -594,19 +544,16 @@ class SlipDistribution(Surface):
         """
         return Surface(self.w, self.l, self.dw, self.dl, validate=False)
 
-    @property
-    def slip(self):
-        """
-        """
-        return self._slip
-
-    def plot(self, size=None, png_filespec=None, validate=True):
+    def plot(self, contours=False, size=None, png_filespec=None, validate=True):
         """
         """
         f, ax = plt.subplots(figsize=size)
 
         extent = [0, self.l/1000, self.w/1000, 0]
-        p = ax.imshow(self._slip, interpolation='bicubic', extent=extent)
+        p = ax.imshow(self._values, interpolation='bicubic', extent=extent)
+        if contours is True:
+            ax.contour(self.xgrid/1000, self.ygrid/1000, self._values,
+                extent=extent, colors='gray')
         plt.axis('scaled')
 
         xlabel, ylabel = 'Along strike (km)', 'Along dip (km)'
@@ -615,7 +562,7 @@ class SlipDistribution(Surface):
 
         cax = make_axes_locatable(ax).append_axes('right', size='1%', pad=0.25)
         cbar = f.colorbar(p, cax=cax)
-        cbar.set_label('Slip (m)')
+        cbar.set_label(self.LABEL)
 
         plt.tight_layout()
 
@@ -623,6 +570,36 @@ class SlipDistribution(Surface):
             plt.savefig(png_filespec)
         else:
             plt.show()
+
+
+class SlipDistribution(Distribution):
+    """
+    A spatial slip distribution.
+    """
+
+    LABEL = 'Slip (m)'
+
+    def __init__(self, w, l, slip, validate=True):
+        """
+        """
+        if validate is True:
+            assert(is_pos_number(w))
+            assert(is_pos_number(l))
+            assert(is_2d_numeric_array(slip))
+            assert(np.all(slip >= 0))
+
+        dw = w / slip.shape[0]
+        dl = l / slip.shape[1]
+
+        super().__init__(w, l, dw, dl, validate=False)
+
+        self._values = slip
+
+    @property
+    def slip(self):
+        """
+        """
+        return self._values
 
 
 class ACF(ABC, Object):
@@ -1084,19 +1061,6 @@ class LiuEtAl2006NormalizedSlipRateGenerator(Object):
         return self._time_delta
 
 
-class KinematicRuptureGenerator(Object):
-    """
-    """
-
-    def __init__(self, time_delta, sdg, rfg, ttc, validate=True):
-        """
-        """
-
-    def __call__(self):
-        """
-        """
-
-
 class GP2016KinematicRuptureGenerator(Object):
     """
     Graves & Pitarka (2016) kinematic rupture generator (GP15.4).
@@ -1117,6 +1081,9 @@ class GP2016KinematicRuptureGenerator(Object):
     def __call__(self, surface, rake, magnitude, validate=True):
         """
         """
+        from .propagation import VelocityDistribution, TravelTimeCalculator
+
+
         if validate is True:
             assert(type(surface) is RectangularSurface)
             assert(is_rake(rake))
@@ -1151,10 +1118,19 @@ class GP2016KinematicRuptureGenerator(Object):
         average = self._get_average_rise_time(surface.dip, moment)
         rise_times *= (average / rise_times.mean())
 
-        onsets = (space3.distance(*hypo, *np.rollaxis(surface.centers, 2)) /
-            self.velocity)
+        ## Propagation
+        vd = VelocityDistribution(w, l, np.ones(sd.shape)*self.velocity)
 
-        n_onsets = np.round(onsets / self.time_delta).astype(np.int)
+        hv = hypo.vector - surface.outline.ulc.vector
+        wv = surface.outline.llc.vector - surface.outline.ulc.vector
+        lv = surface.outline.urc.vector - surface.outline.ulc.vector
+        x = float(np.cos(np.radians(hv.get_angle(lv))) * hv.magnitude)
+        y = float(np.cos(np.radians(hv.get_angle(wv))) * hv.magnitude)
+
+        ttc = TravelTimeCalculator(vd, d=100)
+        tts = ttc(x, y)
+
+        n_onsets = np.round(tts.times / self.time_delta).astype(np.int)
 
         n_rise_times = np.round(rise_times / self.time_delta).astype(np.int)
 
