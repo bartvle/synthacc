@@ -8,7 +8,7 @@ from abc import ABC, abstractmethod
 from numba import jit
 import numpy as np
 
-from .apy import Object, is_pos_number
+from .apy import Object, is_pos_number, is_pos_integer
 
 
 class DiscretizedRectangularSurface(Object):
@@ -204,6 +204,164 @@ class VonKarmanACF(ACF):
         """
         """
         return a/(1+k**2)**(self.h+1)
+
+
+class SpatialRandomFieldGenerator(Object):
+    """
+    """
+
+    def __init__(self, nw, nl, dw, dl, acf, aw, al, validate=True):
+        """
+        """
+        if validate is True:
+            assert(is_pos_integer(nw) and nw % 2 == 1)
+            assert(is_pos_integer(nl) and nl % 2 == 1)
+            assert(is_pos_number(dw))
+            assert(is_pos_number(dl))
+            assert(isinstance(acf, ACF))
+            assert(is_pos_number(aw))
+            assert(is_pos_number(al))
+
+        self._nw = nw
+        self._nl = nl
+        self._dw = dw
+        self._dl = dl
+        self._acf = acf
+        self._aw = aw
+        self._al = al
+
+    def __call__(self, seed=None, validate=True):
+        """
+        """
+        if validate is True:
+            if seed is not None:
+                assert(is_pos_integer(seed))
+
+        rw = self.nw // 2 ## index of middle row
+        rl = self.nl // 2 ## index of middle col
+
+        ## Take upper half of psd (including middle row)
+        psd = self.psd[:rw+1]
+
+        ## Normalize PSD for iFFT
+        amplitudes = np.sqrt(psd/psd.max())
+        # amplitudes = np.sqrt(psd)
+
+        ## Set DC-component to 0
+        amplitudes[rw, rl] = 0
+
+        ## Get random phases
+        if seed is not None:
+            np.random.seed(seed)
+        phases = 2 * np.pi * np.random.random(size=amplitudes.shape)
+
+        ## Construct DFT for upper half (positive frequency rows)
+        Y = amplitudes * np.cos(phases) + 1j * amplitudes * np.sin(phases)
+
+        ## Construct DFT for lower half (negative frequency rows)
+        Y = np.concatenate((Y, np.conj(np.fliplr(np.flipud(Y[:-1])))))
+
+        ## Construct DFT for for middle row (zero frequency row)
+        Y[rw,:rl:-1] = np.conj(Y[rw,:rl])
+
+        ## Shift
+        dft = np.fft.ifftshift(Y)
+
+        ## inverse 2D complex FFT
+        ## remaining imaginary part is due to machine precision
+        field = np.real(np.fft.ifft2(dft))
+
+        # Remove mean and scale to unit variance
+        field = field / np.std(field, ddof=1)
+
+        ## Positive (small) mean
+        if np.mean(field) < 0:
+            field *= -1
+
+        return field
+
+    @property
+    def nw(self):
+        """
+        """
+        return self._nw
+
+    @property
+    def nl(self):
+        """
+        """
+        return self._nl
+
+    @property
+    def dw(self):
+        """
+        """
+        return self._dw
+
+    @property
+    def dl(self):
+        """
+        """
+        return self._dl
+
+    @property
+    def acf(self):
+        """
+        """
+        return self._acf
+
+    @property
+    def aw(self):
+        """
+        """
+        return self._aw
+
+    @property
+    def al(self):
+        """
+        """
+        return self._al
+
+    @property
+    def kw(self):
+        """
+        nw wavenumbers from -half the sampling rate to +half the sampling rate
+
+        For an odd nw this is in practice not the sampling rate but
+        (nw//2 / nw) * (1/dw)) * np.linspace(-2*np.pi, 2*np.pi, self.nw)
+
+        returns kw from - over 0 to +
+        """
+        return 2 * np.pi * np.fft.fftshift(np.fft.fftfreq(self.nw, self.dw))
+
+    @property
+    def kl(self):
+        """
+        nl wavenumbers from -half the sampling rate to +half the sampling rate
+
+        For an odd nl this is in practice not the sampling rate but
+        (nl//2 / nl) * (1/dl) * np.linspace(-2*np.pi, 2*np.pi, self.nl)
+
+        returns kl from - over 0 to +
+        """
+        return 2 * np.pi * np.fft.fftshift(np.fft.fftfreq(self.nl, self.dl))
+
+    @property
+    def kr(self):
+        """
+        Radial wavenumbers
+        """
+        kr = np.sqrt(np.add.outer(
+            self.kw**2 * self.aw**2,
+            self.kl**2 * self.al**2,
+        ))
+        return kr
+
+    @property
+    def psd(self):
+        """
+        """
+        return self.acf.get_psd(self.kr, a=self.aw*self.al)
 
 
 @jit(nopython=True)

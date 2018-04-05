@@ -519,16 +519,14 @@ class RFSlipDistributionGenerator(Object):
             assert(is_pos_number(dl))
             assert(round(w / dw) % 2 == 1)
             assert(round(l / dl) % 2 == 1)
-            assert(isinstance(acf, space2.ACF))
-            assert(is_pos_number(aw))
-            assert(is_pos_number(al))
 
         self._surface = space2.DiscretizedRectangularSurface(
             w, l, dw, dl, validate=False)
 
-        self._acf = acf
-        self._aw = aw
-        self._al = al
+        self._srfg = space2.SpatialRandomFieldGenerator(
+            self._surface.nw, self._surface.nl,
+            self._surface.dw, self._surface.dl,
+            acf, aw, al, validate=validate)
 
     def __call__(self, magnitude, rigidity=RIGIDITY, std=1, seed=None, validate=True):
         """
@@ -536,48 +534,8 @@ class RFSlipDistributionGenerator(Object):
         if validate is True:
             assert(is_number(magnitude))
             assert(is_pos_number(rigidity))
-            if seed is not None:
-                assert(is_pos_integer(seed))
 
-        rw = self.surface.nw // 2 ## index of middle row
-        rl = self.surface.nl // 2 ## index of middle col
-
-        ## Take upper half of psd (including middle row)
-        psd = self.psd[:rw+1]
-
-        ## Normalize PSD for iFFT
-        amplitudes = np.sqrt(psd/psd.max())
-        # amplitudes = np.sqrt(psd)
-
-        ## Set DC-component to 0
-        amplitudes[rw, rl] = 0
-
-        ## Get random phases
-        if seed is not None:
-            np.random.seed(seed)
-        phases = 2 * np.pi * np.random.random(size=amplitudes.shape)
-
-        ## Construct DFT for upper half (positive frequency rows)
-        Y = amplitudes * np.cos(phases) + 1j * amplitudes * np.sin(phases)
-
-        ## Construct DFT for lower half (negative frequency rows)
-        Y = np.concatenate((Y, np.conj(np.fliplr(np.flipud(Y[:-1])))))
-
-        ## Construct DFT for for middle row (zero frequency row)
-        Y[rw,:rl:-1] = np.conj(Y[rw,:rl])
-
-        # ## Shift
-        dft = np.fft.ifftshift(Y)
-
-        ## inverse 2D complex FFT
-        ## remaining imaginary part is due to machine precision
-        field = np.real(np.fft.ifft2(dft))
-
-        # Remove mean and scale to unit variance
-        field = field / np.std(field, ddof=1)
-
-        if np.mean(field) < 0:
-            field *= -1 # (small) positive mean
+        field = self.srfg(seed, validate=validate)
 
         mean_slip = mw_to_m0(magnitude) / (self.surface.area * rigidity)
 
@@ -596,65 +554,10 @@ class RFSlipDistributionGenerator(Object):
         return self._surface
 
     @property
-    def acf(self):
+    def srfg(self):
         """
         """
-        return self._acf
-
-    @property
-    def aw(self):
-        """
-        """
-        return self._aw
-
-    @property
-    def al(self):
-        """
-        """
-        return self._al
-
-    @property
-    def kw(self):
-        """
-        nw wavenumbers from -half the sampling rate to +half the sampling rate
-
-        For an odd nw this is in practice not the sampling rate but
-        (nw//2 / nw) * (1/dw)) * np.linspace(-2*np.pi, 2*np.pi, self.nw)
-
-        returns kw from - over 0 to +
-        """
-        return 2*np.pi * np.fft.fftshift(
-            np.fft.fftfreq(self.surface.nw, self.surface.dw))
-
-    @property
-    def kl(self):
-        """
-        nl wavenumbers from -half the sampling rate to +half the sampling rate
-
-        For an odd nl this is in practice not the sampling rate but
-        (nl//2 / nl) * (1/dl) * np.linspace(-2*np.pi, 2*np.pi, self.nl)
-
-        returns kl from - over 0 to +
-        """
-        return 2*np.pi * np.fft.fftshift(
-            np.fft.fftfreq(self.surface.nl, self.surface.dl))
-
-    @property
-    def kr(self):
-        """
-        Radial wavenumbers
-        """
-        kr = np.sqrt(np.add.outer(
-            self.kw**2 * self.aw**2,
-            self.kl**2 * self.al**2,
-        ))
-        return kr
-
-    @property
-    def psd(self):
-        """
-        """
-        return self.acf.get_psd(self.kr, a=self.aw*self.al)
+        return self._srfg
 
 
 class FCSlipDistribution(SlipDistribution):
