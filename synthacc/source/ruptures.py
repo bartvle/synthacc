@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from numba import jit
 import numpy as np
+import scipy.interpolate
 import scipy.special
 
 from ..apy import (Object, is_number, is_pos_number, is_pos_integer,
@@ -434,6 +435,16 @@ class Distribution(ABC, space2.DiscretizedRectangularSurface):
         s = space2.DiscretizedRectangularSurface(
             self.w, self.l, self.dw, self.dl, validate=False)
         return s
+
+    def interpolate(self, xs, ys):
+        """
+        """
+        i = scipy.interpolate.RectBivariateSpline(
+            self.surface.ys,
+            self.surface.xs,
+            self._values)
+
+        return i(ys, xs)
 
     def plot(self, contours=False, size=None, png_filespec=None, validate=True):
         """
