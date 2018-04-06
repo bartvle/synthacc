@@ -4,7 +4,6 @@ The 'source.propagation' module.
 
 
 import numpy as np
-import scipy.interpolate
 import skfmm
 
 from ..apy import (Object, is_non_neg_number, is_pos_number,
@@ -69,7 +68,7 @@ class RFVelocityDistributionGenerator(Object):
             self._surface.dw, self._surface.dl,
             acf, aw, al, validate=validate)
 
-    def __call__(self, velocity, std=1, validate=True):
+    def __call__(self, velocity, std=0.1, validate=True):
         """
         """
         if validate is True:
@@ -80,6 +79,93 @@ class RFVelocityDistributionGenerator(Object):
         velocities = velocity * (1 + field * std)
 
         vd = VelocityDistribution(self._surface.w, self._surface.l, velocities)
+
+        return vd
+
+    @property
+    def srfg(self):
+        """
+        """
+        return self._srfg
+
+
+class GP2010VelocityDistributionGenerator(Object):
+    """
+    """
+
+    def __init__(self, w, l, d, upper_depth, lower_depth, vs, validate=True):
+        """
+        """
+        if validate is True:
+            pass
+
+        surface = space2.DiscretizedRectangularSurface(w, l, d, d)
+
+        depths = np.tile(np.interp(
+            surface.ys, [0, w], [upper_depth, lower_depth])[np.newaxis].T, (1, surface.nl))
+
+        self._surface = surface
+        self._velocities = np.interp(depths, [5000, 8000], [0.56, 0.80]) * vs
+
+    def __call__(self, validate=True):
+        """
+        """
+        if validate is True:
+            pass
+
+        vd = VelocityDistribution(
+            self._surface.w, self._surface.l, self._velocities)
+
+        return vd
+
+
+class GP2016VelocityDistributionGenerator(Object):
+    """
+    """
+
+    def __init__(self, w, l, d, upper_depth, lower_depth, vs, acf, aw, al, validate=True):
+        """
+        """
+        if validate is True:
+            pass
+
+        nw = int(round(w / d) // 2 * 2 + 1)
+        nl = int(round(l / d) // 2 * 2 + 1)
+
+        dw = w / nw
+        dl = l / nl
+
+        surface = space2.DiscretizedRectangularSurface(
+            w, l, dw, dl, validate=False)
+
+        depths = np.tile(np.interp(
+            surface.ys, [0, w], [upper_depth, lower_depth])[np.newaxis].T, (1, surface.nl))
+
+        self._surface = surface
+        self._velocities = np.interp(depths, [5000, 8000], [0.56, 0.80]) * vs
+
+        self._srfg = space2.SpatialRandomFieldGenerator(
+            self._surface.nw, self._surface.nl,
+            self._surface.dw, self._surface.dl,
+            acf, aw, al, validate=validate)
+
+    def __call__(self, sd, cf=1, std=0.1, validate=True):
+        """
+        """
+        if validate is True:
+            pass
+
+        field = sd.slip - sd.slip.mean()
+        field = field / np.std(field, ddof=1)
+
+        field = cf * field + np.sqrt(1-cf**2) * self.srfg()
+        field = field / np.std(field, ddof=1)
+        print(field.mean(), np.std(field))
+
+        velocities = self._velocities * (1 + field * std)
+
+        vd = VelocityDistribution(
+            self._surface.w, self._surface.l, velocities)
 
         return vd
 
@@ -158,16 +244,13 @@ class TravelTimeCalculator(Object):
         if validate is True:
             assert(type(vd) is VelocityDistribution)
             assert(is_pos_number(d))
-            # assert(vd.l % d == 0)
-            # assert(vd.w % d == 0)
 
         nx = round(vd.l / d) + 1
         ny = round(vd.w / d) + 1
         xs = np.linspace(0, vd.l, nx)
         ys = np.linspace(0, vd.w, ny)
 
-        i = scipy.interpolate.RectBivariateSpline(vd.ys, vd.xs, vd.velocities)
-        vs = i(ys, xs)
+        vs = vd.interpolate(xs, ys)
 
         xgrid, ygrid = np.meshgrid(xs, ys)
 
@@ -192,8 +275,8 @@ class TravelTimeCalculator(Object):
         phi[np.unravel_index(distances.argmin(), distances.shape)] = 0
 
         tts = skfmm.travel_time(phi, self._vs, dx=self._d)
-
-        i = scipy.interpolate.RectBivariateSpline(self._ys, self._xs, tts)
-        tts = i(self._vd.ys, self._vd.xs)
+        tts = TravelTimes(self._vd.w, self._vd.l, tts)
+        tts = tts.interpolate(self._vd.xs, self._vd.ys)
+        tts[tts < 0] = 0
 
         return TravelTimes(self._vd.w, self._vd.l, tts)
