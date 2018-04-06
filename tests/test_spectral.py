@@ -34,8 +34,8 @@ class TestDFT(unittest.TestCase):
         """
         acc = read_cor(os.path.join(DATA_DIR, '004676xa.cor'))[-1]
         dft = acc.get_dft()
-        cal_acc = list(np.round(dft.inverse(acc.time_delta), PRECISION))
-        tgt_acc = list(np.round(acc.amplitudes, PRECISION))
+        cal_acc = list(np.round(dft.inverse(acc.time_delta), PRECISION-1))
+        tgt_acc = list(np.round(acc.amplitudes, PRECISION-1))
         self.assertListEqual(cal_acc[::20], tgt_acc[::20])
 
 
