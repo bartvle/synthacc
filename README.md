@@ -7,10 +7,16 @@ Bart Vleminckx @ Royal Observatory of Belgium (bart . vleminckx @ observatory . 
 
 
 ## Installation
-I use Synthacc from source on Windows 10 (64-bit) with Python 3.5 in a [Miniconda](http://conda.pydata.org/miniconda.html) virtual environment. It depends on Obspy and the OpenQuake Engine. All other dependencies, except pyproj and numba are shared with them. They can be installed from the [conda-forge](https://conda-forge.org) channel. So no real [dependency hell](https://en.wikipedia.org/wiki/Dependency_hell) anymore thanks to conda! Only Matplotlib must additionally be specified to avoid an error with Qt (Matplotlib 2 is then installed instead of 1.5). Nose is only required for running the tests.
+I use Synthacc from source on Windows 10 (64-bit) with Python 3.5 in a [Miniconda](http://conda.pydata.org/miniconda.html) virtual environment. It depends on Obspy and the OpenQuake Engine. Most other dependencies are shared with them. The only additional dependencies are pyproj, scikit-fmm and numba. Except for scikit-fmm, everything can be installed from the [conda-forge](https://conda-forge.org) channel. So no real [dependency hell](https://en.wikipedia.org/wiki/Dependency_hell) anymore thanks to conda! Nose is only required for running the tests.
 
 ```
-conda install -c conda-forge matplotlib pyproj numba obspy openquake.engine nose
+conda install -c conda-forge obspy openquake.engine pyproj numba nose
+```
+
+Install scikit-fmm from pip.
+
+```
+pip install scikit-fmm
 ```
 
 Clone the Synthacc repository and add its folder to the PYTHONPATH environment variable. Ready!
