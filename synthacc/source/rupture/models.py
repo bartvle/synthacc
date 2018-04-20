@@ -12,16 +12,16 @@ from numba import jit
 import numpy as np
 import scipy.interpolate
 
-from ..apy import (Object, is_number, is_pos_number, is_pos_integer,
+from ...apy import (Object, is_number, is_pos_number, is_pos_integer,
     is_2d_numeric_array, is_3d_numeric_array)
-from .. import space2
-from .. import space3
-from ..earth.flat import RectangularSurface, DiscretizedRectangularSurface
-from .moment import (NormalizedMomentRateFunction, MomentRateFunction,
+from ... import space2
+from ... import space3
+from ...earth.flat import RectangularSurface, DiscretizedRectangularSurface
+from ..moment import (NormalizedMomentRateFunction, MomentRateFunction,
     NormalizedSlipRateFunction, calculate as calculate_moment, m0_to_mw,
     mw_to_m0)
-from .mechanism import FocalMechanism, is_rake
-from .faults import RIGIDITY
+from ..mechanism import FocalMechanism, is_rake
+from ..faults import RIGIDITY
 
 
 class PointRupture(Object):

@@ -7,7 +7,7 @@ import unittest
 
 import numpy as np
 
-from synthacc.source.ruptures import (PointRupture, SimpleRupture,
+from synthacc.source.rupture.models import (PointRupture, SimpleRupture,
     KinematicRupture, SlipDistribution, RFSlipDistribution,
     RFSlipDistributionGenerator, FCSlipDistribution,
     FCSlipDistributionGenerator, LiuEtAl2006NormalizedSlipRateGenerator,

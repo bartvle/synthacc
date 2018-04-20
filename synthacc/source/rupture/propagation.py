@@ -6,10 +6,10 @@ The 'source.propagation' module.
 import numpy as np
 import skfmm
 
-from ..apy import (Object, is_non_neg_number, is_pos_number,
+from ...apy import (Object, is_non_neg_number, is_pos_number,
     is_2d_numeric_array)
-from .. import space2
-from .ruptures import Distribution
+from ... import space2
+from .models import Distribution
 
 
 class VelocityDistribution(Distribution):
