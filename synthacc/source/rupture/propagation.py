@@ -9,7 +9,7 @@ import skfmm
 from ...apy import (Object, is_non_neg_number, is_pos_number,
     is_2d_numeric_array)
 from ... import space2
-from .models import Distribution
+from .surface import Distribution
 from .velocity import VelocityDistribution
 
 

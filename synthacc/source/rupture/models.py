@@ -3,14 +3,9 @@ The 'source.rupture.models' module.
 """
 
 
-from abc import ABC
-
-import matplotlib as mpl
 import matplotlib.pyplot as plt
-from mpl_toolkits.axes_grid1 import make_axes_locatable
 from numba import jit
 import numpy as np
-import scipy.interpolate
 
 from ...apy import (Object, is_number, is_pos_number, is_pos_integer,
     is_2d_numeric_array, is_3d_numeric_array)
@@ -22,6 +17,9 @@ from ..moment import (NormalizedMomentRateFunction, MomentRateFunction,
     mw_to_m0)
 from ..mechanism import FocalMechanism, is_rake
 from ..faults import RIGIDITY
+from .surface import Distribution
+from .velocity import VelocityDistribution
+from .propagation import TravelTimeCalculator
 
 
 class PointRupture(Object):
@@ -423,56 +421,6 @@ class KinematicRupture(Object):
         pass
 
 
-class Distribution(ABC, space2.DiscretizedRectangularSurface):
-    """
-    """
-
-    @property
-    def surface(self):
-        """
-        """
-        s = space2.DiscretizedRectangularSurface(
-            self.w, self.l, self.dw, self.dl, validate=False)
-        return s
-
-    def interpolate(self, xs, ys):
-        """
-        """
-        i = scipy.interpolate.RectBivariateSpline(
-            self.surface.ys,
-            self.surface.xs,
-            self._values)
-
-        return i(ys, xs)
-
-    def plot(self, contours=False, size=None, png_filespec=None, validate=True):
-        """
-        """
-        f, ax = plt.subplots(figsize=size)
-
-        extent = [0, self.l/1000, self.w/1000, 0]
-        p = ax.imshow(self._values, interpolation='bicubic', extent=extent)
-        if contours is True:
-            ax.contour(self.xgrid/1000, self.ygrid/1000, self._values,
-                extent=extent, colors='gray')
-        plt.axis('scaled')
-
-        xlabel, ylabel = 'Along strike (km)', 'Along dip (km)'
-        plt.xlabel(xlabel)
-        plt.ylabel(ylabel)
-
-        cax = make_axes_locatable(ax).append_axes('right', size='1%', pad=0.25)
-        cbar = f.colorbar(p, cax=cax)
-        cbar.set_label(self.LABEL)
-
-        plt.tight_layout()
-
-        if png_filespec is not None:
-            plt.savefig(png_filespec)
-        else:
-            plt.show()
-
-
 class SlipDistribution(Distribution):
     """
     A spatial slip distribution.
@@ -802,10 +750,6 @@ class GP2016KinematicRuptureGenerator(Object):
     def __call__(self, surface, rake, magnitude, validate=True):
         """
         """
-        from .velocity import VelocityDistribution
-        from .propagation import TravelTimeCalculator
-
-
         if validate is True:
             assert(type(surface) is RectangularSurface)
             assert(is_rake(rake))

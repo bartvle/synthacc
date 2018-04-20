@@ -6,7 +6,7 @@ The 'source.rupture.velocity' module.
 import numpy as np
 
 from ...apy import Object, is_pos_number, is_2d_numeric_array
-from .models import Distribution
+from .surface import Distribution
 
 
 class VelocityDistribution(Distribution):
