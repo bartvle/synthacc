@@ -1,5 +1,5 @@
 """
-The 'source.ruptures' module.
+The 'source.rupture.models' module.
 """
 
 

@@ -1,5 +1,5 @@
 """
-Tests for 'source.propagation' module.
+Tests for 'source.rupture.propagation' module.
 """
 
 

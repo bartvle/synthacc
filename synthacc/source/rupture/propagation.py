@@ -1,5 +1,5 @@
 """
-The 'source.propagation' module.
+The 'source.rupture.propagation' module.
 """
 
 

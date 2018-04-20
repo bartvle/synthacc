@@ -1,5 +1,5 @@
 """
-Tests for 'source.ruptures' module.
+Tests for 'source.rupture.models' module.
 """
 
 
