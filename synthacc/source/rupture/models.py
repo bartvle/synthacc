@@ -802,7 +802,8 @@ class GP2016KinematicRuptureGenerator(Object):
     def __call__(self, surface, rake, magnitude, validate=True):
         """
         """
-        from .propagation import VelocityDistribution, TravelTimeCalculator
+        from .velocity import VelocityDistribution
+        from .propagation import TravelTimeCalculator
 
 
         if validate is True:
