@@ -5,7 +5,9 @@ The 'data' module.
 
 from abc import ABC
 
-from .apy import Object, is_pos_integer
+import matplotlib.pyplot as plt
+
+from .apy import Object, is_pos_integer, is_1d_numeric_array
 
 
 class DataRecord(ABC, Object):
@@ -78,3 +80,30 @@ class DataBase(ABC, Object):
                 return r
 
         raise LookupError('No record with key %i' % key)
+
+
+class Histogram(Object):
+    """
+    """
+
+    def __init__(self, values, validate=True):
+        """
+        """
+        if validate is True:
+            assert(is_1d_numeric_array(values))
+
+        self._values = values
+
+    def plot(self, bins=None, size=None, png_filespec=None, validate=True):
+        """
+        """
+        f, ax = plt.subplots(figsize=size)
+
+        plt.hist(self._values[self._values > 0], bins=bins, density=True)
+
+        plt.tight_layout()
+
+        if png_filespec is not None:
+            plt.savefig(png_filespec)
+        else:
+            plt.show()

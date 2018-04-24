@@ -9,6 +9,7 @@ import numpy as np
 from ...apy import (Object, is_number, is_pos_number, is_pos_integer,
     is_2d_numeric_array)
 from ... import space2
+from ...data import Histogram
 from ..faults import RIGIDITY
 from ..moment import mw_to_m0
 from .surface import Distribution
@@ -42,6 +43,12 @@ class SlipDistribution(Distribution):
         """
         """
         return self._values
+
+    @property
+    def histogram(self):
+        """
+        """
+        return Histogram(self._values.flatten())
 
 
 class RFSlipDistribution(SlipDistribution):
