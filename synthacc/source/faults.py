@@ -1,5 +1,5 @@
 """
-The 'faults' module.
+The 'source.faults' module.
 """
 
 
@@ -11,7 +11,7 @@ from .moment import calculate as calculate_moment, m0_to_mw
 
 
 ## Average rigidity (in Pa) in crust (from USGS website)
-RIGIDITY = 32 * 10**9
+RIGIDITY = 3.2 * 10**10
 
 
 class SingularFault(Object):
