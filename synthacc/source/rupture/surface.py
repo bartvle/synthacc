@@ -17,6 +17,24 @@ class Distribution(ABC, space2.DiscretizedRectangularSurface):
     """
 
     @property
+    def mean(self):
+        """
+        """
+        return self._values.mean()
+
+    @property
+    def min(self):
+        """
+        """
+        return self._values.min()
+
+    @property
+    def max(self):
+        """
+        """
+        return self._values.max()
+
+    @property
     def surface(self):
         """
         """
