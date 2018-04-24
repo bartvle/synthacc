@@ -46,3 +46,4 @@ Clone the Synthacc repository and add its folder to the PYTHONPATH environment v
 * Vallée M., Charléty J., Ferreira A.M.G., Delouis B. and Vergoz J. (2011). SCARDEC: a new technique for the rapid determination of seismic moment magnitude, focal mechanism and source time functions for large earthquakes using body-wave deconvolution. Geophysical Journal International, 184, 338-358.
 * van Driel M., Krischer L., Stähler S.C., Hosseini K. and Nissen-Meyer T. (2015). Instaseis: instant global seismograms based on a broadband waveform database. Solid Earth, 6, 701-717.
 * Wang R. (1999). A Simple Orthonormalization Method for Stable and Efficient Computation of Green’s Functions. Bulletin of the Seismological Society of America, 89(3), 733–741.
+* Wells D. and Coppersmith K. (1994). New Empirical Relationships among Magnitude, Rupture Length, Rupture Width, Rupture Area, and Surface Displacement. Bulletin of the Seismological Society of America, 84(4), 974-1002.
