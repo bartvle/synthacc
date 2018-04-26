@@ -519,7 +519,7 @@ class Seismogram(Waveform):
 
         return s
 
-    def plot(self, color=None, style=None, width=None, unit=None, s_time=None, e_time=None, picks=[], size=None, png_filespec=None, validate=True):
+    def plot(self, color=None, style=None, width=None, unit=None, s_time=None, e_time=None, picks=[], title=None, size=None, png_filespec=None, validate=True):
         """
         """
         colors, styles, widths = None, None, None
@@ -532,7 +532,7 @@ class Seismogram(Waveform):
 
         p = plot_seismograms([[self]], colors=colors, styles=styles,
             widths=widths, unit=unit, s_time=s_time, e_time=e_time,
-            picks=picks, size=size, png_filespec=png_filespec,
+            picks=picks, title=title, size=size, png_filespec=png_filespec,
             validate=validate)
 
         return p
@@ -594,9 +594,18 @@ class Accelerogram(Seismogram):
 
         return dft
 
+    def get_response(self, period, damping=0.05, gmt='acc', validate=True):
+        """
+        """
+        [response] = self.get_responses([period], damping, gmt, validate=validate)
+        unit = SI_UNITS[gmt]
+        return Seismogram(self.time_delta, response, unit)
+
     def get_responses(self, periods, damping=0.05, gmt='acc', pgm_frequency=100, validate=True):
         """
         """
+        periods = np.asarray(periods)
+
         if validate is True:
             assert(is_1d_numeric_array(periods))
             assert(is_pos_number(pgm_frequency))
@@ -975,7 +984,7 @@ def plot_seismograms(seismograms, titles=None, labels=None, colors=None, styles=
         for j, s in enumerate(seismograms[i]):
 
             if validate is True:
-                assert(type(s) is Seismogram)
+                assert(type(s) in (Seismogram, Accelerogram))
 
             if unit is None:
                 unit = s.unit
