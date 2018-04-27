@@ -67,6 +67,36 @@ class TestPoint(unittest.TestCase):
         self.assertEqual(p.y, 6)
         self.assertEqual(p.z, 9)
 
+    def test_rotate1(self):
+        """
+        """
+        r1 = RotationMatrix.from_basic_rotations(000., 000., 000.)
+        r2 = RotationMatrix.from_basic_rotations(360., 360., 360.)
+        r3 = RotationMatrix.from_basic_rotations(000., 000., 090.)
+        r4 = RotationMatrix.from_basic_rotations(090., 000., 000.)
+        r5 = RotationMatrix.from_basic_rotations(000., 090., 000.)
+        p1 = Point(1, 1, 0).rotate(r1)
+        p2 = Point(1, 1, 0).rotate(r2)
+        p3 = Point(1, 0, 0).rotate(r3)
+        p4 = Point(0, 1, 0).rotate(r4)
+        p5 = Point(1, 0, 0).rotate(r5)
+        self.assertEqual(p1, (+1, +1, +0))
+        self.assertEqual(p2, (+1, +1, +0))
+        self.assertEqual(p3, (+0, +1, +0))
+        self.assertEqual(p4, (+0, +0, +1))
+        self.assertEqual(p5, (+0, +0, -1))
+
+    def test_rotate2(self):
+        """
+        Rotate (1, 0, 0) 90 degrees around z in (1, 1, 0).
+        """
+        p = Point(1, 0, 0)
+        o = Point(1, 1, 0)
+
+        r = RotationMatrix.from_basic_rotations(0, 0, 90)
+        p = p.rotate(r, origin=o)
+        self.assertEqual(p, (2, 1, 0))
+
 
 class TestPlane(unittest.TestCase):
     """
@@ -271,6 +301,21 @@ class TestRotationMatrix(unittest.TestCase):
             [[+1, +0, +0], [+0, +0, -1] ,[+0, +1, +0]])).all())
         self.assertTrue((r5._array == np.array(
             [[+0, +0, +1], [+1, +0, +0] ,[+0, +1, +0]])).all())
+
+    def test_from_axis_and_angle(self):
+        """
+        """
+        rx_cal = RotationMatrix.from_axis_and_angle((1, 0, 0), 30)
+        ry_cal = RotationMatrix.from_axis_and_angle((0, 1, 0), 45)
+        rz_cal = RotationMatrix.from_axis_and_angle((0, 0, 1), 60)
+
+        rx_tgt = RotationMatrix.from_basic_rotations(x=30)
+        ry_tgt = RotationMatrix.from_basic_rotations(y=45)
+        rz_tgt = RotationMatrix.from_basic_rotations(z=60)
+
+        self.assertTrue((rx_cal._array == rx_tgt._array).all())
+        self.assertTrue((ry_cal._array == ry_tgt._array).all())
+        self.assertTrue((rz_cal._array == rz_tgt._array).all())
 
 
 class Test(unittest.TestCase):

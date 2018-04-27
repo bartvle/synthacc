@@ -116,6 +116,33 @@ class Point(Object):
 
         return self.__class__(x, y, z, validate=False)
 
+    def rotate(self, rotation_matrix, origin=(0, 0, 0), validate=True):
+        """
+        Rotate around a point.
+
+        rotation_matrix: 'space3.RotationMatrix' instance
+        origin: 'space3.Point' instance or coordinates, Point to rotate around
+            (default: (0, 0, 0), rotate around origin)
+
+        return: class instance
+        """
+        if validate is True:
+            assert(type(origin) is Point or are_coordinates(origin))
+
+        origin, point = Point(*origin).vector, self
+
+        ## translate -> origin
+        point = point.get_translated(-origin)
+
+        ## rotate
+        x, y, z = rotation_matrix * point.vector.col
+        point = Point(x, y, z)
+
+        ## translate <- origin
+        point = point.get_translated(+origin)
+
+        return point
+
 
 class Plane(Object):
     """
@@ -496,6 +523,29 @@ class RotationMatrix(SquareMatrix):
         r_z[np.abs(r_z) < 10**-PRECISION] = 0
 
         r = r_z.dot(r_y).dot(r_x)
+
+        return cls(r)
+
+    @classmethod
+    def from_axis_and_angle(cls, axis, angle, validate=True):
+        """
+        Rotation around one axis.
+        """
+        if validate is True:
+            assert(type(axis) is Vector or are_coordinates(axis))
+            assert(is_number(angle))
+
+        x, y, z = Vector(*axis).unit
+
+        angle = np.radians(angle)
+        cos = np.cos(angle)
+        sin = np.sin(angle)
+
+        r = np.array([
+                [cos + x**2 * (1-cos), x*y*(1-cos)-z*sin, x*z*(1-cos)+y*sin],
+                [y*x*(1-cos)+z*sin, cos + y**2 * (1-cos), y*z*(1-cos)-x*sin],
+                [z*x*(1-cos)-y*sin, z*y*(1-cos)+x*sin, cos + z**2 * (1-cos)],
+            ])
 
         return cls(r)
 
