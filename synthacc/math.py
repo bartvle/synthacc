@@ -54,7 +54,7 @@ class Matrix(Object):
             assert(other.nrows == self.ncols)
             array = np.dot(self._array, other._array)
 
-        return self.__class__(array)
+        return Matrix(array)
 
     @property
     def nrows(self):
