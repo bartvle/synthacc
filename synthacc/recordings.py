@@ -11,6 +11,8 @@ horizontal components.
 
 import datetime
 
+from bokeh.layouts import row
+from bokeh.plotting import figure, show
 import matplotlib.pyplot as plt
 import numpy as np
 from obspy import UTCDateTime as _UTCDateTime, Trace as _Trace, read as _read
@@ -530,12 +532,17 @@ class Seismogram(Waveform):
         if width is not None:
             widths = [[width]]
 
-        p = plot_seismograms([[self]], colors=colors, styles=styles,
+        plot_seismograms([[self]], colors=colors, styles=styles,
             widths=widths, unit=unit, s_time=s_time, e_time=e_time,
             picks=picks, title=title, size=size, png_filespec=png_filespec,
             validate=validate)
 
-        return p
+    def show(self):
+        """
+        """
+        p = figure(plot_height=300)
+        p.line(self.rel_times, self.amplitudes)
+        show(row(p, sizing_mode='scale_width'))
 
 
 class Accelerogram(Seismogram):
@@ -1113,11 +1120,9 @@ def plot_recordings(recordings, labels=None, colors=None, styles=None, widths=No
     if widths is not None:
         widths = [widths] * len(components)
 
-    p = plot_seismograms(seismograms, titles, labels, colors, styles, widths,
+    plot_seismograms(seismograms, titles, labels, colors, styles, widths,
         unit=unit, s_time=s_time, e_time=e_time, picks=picks, title=title,
         size=size, png_filespec=png_filespec, validate=False)
-
-    return p
 
 
 def read(filespec, unit, validate=True):
