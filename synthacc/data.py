@@ -7,7 +7,7 @@ from abc import ABC
 
 import matplotlib.pyplot as plt
 
-from .apy import Object, is_pos_integer, is_1d_numeric_array
+from .apy import Object, is_boolean, is_pos_integer, is_1d_numeric_array
 
 
 class DataRecord(ABC, Object):
@@ -86,20 +86,50 @@ class Histogram(Object):
     """
     """
 
-    def __init__(self, values, validate=True):
+    def __init__(self, values, positive=False, validate=True):
         """
         """
         if validate is True:
             assert(is_1d_numeric_array(values))
+            assert(is_boolean(positive))
 
         self._values = values
+        self._positive = positive
+
+    @property
+    def mean(self):
+        """
+        """
+        return self._values.mean()
+
+    @property
+    def min(self):
+        """
+        """
+        return self._values.min()
+
+    @property
+    def max(self):
+        """
+        """
+        return self._values.max()
 
     def plot(self, bins=None, size=None, png_filespec=None, validate=True):
         """
         """
         f, ax = plt.subplots(figsize=size)
 
-        plt.hist(self._values[self._values > 0], bins=bins, density=True)
+        if self._positive is True:
+            values = self._values[self._values > 0]
+        else:
+            values = self._values
+
+        ax.hist(values, bins=bins, density=True)
+
+        ax.grid()
+
+        if self._positive is True:
+            ax.set_xlim(0, None)
 
         plt.tight_layout()
 

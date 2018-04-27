@@ -3,6 +3,7 @@ The 'source.rupture.slip' module.
 """
 
 
+import matplotlib.pyplot as plt
 from numba import jit
 import numpy as np
 
@@ -48,7 +49,64 @@ class SlipDistribution(Distribution):
     def histogram(self):
         """
         """
-        return Histogram(self._values.flatten())
+        return Histogram(self._values.flatten(), positive=True)
+
+    @property
+    def top(self):
+        """
+        """
+        return SlipSection(self.l, self._values[0])
+
+
+class SlipSection(Object):
+    """
+    """
+
+    def __init__(self, length, values, validate=True):
+        """
+        """
+        if validate is True:
+            pass
+
+        self._length = length
+        self._values = values
+
+    @property
+    def length(self):
+        """
+        """
+        return self._length
+
+    @property
+    def distances(self):
+        """
+        """
+        return np.linspace(0, self.length, len(self._values))
+
+    @property
+    def values(self):
+        """
+        """
+        return self._values.copy()
+
+    def plot(self, size=None, png_filespec=None, validate=True):
+        """
+        """
+        f, ax = plt.subplots(figsize=size)
+
+        ax.plot(self.distances / 1000, self._values)
+
+        ax.grid()
+        xlabel, ylabel = 'Length (km)', 'Slip (m)'
+        ax.set_xlabel(xlabel)
+        ax.set_ylabel(ylabel)
+
+        plt.tight_layout()
+
+        if png_filespec is not None:
+            plt.savefig(png_filespec)
+        else:
+            plt.show()
 
 
 class RFSlipDistribution(SlipDistribution):
