@@ -14,7 +14,7 @@ from .moment import calculate as calculate_moment, m0_to_mw
 RIGIDITY = 3.2 * 10**10
 
 
-class SingularFault(Object):
+class SingularFault(RectangularSurface):
     """
     A fault with a rectangular surface.
     """
@@ -22,21 +22,13 @@ class SingularFault(Object):
     def __init__(self, x1, y1, x2, y2, upper_depth, lower_depth, dip, rigidity=RIGIDITY, validate=True):
         """
         """
-        surface = RectangularSurface(
+        super().__init__(
             x1, y1, x2, y2, upper_depth, lower_depth, dip, validate=validate)
 
         if validate is True:
             assert(is_pos_number(rigidity))
 
-        self._surface = surface
         self._rigidity = rigidity
-
-    @property
-    def surface(self):
-        """
-        return: pos number
-        """
-        return self._surface
 
     @property
     def rigidity(self):
@@ -44,27 +36,6 @@ class SingularFault(Object):
         return: pos number
         """
         return self._rigidity
-
-    @property
-    def width(self):
-        """
-        return: pos number
-        """
-        return self._surface.width
-
-    @property
-    def length(self):
-        """
-        return: pos number
-        """
-        return self._surface.length
-
-    @property
-    def area(self):
-        """
-        return: pos number
-        """
-        return self._surface.area
 
     def get_max_moment(self, slip, validate=True):
         """
@@ -81,29 +52,6 @@ class SingularFault(Object):
         return: number, maximum moment magnitude
         """
         return m0_to_mw(self.get_max_moment(slip, validate), validate=False)
-
-    def plot(self):
-        """
-        """
-        fig, ax = plt.subplots()
-
-        ulc, urc, llc, lrc = self.surface.corners
-
-        ax.plot([ulc.y, urc.y], [ulc.x, urc.x], c='r', lw=2)
-
-        ax.fill(
-            [ulc.y, urc.y, lrc.y, llc.y],
-            [ulc.x, urc.x, lrc.x, llc.x],
-            color='coral', alpha=0.5,
-            )
-
-        ax.axis('equal')
-
-        x_label, y_label = 'East (m)', 'North (m)'
-        ax.xaxis.set_label_text(x_label)
-        ax.yaxis.set_label_text(y_label)
-
-        plt.show()
 
 
 class ComposedFault(Object):
