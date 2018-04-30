@@ -5,6 +5,7 @@ Tests for 'earth.flat' module.
 
 import unittest
 
+from synthacc.apy import PRECISION
 from synthacc.earth.flat import (Sites, Grid, Path, RectangularSurface,
     DiscretizedRectangularSurface, azimuth, is_azimuth, is_strike, is_dip)
 
@@ -78,6 +79,21 @@ class TestRectangularSurface(unittest.TestCase):
 
         rs = RectangularSurface(0, 0, +1, -1, 0, 1, 45)
         self.assertEqual(rs.strike, 315)
+
+    def test_vectors(self):
+        """
+        """
+        rs = RectangularSurface(0, 0, 100, 0, 5, 25, 45)
+
+        asv = rs.as_vector
+        self.assertEqual(asv.x, 100)
+        self.assertEqual(asv.y, 0)
+        self.assertEqual(asv.z, 0)
+
+        adv = rs.ad_vector
+        self.assertEqual(adv.x, 0)
+        self.assertEqual(round(adv.y, PRECISION), 20)
+        self.assertEqual(round(adv.z, PRECISION), 20)
 
 
 class TestDiscretizedRectangularSurface(unittest.TestCase):

@@ -343,9 +343,9 @@ class RectangularSurface(Object):
         """
         return: 'space.Vector' instance
         """
-        x = float(self.surface_width * np.cos(np.radians(self.dip_azimuth)))
-        y = float(self.surface_width * np.sin(np.radians(self.dip_azimuth)))
-        return space3.Vector(x, y, self.depth_range)
+        rm = space3.RotationMatrix.from_basic_rotations(z=self.dip_azimuth)
+        v = self.as_vector.unit.rotate(rm) * self.surface_width
+        return space3.Vector(v.x, v.y, self.depth_range)
 
     @property
     def length(self):
