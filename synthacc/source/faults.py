@@ -6,7 +6,7 @@ The 'source.faults' module.
 import matplotlib.pyplot as plt
 
 from ..apy import Object, is_pos_number
-from ..earth.flat import RectangularSurface
+from ..earth.flat import Rectangle
 from .moment import calculate as calculate_moment, m0_to_mw
 
 
@@ -14,7 +14,7 @@ from .moment import calculate as calculate_moment, m0_to_mw
 RIGIDITY = 3.2 * 10**10
 
 
-class SingularFault(RectangularSurface):
+class SingularFault(Rectangle):
     """
     A fault with a rectangular surface.
     """

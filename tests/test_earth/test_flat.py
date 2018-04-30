@@ -6,8 +6,8 @@ Tests for 'earth.flat' module.
 import unittest
 
 from synthacc.apy import PRECISION
-from synthacc.earth.flat import (Sites, Grid, Path, RectangularSurface,
-    DiscretizedRectangularSurface, azimuth, is_azimuth, is_strike, is_dip)
+from synthacc.earth.flat import (Sites, Grid, Path, Rectangle,
+    DiscretizedRectangle, azimuth, is_azimuth, is_strike, is_dip)
 
 
 class TestSites(unittest.TestCase):
@@ -44,46 +44,46 @@ class TestPath(unittest.TestCase):
         self.assertEqual(self.p.length, 3)
 
 
-class TestRectangularSurface(unittest.TestCase):
+class TestRectangle(unittest.TestCase):
     """
     """
 
     def test_properties(self):
         """
         """
-        rs = RectangularSurface(0, 0, 100, 0, 10, 25, 60)
+        rs = Rectangle(0, 0, 100, 0, 10, 25, 60)
 
     def test_strike(self):
         """
         """
-        rs = RectangularSurface(0, 0, +1, 0, 0, 1, 45)
+        rs = Rectangle(0, 0, +1, 0, 0, 1, 45)
         self.assertEqual(rs.strike,   0)
 
-        rs = RectangularSurface(0, 0, +1, +1, 0, 1, 45)
+        rs = Rectangle(0, 0, +1, +1, 0, 1, 45)
         self.assertEqual(rs.strike,  45)
 
-        rs = RectangularSurface(0, 0, 0, +1, 0, 1, 45)
+        rs = Rectangle(0, 0, 0, +1, 0, 1, 45)
         self.assertEqual(rs.strike,  90)
 
-        rs = RectangularSurface(0, 0, -1, +1, 0, 1, 45)
+        rs = Rectangle(0, 0, -1, +1, 0, 1, 45)
         self.assertEqual(rs.strike, 135)
 
-        rs = RectangularSurface(0, 0, -1, 0, 0, 1, 45)
+        rs = Rectangle(0, 0, -1, 0, 0, 1, 45)
         self.assertEqual(rs.strike, 180)
 
-        rs = RectangularSurface(0, 0, -1, -1, 0, 1, 45)
+        rs = Rectangle(0, 0, -1, -1, 0, 1, 45)
         self.assertEqual(rs.strike, 225)
 
-        rs = RectangularSurface(0, 0, 0, -1, 0, 1, 45)
+        rs = Rectangle(0, 0, 0, -1, 0, 1, 45)
         self.assertEqual(rs.strike, 270)
 
-        rs = RectangularSurface(0, 0, +1, -1, 0, 1, 45)
+        rs = Rectangle(0, 0, +1, -1, 0, 1, 45)
         self.assertEqual(rs.strike, 315)
 
     def test_vectors(self):
         """
         """
-        rs = RectangularSurface(0, 0, 100, 0, 5, 25, 45)
+        rs = Rectangle(0, 0, 100, 0, 5, 25, 45)
 
         asv = rs.as_vector
         self.assertEqual(asv.x, 100)
@@ -96,14 +96,14 @@ class TestRectangularSurface(unittest.TestCase):
         self.assertEqual(round(adv.z, PRECISION), 20)
 
 
-class TestDiscretizedRectangularSurface(unittest.TestCase):
+class TestDiscretizedRectangle(unittest.TestCase):
     """
     """
 
     def test_properties(self):
         """
         """
-        drs = RectangularSurface(0, 0, 100, 0, 10, 25, 60, 1)
+        drs = Rectangle(0, 0, 100, 0, 10, 25, 60, 1)
 
 
 class Test(unittest.TestCase):

@@ -9,7 +9,7 @@ import numpy as np
 from ...apy import Object, is_number, is_pos_number, is_3d_numeric_array
 from ... import space2
 from ... import space3
-from ...earth.flat import RectangularSurface, DiscretizedRectangularSurface
+from ...earth.flat import Rectangle, DiscretizedRectangle
 from ..moment import (NormalizedMomentRateFunction, MomentRateFunction,
     NormalizedSlipRateFunction, calculate as calculate_moment, m0_to_mw,
     mw_to_m0)
@@ -82,7 +82,7 @@ class SimpleRupture(Object):
         hypo = space3.Point(*hypo, validate=validate)
 
         if validate is True:
-            assert(type(surface) is RectangularSurface)
+            assert(type(surface) is Rectangle)
             assert(hypo in surface)
             assert(is_rake(rake))
             assert(is_pos_number(slip))
@@ -273,7 +273,7 @@ class KinematicRupture(Object):
         hypo = space3.Point(*hypo, validate=validate)
 
         if validate is True:
-            assert(type(surface) is DiscretizedRectangularSurface)
+            assert(type(surface) is DiscretizedRectangle)
             assert(hypo in surface)
             assert(is_rake(rake))
             assert(is_pos_number(time_delta))
@@ -441,7 +441,7 @@ class GP2016KinematicRuptureGenerator(Object):
         """
         """
         if validate is True:
-            assert(type(surface) is RectangularSurface)
+            assert(type(surface) is Rectangle)
             assert(is_rake(rake))
             assert(is_number(magnitude))
 

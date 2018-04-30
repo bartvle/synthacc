@@ -207,7 +207,7 @@ class Path(Sites):
         plt.show()
 
 
-class RectangularSurface(Object):
+class Rectangle(Object):
     """
     A rectangular surface below the Earth's surface.
     """
@@ -393,9 +393,9 @@ class RectangularSurface(Object):
         """
         Get a discretized rectangular surface.
 
-        return: 'earth.DiscretizedRectangularSurface' instance
+        return: 'earth.DiscretizedRectangle' instance
         """
-        drs = DiscretizedRectangularSurface(
+        drs = DiscretizedRectangle(
             self._x1, self._y1,
             self._x2, self._y2,
             self.upper_depth,
@@ -441,7 +441,7 @@ class RectangularSurface(Object):
         plt.show()
 
 
-class DiscretizedRectangularSurface(Object):
+class DiscretizedRectangle(Object):
     """
     A discretized rectangular surface below the Earth's surface.
     """
@@ -454,7 +454,7 @@ class DiscretizedRectangularSurface(Object):
             assert(is_pos_integer(shape[0]))
             assert(is_pos_integer(shape[1]))
 
-        outline = RectangularSurface(
+        outline = Rectangle(
             x1, y1, x2, y2, upper_depth, lower_depth, dip, validate=validate)
         spacing = (outline.width / shape[0], outline.length / shape[1])
 
