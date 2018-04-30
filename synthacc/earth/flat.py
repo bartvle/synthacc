@@ -2,8 +2,8 @@
 The 'earth.flat' module.
 
 Module for a flat Earth (3d Euclidean space in a right-handed Cartesian
-coordinate system). X is north, y is east and z is down (or depth). For Earth's
-surface z=0. The azimuth is the angle from x (north) to y (east).
+coordinate system) where x is north, y is east and z is down (or depth).
+Earth's surface has z=0. The azimuth is the angle from x (north) to y (east).
 """
 
 
@@ -334,14 +334,14 @@ class RectangularSurface(Object):
     @property
     def as_vector(self):
         """
-        return: 'soace.Vector' instance
+        return: 'space.Vector' instance
         """
         return self.urc.vector - self.ulc.vector
 
     @property
     def ad_vector(self):
         """
-        return: 'soace.Vector' instance
+        return: 'space.Vector' instance
         """
         x = float(self.surface_width * np.cos(np.radians(self.dip_azimuth)))
         y = float(self.surface_width * np.sin(np.radians(self.dip_azimuth)))
