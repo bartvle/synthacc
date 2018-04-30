@@ -158,7 +158,6 @@ class GP2016VelocityDistributionGenerator(Object):
 
         field = cf * field + np.sqrt(1-cf**2) * self.srfg()
         field = field / np.std(field, ddof=1)
-        print(field.mean(), np.std(field))
 
         velocities = self._velocities * (1 + field * std)
 
