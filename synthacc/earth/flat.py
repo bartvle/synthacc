@@ -270,14 +270,14 @@ class RectangularSurface(Object):
         """
         return: 'space3.Point' instance
         """
-        return self.ulc.get_translated(self.ad_vector)
+        return self.ulc.translate(self.ad_vector)
 
     @property
     def lrc(self):
         """
         return: 'space3.Point' instance
         """
-        return self.urc.get_translated(self.ad_vector)
+        return self.urc.translate(self.ad_vector)
 
     @property
     def corners(self):
@@ -380,7 +380,7 @@ class RectangularSurface(Object):
         """
         return: 'space3.Point' instance
         """
-        return self.ulc.get_translated((self.as_vector + self.ad_vector) / 2)
+        return self.ulc.translate((self.as_vector + self.ad_vector) / 2)
 
     @property
     def plane(self):
@@ -413,7 +413,7 @@ class RectangularSurface(Object):
         """
         l_vector = self.as_vector * np.random.uniform(0, 1)
         w_vector = self.ad_vector * np.random.uniform(0, 1)
-        x, y, z = self.ulc.get_translated(l_vector + w_vector)
+        x, y, z = self.ulc.translate(l_vector + w_vector)
 
         return space3.Point(x, y, z)
 
@@ -555,7 +555,7 @@ class DiscretizedRectangularSurface(Object):
 
         corners = np.zeros((w_n, l_n, 3))
         for w_i, l_i in np.ndindex((w_n, l_n)):
-            p = self.outline.ulc.get_translated(ad_vectors[w_i] + as_vectors[l_i])
+            p = self.outline.ulc.translate(ad_vectors[w_i] + as_vectors[l_i])
             corners[w_i,l_i] = tuple(p)
 
         v = ad_vector.unit * self.spacing[0] + as_vector.unit * self.spacing[1]

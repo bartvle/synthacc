@@ -98,7 +98,7 @@ class Point(Object):
         """
         return Vector(*self)
 
-    def get_translated(self, vector, validate=True):
+    def translate(self, vector, validate=True):
         """
         Translate point by a vector.
 
@@ -132,14 +132,14 @@ class Point(Object):
         origin, point = Point(*origin).vector, self
 
         ## translate -> origin
-        point = point.get_translated(-origin)
+        point = point.translate(-origin)
 
         ## rotate
         x, y, z = rotation_matrix * point.vector.col
         point = Point(x, y, z)
 
         ## translate <- origin
-        point = point.get_translated(+origin)
+        point = point.translate(+origin)
 
         return point
 

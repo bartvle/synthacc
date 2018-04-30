@@ -52,17 +52,17 @@ class TestPoint(unittest.TestCase):
         self.assertEqual(v.y, self.p.y)
         self.assertEqual(v.z, self.p.z)
 
-    def test_get_translated(self):
+    def test_translate(self):
         """
         """
         v = (2, 4, 6)
-        p = self.p.get_translated(v)
+        p = self.p.translate(v)
         self.assertEqual(p.x, 3)
         self.assertEqual(p.y, 6)
         self.assertEqual(p.z, 9)
 
         v = Vector(*v)
-        p = self.p.get_translated(v)
+        p = self.p.translate(v)
         self.assertEqual(p.x, 3)
         self.assertEqual(p.y, 6)
         self.assertEqual(p.z, 9)
