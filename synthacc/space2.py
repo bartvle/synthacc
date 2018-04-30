@@ -8,7 +8,7 @@ from abc import ABC, abstractmethod
 from numba import jit
 import numpy as np
 
-from .apy import Object, is_pos_number, is_pos_integer
+from .apy import PRECISION, Object, is_number, is_pos_number, is_pos_integer
 
 
 class DiscretizedRectangularSurface(Object):
@@ -378,3 +378,39 @@ def distance(x1, y1, x2, y2, validate=True):
         pass
 
     return _distance(x1, y1, x2, y2)
+
+
+def cartesian_to_polar(x, y, validate=True):
+    """
+    """
+    if validate is True:
+        assert(is_number(x))
+        assert(is_number(y))
+
+    r = float(distance(0, 0, x, y))
+    a = float(np.degrees(np.arctan2(y, x)))
+
+    if abs(r) < 10**-PRECISION:
+        r = 0
+    if abs(a) < 10**-PRECISION:
+        a = 0
+
+    return r, a
+
+
+def polar_to_cartesian(r, a, validate=True):
+    """
+    """
+    if validate is True:
+        assert(is_number(r))
+        assert(is_number(a))
+
+    x = float(r * np.cos(np.radians(a)))
+    y = float(r * np.sin(np.radians(a)))
+
+    if abs(x) < 10**-PRECISION:
+        x = 0
+    if abs(y) < 10**-PRECISION:
+        y = 0
+
+    return x, y
