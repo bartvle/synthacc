@@ -449,6 +449,19 @@ class Vector(Object):
         else:
             return self / self.magnitude
 
+    def rotate(self, rotation_matrix, validate=True):
+        """
+        Rotate around origin.
+
+        rotation_matrix: 'space3.RotationMatrix' instance
+
+        return: class instance
+        """
+        if validate is True:
+            assert(type(rotation_matrix) is RotationMatrix)
+
+        return Vector(*(rotation_matrix * self.col))
+
     def get_angle(self, other, validate=True):
         """
         Angle with other vector.

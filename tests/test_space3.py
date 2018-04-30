@@ -260,6 +260,14 @@ class TestVector(unittest.TestCase):
         self.assertEqual(u.magnitude, 1)
         self.assertEqual(Vector(0, 0, 0).unit, None)
 
+    def test_rotate(self):
+        """
+        """
+        v = self.v.rotate(RotationMatrix.from_basic_rotations(z=180))
+        self.assertEqual(v.x, -1)
+        self.assertEqual(v.y, -2)
+        self.assertEqual(v.z, +3)
+
     def test_angle(self):
         """
         """
