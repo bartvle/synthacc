@@ -14,6 +14,7 @@ from shapely.geometry import (Point as _Point, LineString as _LineString,
 
 from ..apy import (T, F, Object, is_number, is_non_neg_number, is_pos_number,
     is_integer, is_pos_integer, is_1d_numeric_array)
+from .. import space2
 from .. import space3
 
 
@@ -388,6 +389,12 @@ class Rectangle(Object):
         return: 'space3.Plane' instance
         """
         return space3.Plane.from_points(self.ulc, self.urc, self.llc)
+
+    @property
+    def surface(self):
+        """
+        """
+        return space2.RectangularSurface(self.width, self.length)
 
     def get_discretized(self, shape, validate=True):
         """
