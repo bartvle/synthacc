@@ -13,6 +13,7 @@ from .apy import PRECISION, Object, is_number, is_pos_number, is_pos_integer
 
 class DiscretizedRectangularSurface(Object):
     """
+    The origin is in the upper left corner.
     """
 
     def __init__(self, w, l, dw, dl, validate=True):
@@ -30,9 +31,9 @@ class DiscretizedRectangularSurface(Object):
         dw = w / nw
         dl = l / nl
 
-        xs = np.linspace(0+dl/2, l-dl/2, nl)
-        ys = np.linspace(0+dw/2, w-dw/2, nw)
-        self._grid = np.dstack(np.meshgrid(xs, ys))
+        ws = np.linspace(0+dw/2, w-dw/2, nw)
+        ls = np.linspace(0+dl/2, l-dl/2, nl)
+        self._grid = np.dstack(np.meshgrid(ls, ws))
 
         self._w = w
         self._l = l
@@ -87,32 +88,32 @@ class DiscretizedRectangularSurface(Object):
         return self.shape[1]
 
     @property
-    def xs(self):
-        """
-        return: 1d numerical array
-        """
-        return self._grid[0,:,0]
-
-    @property
-    def ys(self):
+    def ws(self):
         """
         return: 1d numerical array
         """
         return self._grid[:,0,1]
 
     @property
-    def xgrid(self):
+    def ls(self):
         """
-        return: 2d numerical array
+        return: 1d numerical array
         """
-        return self._grid[:,:,0]
+        return self._grid[0,:,0]
 
     @property
-    def ygrid(self):
+    def wgrid(self):
         """
         return: 2d numerical array
         """
         return self._grid[:,:,1]
+
+    @property
+    def lgrid(self):
+        """
+        return: 2d numerical array
+        """
+        return self._grid[:,:,0]
 
     @property
     def area(self):
@@ -208,6 +209,7 @@ class VonKarmanACF(ACF):
 
 class SpatialRandomFieldGenerator(Object):
     """
+    The origin is in the upper left corner.
     """
 
     def __init__(self, nw, nl, dw, dl, acf, aw, al, validate=True):
@@ -321,6 +323,12 @@ class SpatialRandomFieldGenerator(Object):
         """
         """
         return self._al
+
+    @property
+    def shape(self):
+        """
+        """
+        return (self.nw, self.nl)
 
     @property
     def kw(self):

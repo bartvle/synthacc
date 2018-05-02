@@ -100,7 +100,7 @@ class GP2010VelocityDistributionGenerator(Object):
         surface = space2.DiscretizedRectangularSurface(w, l, d, d)
 
         depths = np.tile(np.interp(
-            surface.ys, [0, w], [upper_depth, lower_depth])[np.newaxis].T, (1, surface.nl))
+            surface.ws, [0, w], [upper_depth, lower_depth])[np.newaxis].T, (1, surface.nl))
 
         self._surface = surface
         self._velocities = np.interp(depths, [5000, 8000], [0.56, 0.80]) * vs
@@ -135,9 +135,9 @@ class GP2016VelocityDistributionGenerator(Object):
 
         surface = space2.DiscretizedRectangularSurface(
             w, l, dw, dl, validate=False)
-
+            
         depths = np.tile(np.interp(
-            surface.ys, [0, w], [upper_depth, lower_depth])[np.newaxis].T, (1, surface.nl))
+            surface.ws, [0, w], [upper_depth, lower_depth])[np.newaxis].T, (1, surface.nl))
 
         self._surface = surface
         self._velocities = np.interp(depths, [5000, 8000], [0.56, 0.80]) * vs
@@ -152,7 +152,7 @@ class GP2016VelocityDistributionGenerator(Object):
         """
         if validate is True:
             pass
-
+            
         field = sd.slip - sd.slip.mean()
         field = field / np.std(field, ddof=1)
 

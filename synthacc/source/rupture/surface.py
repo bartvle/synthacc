@@ -42,15 +42,19 @@ class Distribution(ABC, space2.DiscretizedRectangularSurface):
             self.w, self.l, self.dw, self.dl, validate=False)
         return s
 
-    def interpolate(self, xs, ys):
+    def interpolate(self, ws, ls, validate=True):
         """
         """
+        if validate is True:
+            assert(ws[-1] <= self.surface.w)
+            assert(ls[-1] <= self.surface.l)
+
         i = scipy.interpolate.RectBivariateSpline(
-            self.surface.ys,
-            self.surface.xs,
+            self.surface.ws,
+            self.surface.ls,
             self._values)
 
-        return i(ys, xs)
+        return i(ws, ls)
 
     def plot(self, contours=False, size=None, png_filespec=None, validate=True):
         """
@@ -60,7 +64,7 @@ class Distribution(ABC, space2.DiscretizedRectangularSurface):
         extent = [0, self.l/1000, self.w/1000, 0]
         p = ax.imshow(self._values, interpolation='bicubic', extent=extent)
         if contours is True:
-            ax.contour(self.xgrid/1000, self.ygrid/1000, self._values,
+            ax.contour(self.lgrid/1000, self.wgrid/1000, self._values,
                 extent=extent, colors='gray')
         plt.axis('scaled')
 

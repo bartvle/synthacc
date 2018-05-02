@@ -58,14 +58,15 @@ class ConstantVelocityTravelTimeCalculator(Object):
 
     def __call__(self, x, y, validate=True):
         """
+        The origin is in the upper left corner.
         """
         if validate is True:
-            assert(is_non_neg_number(x) and x <= self._surface.l)
-            assert(is_non_neg_number(y) and y <= self._surface.w)
+            assert(is_non_neg_number(x) and x <= self._surface.w)
+            assert(is_non_neg_number(y) and y <= self._surface.l)
 
         tts = space2.distance(x, y,
-            self._surface.xgrid,
-            self._surface.ygrid,
+            self._surface.wgrid,
+            self._surface.lgrid,
             ) / self._velocity
 
         return TravelTimes(self._surface.w, self._surface.l, tts)
@@ -82,38 +83,39 @@ class TravelTimeCalculator(Object):
             assert(type(vd) is VelocityDistribution)
             assert(is_pos_number(d))
 
-        nx = round(vd.l / d) + 1
-        ny = round(vd.w / d) + 1
-        xs = np.linspace(0, vd.l, nx)
-        ys = np.linspace(0, vd.w, ny)
+        ## interpolation to edge so origin can be at edge
+        nw = round(vd.w / d) + 1
+        nl = round(vd.l / d) + 1
+        ws = np.linspace(0, vd.w, nw)
+        ls = np.linspace(0, vd.l, nl)
+        vs = vd.interpolate(ws, ls)
 
-        vs = vd.interpolate(xs, ys)
-
-        xgrid, ygrid = np.meshgrid(xs, ys)
+        lgrid, wgrid = np.meshgrid(ls, ws)
 
         self._vd = vd
         self._d = d
-        self._xs = xs
-        self._ys = ys
+        self._ws = ws
+        self._ls = ls
         self._vs = vs
-        self._xgrid = xgrid
-        self._ygrid = ygrid
+        self._wgrid = wgrid
+        self._lgrid = lgrid
 
     def __call__(self, x, y, validate=True):
         """
+        The origin is in the upper left corner.
         """
         if validate is True:
-            assert(is_non_neg_number(x) and x <= self._vd.l)
-            assert(is_non_neg_number(y) and y <= self._vd.w)
+            assert(is_non_neg_number(x) and x <= self._vd.w)
+            assert(is_non_neg_number(y) and y <= self._vd.l)
 
-        distances = space2.distance(x, y, self._xgrid, self._ygrid)
+        distances = space2.distance(x, y, self._wgrid, self._lgrid)
 
         phi = np.ones(self._vs.shape)
         phi[np.unravel_index(distances.argmin(), distances.shape)] = 0
 
         tts = skfmm.travel_time(phi, self._vs, dx=self._d)
         tts = TravelTimes(self._vd.w, self._vd.l, tts)
-        tts = tts.interpolate(self._vd.xs, self._vd.ys)
+        tts = tts.interpolate(self._vd.ws, self._vd.ls)
         tts[tts < 0] = 0
 
         return TravelTimes(self._vd.w, self._vd.l, tts)

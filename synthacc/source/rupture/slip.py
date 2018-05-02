@@ -199,16 +199,40 @@ class FCSlipDistribution(SlipDistribution):
         """
         return self._sources[:,-1]
 
+    def plot_sources(self, n=1000, size=None, png_filespec=None, validate=True):
+        """
+        """
+        f, ax = plt.subplots(figsize=size)
+
+        for i in np.random.randint(0, len(self), n):
+            c = plt.Circle(tuple([self._sources[i][1]/1000, self._sources[i][0]/1000]), radius=self._sources[i][2]/1000, fill=False)
+            ax.add_patch(c)
+
+        plt.axis('scaled')
+        plt.xlim(0, self.l/1000)
+        plt.ylim(0, self.w/1000)
+
+        xlabel, ylabel = 'Along strike (km)', 'Along dip (km)'
+        plt.xlabel(xlabel)
+        plt.ylabel(ylabel)
+
+        plt.tight_layout()
+
+        if png_filespec is not None:
+            plt.savefig(png_filespec)
+        else:
+            plt.show()
+
 
 @jit(nopython=True)
-def _calc_sources(n, p, d, rmax, l, w):
+def _calc_sources(n, p, d, rmax, w, l):
     """
     """
     randoms = np.random.random((3, n))
     radii = (randoms[0]*n*d/p + rmax**(-d))**(-1/d)
     sources = np.zeros((n, 3))
-    sources[:,0] = radii + randoms[1] * (l-2*radii)
-    sources[:,1] = radii + randoms[2] * (w-2*radii)
+    sources[:,0] = radii + randoms[1] * (w-2*radii)
+    sources[:,1] = radii + randoms[2] * (l-2*radii)
     sources[:,2] = radii
     return sources
 
@@ -256,17 +280,15 @@ class FCSlipDistributionGenerator(Object):
         w = self.surface.w
         l = self.surface.l
 
-        sources = _calc_sources(self.n, self.p, self.dimension, self.rmax, l, w)
+        sources = _calc_sources(self.n, self.p, self.dimension, self.rmax, w, l)
 
-        # slip = np.zeros((self.surface.nw, self.surface.nl))
+        ws = np.tile(self.surface.wgrid[(Ellipsis,None)], (1,1,len(sources)))
+        ls = np.tile(self.surface.lgrid[(Ellipsis,None)], (1,1,len(sources)))
 
-        x1 = np.tile(self.surface.xgrid[(Ellipsis,None)], (1,1,len(sources)))
-        y1 = np.tile(self.surface.ygrid[(Ellipsis,None)], (1,1,len(sources)))
-
-        distances = space2.distance(x1, y1, sources[:,0], sources[:,1])
+        distances = space2.distance(ws, ls, sources[:,0], sources[:,1])
 
         constant = ((1.5 / np.pi) * (mw_to_m0(magnitude) /
-            (np.sqrt(self.surface.l*self.surface.w/np.pi)**3 * rigidity)))
+            (np.sqrt(self.surface.area/np.pi)**3 * rigidity)))
 
         int = np.zeros_like(distances)
         res = sources[:,2]**2-distances**2
