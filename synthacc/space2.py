@@ -11,7 +11,116 @@ import numpy as np
 from .apy import PRECISION, Object, is_number, is_pos_number, is_pos_integer
 
 
-class DiscretizedRectangularSurface(Object):
+class Point(Object):
+    """
+    A point.
+    """
+
+    def __init__(self, x, y, validate=True):
+        """
+        x: number, x coordinate
+        y: number, y coordinate
+        """
+        if validate is True:
+            assert(is_number(x))
+            assert(is_number(y))
+
+        if abs(x) < 10**-PRECISION:
+            x = 0
+        if abs(y) < 10**-PRECISION:
+            y = 0
+
+        self._x = x
+        self._y = y
+
+    def __repr__(self):
+        """
+        """
+        s = '< space2.Point | '
+        s += 'x={:{}.3f}'.format(self.x, '+' if self.x else '')
+        s += ', '
+        s += 'y={:{}.3f}'.format(self.y, '+' if self.y else '')
+        s += ' >'
+        return s
+
+    def __getitem__(self, i):
+        """
+        """
+        return (self._x, self._y)[i]
+
+    def __eq__(self, other):
+        """
+        return: boolean
+        """
+        assert(type(other) is self.__class__)
+
+        x, y = other
+        x_eq = np.abs(self.x - x) < 10**-PRECISION
+        y_eq = np.abs(self.y - y) < 10**-PRECISION
+
+        return (x_eq and y_eq)
+
+    @property
+    def x(self):
+        """
+        return: number, x coordinate
+        """
+        return self._x
+
+    @property
+    def y(self):
+        """
+        return: number, y coordinate
+        """
+        return self._y
+
+
+class RectangularSurface(Object):
+    """
+    The origin is in the upper left corner.
+    """
+
+    def __init__(self, w, l, validate=True):
+        """
+        """
+        if validate is True:
+            assert(is_pos_number(w))
+            assert(is_pos_number(l))
+
+        self._w = w
+        self._l = l
+
+    @property
+    def w(self):
+        """
+        """
+        return self._w
+
+    @property
+    def l(self):
+        """
+        """
+        return self._l
+
+    def get_random(self, seed=None, validate=True):
+        """
+        Get a random point on the surface.
+
+        return: 'space2.Point' instance
+        """
+        if validate is True:
+            assert(seed is None or is_pos_integer(seed))
+
+        if seed is not None:
+            np.random.seed(seed)
+
+        x = np.random.uniform(0, 1) * self.w
+        y = np.random.uniform(0, 1) * self.l
+
+        return Point(x, y)
+
+
+class DiscretizedRectangularSurface(RectangularSurface):
     """
     The origin is in the upper left corner.
     """
@@ -25,6 +134,8 @@ class DiscretizedRectangularSurface(Object):
             assert(is_pos_number(dw) and dw <= w/2)
             assert(is_pos_number(dl) and dl <= l/2)
 
+        super().__init__(w, l, validate=False)
+
         nw = round(w / dw)
         nl = round(l / dl)
 
@@ -35,8 +146,6 @@ class DiscretizedRectangularSurface(Object):
         ls = np.linspace(0+dl/2, l-dl/2, nl)
         self._grid = np.dstack(np.meshgrid(ls, ws))
 
-        self._w = w
-        self._l = l
         self._dw = dw
         self._dl = dl
 
@@ -44,18 +153,6 @@ class DiscretizedRectangularSurface(Object):
         """
         """
         return np.prod(self.shape)
-
-    @property
-    def w(self):
-        """
-        """
-        return self._w
-
-    @property
-    def l(self):
-        """
-        """
-        return self._l
 
     @property
     def dw(self):

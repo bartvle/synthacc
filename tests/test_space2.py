@@ -7,9 +7,10 @@ import unittest
 
 import numpy as np
 
-from synthacc.space2 import (DiscretizedRectangularSurface, GaussianACF,
-    ExponentialACF, VonKarmanACF, SpatialRandomFieldGenerator, distance,
-    cartesian_to_polar, polar_to_cartesian)
+from synthacc.space2 import (Point, RectangularSurface,
+    DiscretizedRectangularSurface, GaussianACF, ExponentialACF, VonKarmanACF,
+    SpatialRandomFieldGenerator, distance, cartesian_to_polar,
+    polar_to_cartesian)
 
 
 class TestDiscretizedRectangularSurface(unittest.TestCase):
