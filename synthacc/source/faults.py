@@ -37,6 +37,20 @@ class SingularFault(Rectangle):
         """
         return self._rigidity
 
+    @property
+    def rectangle(self):
+        """
+        """
+        r = Rectangle(
+            self._x1, self._y1,
+            self._x2, self._y2,
+            self._upper_depth,
+            self._lower_depth,
+            self._dip,
+            self._rigidity)
+
+        return r
+
     def get_max_moment(self, slip, validate=True):
         """
         slip: pos number, slip (in m)
