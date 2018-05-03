@@ -408,3 +408,43 @@ class LiuEtAl2006NormalizedSlipRateGenerator(Object):
         """
         """
         return self._time_delta
+
+
+class GP2010SlipRateGenerator(Object):
+    """
+    """
+
+    def __init__(self, time_delta, validate=True):
+        """
+        """
+        if validate is True:
+            assert(is_pos_number(time_delta))
+
+        self._time_delta = time_delta
+        self._nsrf_g = LiuEtAl2006NormalizedSlipRateGenerator(time_delta)
+
+    def __call__(self, surface, sd, tts, magnitude):
+        """
+        """
+        surface = surface.get_discretized(shape=sd.shape)
+        depths = np.rollaxis(surface.centers, 2)[-1]
+
+        rise_times = np.interp(depths, [5000, 8000], [2, 1]) * (sd.slip/100)**(1/2)
+        average = (np.interp(surface.dip, [45, 60], [0.82, 1]) * 1.6 * 10**-9 *
+            (10**7*mw_to_m0(magnitude))**(1/3))
+
+        rise_times = rise_times * (average / rise_times.mean())
+
+        n_onsets = np.round(tts.interpolate(sd.ws, sd.ls) / self._time_delta).astype(np.int)
+        n_rise_times = np.round(rise_times / self._time_delta).astype(np.int)
+        n = n_onsets + n_rise_times
+
+        slip_rates = np.zeros(surface.shape + (n.max()+2,))
+
+        for i in np.ndindex(surface.shape):
+            t = rise_times[i]
+            if t != 0:
+                srf = self._nsrf_g(float(t))
+                slip_rates[i][n_onsets[i]:n_onsets[i]+len(srf)] = srf * sd.slip[i]
+
+        return slip_rates
