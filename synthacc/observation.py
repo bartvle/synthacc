@@ -7,7 +7,7 @@ import numpy as np
 
 from .apy import (Object, is_number, is_non_neg_number, is_pos_integer,
     is_string)
-from .time import Time, is_time, is_date
+from .time import Time, Date, is_time, is_date
 from .data import DataRecord, DataBase
 from .earth.geo import is_lon, is_lat
 
@@ -175,7 +175,7 @@ class Catalog(DataBase):
         """
         return np.array([e.mag for e in self])
 
-    def query(self, region=None, min_depth=None, max_depth=None, validate=True):
+    def query(self, region=None, min_date=None, max_date=None, min_depth=None, max_depth=None, min_magnitude=None, max_magnitude=None, validate=True):
         """
         """
         if validate is True:
@@ -185,10 +185,22 @@ class Catalog(DataBase):
                 if region[1] != None: assert(is_lon(region[1]))
                 if region[2] != None: assert(is_lat(region[2]))
                 if region[3] != None: assert(is_lat(region[3]))
+            if type(min_date) == int: ## min_date is year
+                min_date = Date(min_date, 1, 1)
+            elif min_date is not None:
+                min_date = Date(min_date)
+            if type(max_date) == int: ## max_date is year
+                max_date = Date(max_date, 12, 31)
+            elif max_date is not None:
+                max_date = Date(max_date)
             if min_depth != None:
                assert(is_non_neg_number(min_depth))
             if max_depth != None:
                assert(is_non_neg_number(max_depth))
+            if min_magnitude != None:
+                assert(is_number(min_magnitude))
+            if max_magnitude != None:
+                assert(is_number(max_magnitude))
         events = []
         for e in self:
             if region is not None:
@@ -200,9 +212,19 @@ class Catalog(DataBase):
                     continue
                 if (region[3] is not None and e.lat > region[3]):
                     continue
-            if (min_depth != None and e.depth < min_depth):
+            if min_date is not None and e.time.date < min_date:
                 continue
-            if (max_depth != None and e.depth > max_depth):
+            if max_date is not None and e.time.date > max_date:
+                continue
+            if (min_depth is not None and e.depth < min_depth):
+                continue
+            if (max_depth is not None and e.depth > max_depth):
+                continue
+            if min_magnitude is not None and (e.magnitude is None or
+                e.mag < min_magnitude):
+                continue
+            if max_magnitude is not None and (e.magnitude is None or
+                e.mag > max_magnitude):
                 continue
             events.append(e)
 
