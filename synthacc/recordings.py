@@ -606,7 +606,7 @@ class Accelerogram(Seismogram):
         """
         [response] = self.get_responses([period], damping, gmt, validate=validate)
         unit = SI_UNITS[gmt]
-        return Seismogram(self.time_delta, response, unit)
+        return Seismogram(self.time_delta, response, unit, self.start_time)
 
     def get_responses(self, periods, damping=0.05, gmt='acc', pgm_frequency=100, validate=True):
         """
@@ -852,11 +852,12 @@ class Recording(Object):
             components[c] = s.convolve(a, validate=False)
         return self.__class__(components, validate=False)
 
-    def plot(self, s_time=None, e_time=None, picks=[], size=None, png_filespec=None, validate=True):
+    def plot(self, s_time=None, e_time=None, picks=[], title=None, size=None, png_filespec=None, validate=True):
         """
         """
         p = plot_recordings([self], s_time=s_time, e_time=e_time, picks=picks,
-            size=size, png_filespec=png_filespec, validate=validate)
+            title=title, size=size, png_filespec=png_filespec,
+            validate=validate)
 
         return p
 
@@ -961,6 +962,8 @@ def plot_seismograms(seismograms, titles=None, labels=None, colors=None, styles=
     pgms = np.zeros(n)
     axes = []
 
+    abs_time = None
+
     for i in range(n):
 
         if validate is True:
@@ -1013,7 +1016,10 @@ def plot_seismograms(seismograms, titles=None, labels=None, colors=None, styles=
             if s_time is not None or e_time is not None:
                 s = s.slice(s_time, e_time)
 
-            if is_time(s.start_time):
+            if abs_time is None:
+                abs_time = is_time(s.start_time)
+
+            if abs_time:
                 times = [s.start_time._time + datetime.timedelta(
                     microseconds=t*10**6) for t in s.rel_times]
             else:
@@ -1057,13 +1063,15 @@ def plot_seismograms(seismograms, titles=None, labels=None, colors=None, styles=
 
     for ax in axes[:-1]:
         plt.setp(ax.get_xticklabels(), visible=False)
-    axes[-1].xaxis.set_label_text('Time (s)')
+
+    if abs_time is False:
+        axes[-1].xaxis.set_label_text('Time (s)')
 
     bg.set_ylim([y_min, y_max])
     bg.set_ylabel('%s (%s)' % (gmt.capitalize(), unit))
 
     if title is not None:
-        plt.suptitle(title)
+        bg.set_title(title)
 
     if png_filespec is not None:
         plt.savefig(png_filespec)
