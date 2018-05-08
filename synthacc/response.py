@@ -4,6 +4,7 @@ The 'response' module.
 
 
 import matplotlib.pyplot as plt
+import matplotlib.ticker as mpl_ticker
 import numpy as np
 
 from .apy import Object, is_pos_number, is_fraction, is_1d_numeric_array
@@ -195,6 +196,14 @@ def plot_response_spectra(response_spectra, labels=None, colors=None, styles=Non
 
     ax.set_xlim([min_period, max_period])
     ax.set_ylim([0., max_response * 1.1])
+
+    def formatter(x, pos):
+        dec_places = int(np.maximum(-np.log10(x), 0))
+        formatstring = '{{:.{:1d}f}}'.format(dec_places)
+        formatstring = formatstring.format(x)
+        return formatstring
+
+    ax.xaxis.set_major_formatter(mpl_ticker.FuncFormatter(formatter))
 
     x_label = 'Period (s)'
     y_label = '%s (%s)' % (rs.gmt.capitalize(), unit)
