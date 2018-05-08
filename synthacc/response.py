@@ -78,6 +78,12 @@ class ResponseSpectrum(Object):
         """
         return UNITS[self.unit].quantity
 
+    @property
+    def max_response_period(self):
+        """
+        """
+        return self._periods[self._responses.argmax()]
+
     def has_pgm(self):
         """
         """
