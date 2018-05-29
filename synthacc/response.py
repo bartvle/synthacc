@@ -118,7 +118,7 @@ class ResponseSpectrum(Object):
         """
         return float(self.get_responses(unit=unit).max())
 
-    def plot(self, color=None, style=None, width=None, unit=None, space='linlog', pgm_period=0.01, min_period=None, max_period=None, title=None, size=None, png_filespec=None):
+    def plot(self, color=None, style=None, width=None, unit=None, space='linlog', pgm_period=0.01, min_period=None, max_period=None, max_response=None, title=None, size=None, png_filespec=None):
         """
         """
         labels, colors, styles, widths = None, None, None, None
@@ -129,11 +129,9 @@ class ResponseSpectrum(Object):
         if width is not None:
             widths = [width]
 
-        p = plot_response_spectra([self], labels, colors, styles, widths, unit,
-            space, pgm_period, min_period, max_period, title, size,
-            png_filespec)
-
-        return p
+        plot_response_spectra([self], labels, colors, styles, widths, unit,
+            space, pgm_period, min_period, max_period, max_response, title,
+            size, png_filespec)
 
 
 def frf(dft_frequencies, sdofo_frequency, damping, gmt, validate=True):
@@ -157,7 +155,7 @@ def frf(dft_frequencies, sdofo_frequency, damping, gmt, validate=True):
     return frf
 
 
-def plot_response_spectra(response_spectra, labels=None, colors=None, styles=None, widths=None, unit=None, space='linlog', pgm_period=0.01, min_period=None, max_period=None, title=None, size=None, png_filespec=None):
+def plot_response_spectra(response_spectra, labels=None, colors=None, styles=None, widths=None, unit=None, space='linlog', pgm_period=0.01, min_period=None, max_period=None, max_response=None, title=None, size=None, png_filespec=None):
     """
     """
     if unit is None:
@@ -165,7 +163,8 @@ def plot_response_spectra(response_spectra, labels=None, colors=None, styles=Non
 
     fig, ax = plt.subplots(figsize=size)
 
-    max_response = 0
+    max_response_ = 0
+
     for i, rs in enumerate(response_spectra):
 
         kwargs = {}
@@ -185,7 +184,7 @@ def plot_response_spectra(response_spectra, labels=None, colors=None, styles=Non
         if rs.has_pgm():
             ax.scatter(pgm_period, responses[0], s=widths[i]*np.pi**3, c=colors[i], zorder=i*2+2)
 
-        max_response = max([max_response, responses.max()])
+        max_response_ = max([max_response_, responses.max()])
 
     ax.grid()
 
@@ -193,6 +192,9 @@ def plot_response_spectra(response_spectra, labels=None, colors=None, styles=Non
         ax.legend()
 
     set_space(ax, space)
+
+    if max_response is None:
+        max_response = max_response_
 
     ax.set_xlim([min_period, max_period])
     ax.set_ylim([0., max_response * 1.1])
