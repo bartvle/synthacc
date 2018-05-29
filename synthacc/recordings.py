@@ -915,38 +915,44 @@ def rt_to_ne(r, t, back_azimuth, validate=True):
     return n, e
 
 
-def plot_seismograms(seismograms, titles=None, labels=None, colors=None, styles=None, widths=None, unit=None, s_time=None, e_time=None, scale=True, picks=[], title=None, size=None, png_filespec=None, validate=True):
+def plot_seismograms(seismograms, colors=None, styles=None, widths=None, unit=None, size=None, png_filespec=None, validate=True):
+#seismograms, titles=None, labels=None, colors=None, unit=None, s_time=None, e_time=None, scale=True, picks=[], title=None, size=None):
     """
+    Plot m x n seismograms.
+
     seismograms: list of lists of 'recordings.Seismogram' instances
-    titles: list of strings (default: None)
-    labels: list of lists of strings (default: None)
+    # titles: list of strings (default: None)
+    # labels: list of lists of strings (default: None)
     colors: list of lists of line colors (default: None)
     styles: list of lists of line styles (default: None)
     widths: list of lists of line widths (default: None)
-    scale: boolean, all axes have same y scale (default: True)
+    unit: string (default: None)
+    # scale: boolean, all axes have same y scale (default: True)
     """
     if validate is True:
-        assert(type(seismograms) is list)
+        assert(type(seismograms) is list and type(seismograms[0]) is list)
 
-    n = len(seismograms)
+    m, n = len(seismograms), len(seismograms[0])
 
     if validate is True:
-        if titles is not None:
-            assert(type(titles) is list and len(titles) == n)
-        if labels is not None:
-            assert(type(labels) is list and len(labels) == n)
+        # if titles is not None:
+            # assert(type(titles) is list and len(titles) == m)
+        # if labels is not None:
+            # assert(type(labels) is list and len(labels) == m)
         if colors is not None:
-            assert(type(colors) is list and len(colors) == n)
+            assert(type(colors) is list and len(colors) == m)
         if styles is not None:
-            assert(type(styles) is list and len(styles) == n)
+            assert(type(styles) is list and len(styles) == m)
         if widths is not None:
-            assert(type(widths) is list and len(widths) == n)
-        assert(is_boolean(scale))
+            assert(type(widths) is list and len(widths) == m)
+        if unit is not None:
+            assert(unit in UNITS)
+        # assert(is_boolean(scale))
 
     fig = plt.figure(figsize=size)
 
     ## set background for y label
-    bg = plt.subplot2grid((n, 1), (0, 0), rowspan=n)
+    bg = plt.subplot2grid((m, 1), (0, 0), rowspan=m)
     for s in ('bottom', 'top', 'left', 'right'):
         bg.spines[s].set_alpha(0)
     for tick in bg.get_xticklines():
@@ -960,31 +966,29 @@ def plot_seismograms(seismograms, titles=None, labels=None, colors=None, styles=
     
     sharex = None
     sharey = None
-    pgms = np.zeros(n)
+    # pgms = np.zeros(m)
     axes = []
 
-    abs_time = None
+    # abs_time = None
 
-    for i in range(n):
+    for i in range(m):
 
         if validate is True:
-            assert(type(seismograms[i]) is list)
-            if titles is not None:
-                assert(is_string(titles[i]))
-            if labels is not None:
-                assert(type(labels[i]) is list and
-                    len(labels[i]) == len(seismograms[i]))
+            assert(type(seismograms[i]) is list and len(seismograms[i]) == n)
+            # if titles is not None:
+                # assert(is_string(titles[i]))
+            # if labels is not None:
+                # assert(type(labels[i]) is list and
+                    # len(labels[i]) == len(seismograms[i]))
             if colors is not None:
-                assert(type(colors[i]) is list and
-                    len(colors[i]) == len(seismograms[i]))
+                assert(type(colors[i]) is list and len(colors[i]) == n)
             if styles is not None:
-                assert(type(styles[i]) is list and
-                    len(styles[i]) == len(seismograms[i]))
+                assert(type(styles[i]) is list and len(styles[i]) == n)
             if widths is not None:
-                assert(type(widths[i]) is list and
-                    len(widths[i]) == len(seismograms[i]))
+                assert(type(widths[i]) is list and len(widths[i]) == n)
 
-        ax = fig.add_subplot(n, 1, i+1, sharex=sharex, sharey=sharey)
+        ax = fig.add_subplot(m, 1, i+1, sharex=sharex, sharey=sharey)
+
         axes.append(ax)
 
         if sharex is None:
@@ -999,14 +1003,14 @@ def plot_seismograms(seismograms, titles=None, labels=None, colors=None, styles=
 
             if unit is None:
                 unit = s.unit
-                gmt = UNITS[unit].quantity
+                # gmt = UNITS[unit].quantity
 
-            if validate is True:
-                assert(s.gmt == gmt)
+            # if validate is True:
+                # assert(s.gmt == gmt)
 
             kwargs = {}
-            if labels is not None:
-                kwargs['label'] = labels[i][j]
+            # if labels is not None:
+                # kwargs['label'] = labels[i][j]
             if colors is not None:
                 kwargs['c'] = colors[i][j]
             if styles is not None:
@@ -1014,65 +1018,65 @@ def plot_seismograms(seismograms, titles=None, labels=None, colors=None, styles=
             if widths is not None:
                 kwargs['lw'] = widths[i][j]
 
-            if s_time is not None or e_time is not None:
-                s = s.slice(s_time, e_time)
+            # if s_time is not None or e_time is not None:
+                # s = s.slice(s_time, e_time)
 
-            if abs_time is None:
-                abs_time = is_time(s.start_time)
+            # if abs_time is None:
+                # abs_time = is_time(s.start_time)
 
-            if abs_time:
-                times = [s.start_time._time + datetime.timedelta(
-                    microseconds=t*10**6) for t in s.rel_times]
-            else:
-                times = [s.start_time + t for t in s.rel_times]
+            # if abs_time:
+                # times = [s.start_time._time + datetime.timedelta(
+                    # microseconds=t*10**6) for t in s.rel_times]
+            # else:
+                # times = [s.start_time + t for t in s.rel_times]
 
-            ax.plot(times, s.get_amplitudes(unit), **kwargs)
+            # ax.plot(times, s.get_amplitudes(unit), **kwargs)
 
-            pgms[i] = np.max([pgms[i], s.get_pgm(unit)])
+            # pgms[i] = np.max([pgms[i], s.get_pgm(unit)])
 
-            for p in picks:
-                if type(p) is Pick:
-                    time = p.time._time
-                else:
-                    time = p
-                ax.axvline(x=time, color='r', ls='--')
+            # for p in picks:
+                # if type(p) is Pick:
+                    # time = p.time._time
+                # else:
+                    # time = p
+                # ax.axvline(x=time, color='r', ls='--')
 
-        if titles is not None:
-            ax.text(0.990, 0.925, s=titles[i], horizontalalignment='right',
-                verticalalignment='top', transform=ax.transAxes,
-                color='dimgrey', fontsize=12, fontweight='bold')
+        # if titles is not None:
+            # ax.text(0.990, 0.925, s=titles[i], horizontalalignment='right',
+                # verticalalignment='top', transform=ax.transAxes,
+                # color='dimgrey', fontsize=12, fontweight='bold')
 
         ax.grid()
 
-        if labels is not None and titles is None:
-            ax.legend()
+        # if labels is not None and titles is None:
+            # ax.legend()
 
-        if scale is False:
-            y_min = -pgms[i] * 1.1
-            y_max = +pgms[i] * 1.1
-            ax.set_ylim([y_min, y_max])
+        # if scale is False:
+            # y_min = -pgms[i] * 1.1
+            # y_max = +pgms[i] * 1.1
+            # ax.set_ylim([y_min, y_max])
 
-    if titles is not None and labels is not None:
-        plt.legend(ax.get_legend_handles_labels())
+    # if titles is not None and labels is not None:
+        # plt.legend(ax.get_legend_handles_labels())
 
-    pgm = pgms.max()
-    y_min = -pgm * 1.1
-    y_max = +pgm * 1.1
+    # pgm = pgms.max()
+    # y_min = -pgm * 1.1
+    # y_max = +pgm * 1.1
 
-    if scale is True:
-        sharey.set_ylim([y_min, y_max])
+    # if scale is True:
+        # sharey.set_ylim([y_min, y_max])
 
-    for ax in axes[:-1]:
-        plt.setp(ax.get_xticklabels(), visible=False)
+    # for ax in axes[:-1]:
+        # plt.setp(ax.get_xticklabels(), visible=False)
 
-    if abs_time is False:
-        axes[-1].xaxis.set_label_text('Time (s)')
+    # if abs_time is False:
+        # axes[-1].xaxis.set_label_text('Time (s)')
 
-    bg.set_ylim([y_min, y_max])
-    bg.set_ylabel('%s (%s)' % (gmt.capitalize(), unit))
+    # bg.set_ylim([y_min, y_max])
+    # bg.set_ylabel('%s (%s)' % (gmt.capitalize(), unit))
 
-    if title is not None:
-        bg.set_title(title)
+    # if title is not None:
+        # bg.set_title(title)
 
     if png_filespec is not None:
         plt.savefig(png_filespec)
