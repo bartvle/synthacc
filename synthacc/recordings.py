@@ -360,8 +360,9 @@ class Seismogram(Waveform):
             assert(type(trace) is _Trace and unit in UNITS)
 
         td, a = float(trace.meta.delta), np.array(trace.data, dtype=float)
+        start_time = Time(trace.meta.starttime.datetime)
 
-        return cls(td, a, unit)
+        return cls(td, a, unit, start_time)
 
     @property
     def amplitudes(self):
