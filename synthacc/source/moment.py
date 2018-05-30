@@ -810,13 +810,9 @@ def m0_to_mw(m0, precise=True, validate=True):
     http://www.globalcmt.org/CMTsearch.html (last accessed on 10/10/2017). The
     rounding occurs in Hanks and Kanamori (1979).
 
-    precise: bool, use precise factor or not (default: precise)
+    precise: bool, use precise factor or not (default: True)
 
     return: number, mw
-
-    Used by
-        'source.moment.MomentTensor.magnitude'
-        'source.ruptures.SimpleRupture.magnitude'
     """
     if validate is True:
         assert(is_pos_number(m0))
@@ -839,7 +835,7 @@ def mw_to_m0(mw, precise=True, validate=True):
     http://www.globalcmt.org/CMTsearch.html (last accessed on 10/10/2017). The
     rounding occurs in Hanks and Kanamori (1979).
 
-    precise: bool, use precise factor or not (default: precise)
+    precise: bool, use precise factor or not (default: True)
 
     return: number, m0 in J (Nm)
     """
