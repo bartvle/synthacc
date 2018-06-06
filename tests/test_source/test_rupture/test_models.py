@@ -40,6 +40,7 @@ class TestGP2016KinematicRuptureGenerator(unittest.TestCase):
     def test_properties(self):
         """
         """
-        surface = Rectangle(0, 0, 10000, 0, 0, 5000, 90)
+        surface = Rectangle(100, 200, 10100, 200, 0, 5000, 90)
         krg = GP2016KinematicRuptureGenerator(0.01, 2700)
-        kr = krg(surface, 0, 7)
+        kr = krg(surface, 0, 7, hypo=(9100, 200, 3000))
+        kr = krg(surface, 0, 7, hypo=None)

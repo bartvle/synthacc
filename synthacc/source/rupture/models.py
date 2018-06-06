@@ -437,7 +437,7 @@ class GP2016KinematicRuptureGenerator(Object):
         self._velocity = velocity
         self._rigidity = rigidity
 
-    def __call__(self, surface, rake, magnitude, validate=True):
+    def __call__(self, surface, rake, magnitude, hypo=None, validate=True):
         """
         """
         if validate is True:
@@ -447,7 +447,10 @@ class GP2016KinematicRuptureGenerator(Object):
 
         moment = mw_to_m0(magnitude)
 
-        hypo = surface.get_random()
+        if hypo is None:
+            hypo = surface.get_random()
+        else:
+            hypo = space3.Point(*hypo, validate=validate)
 
         w, l = surface.width, surface.length
 
@@ -480,8 +483,8 @@ class GP2016KinematicRuptureGenerator(Object):
         hv = hypo.vector - surface.outline.ulc.vector
         wv = surface.outline.llc.vector - surface.outline.ulc.vector
         lv = surface.outline.urc.vector - surface.outline.ulc.vector
-        x = float(np.cos(np.radians(hv.get_angle(lv))) * hv.magnitude)
-        y = float(np.cos(np.radians(hv.get_angle(wv))) * hv.magnitude)
+        x = float(np.cos(np.radians(hv.get_angle(wv))) * hv.magnitude)
+        y = float(np.cos(np.radians(hv.get_angle(lv))) * hv.magnitude)
 
         ttc = TravelTimeCalculator(vd, d=100)
         tts = ttc(x, y)
