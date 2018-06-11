@@ -9,7 +9,7 @@ import unittest
 import numpy as np
 
 from synthacc.apy import PRECISION
-from synthacc.spectral import DFT, AccDFT, FAS, FPS
+from synthacc.spectral import DFT, AccDFT, FAS, FPS, fft, ifft, plot_fass
 from synthacc.io.esgmd2 import read_cor
 
 

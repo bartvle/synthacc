@@ -129,30 +129,10 @@ class DFT(Object):
         else:
             return self._amplitudes * (UNITS[self._unit] / UNITS[unit])
 
-    def get_response(self, frequency, damping, gmt, validate=True):
-        """
-        Get response of SDOF oscillator with frequency response function (FRF).
-        """
-        amplitudes = self.get_amplitudes(unit='m/s2') * frf(
-            self.frequencies, frequency, damping, gmt, validate=validate)
-        unit = SI_UNITS[gmt]
-
-        return DFT(self.frequencies, amplitudes, unit)
-
     def inverse(self, time_delta, validate=True):
         """
         """
-        if validate is True:
-            is_pos_number(time_delta)
-
-        n = int(round(1 / (self._frequencies[1] * time_delta)))
-
-        if validate is True:
-            assert(len(self) == (n//2 + 1))
-
-        amplitudes = np.fft.irfft(self._amplitudes / time_delta, n)
-
-        return amplitudes
+        return ifft(self._frequencies, self._amplitudes, time_delta, validate)
 
 
 class AccDFT(DFT):
@@ -182,6 +162,16 @@ class AccDFT(DFT):
             )
 
         return acc_dft
+
+    def get_response(self, frequency, damping, gmt, validate=True):
+        """
+        Get response of SDOF oscillator with frequency response function (FRF).
+        """
+        amplitudes = self.get_amplitudes(unit='m/s2') * frf(
+            self.frequencies, frequency, damping, gmt, validate=validate)
+        unit = SI_UNITS[gmt]
+
+        return DFT(self.frequencies, amplitudes, unit)
 
 
 class FAS(Object):
@@ -303,13 +293,37 @@ class FPS(Object):
         return np.copy(self._amplitudes)
 
 
+def fft(time_delta, amplitudes):
+    """
+    Fast Fourier Transform (FFT).
+    """
+    frequencies = np.fft.rfftfreq(len(amplitudes), time_delta)
+    amplitudes = np.fft.rfft(amplitudes) * time_delta
+
+    return frequencies, amplitudes
+
+
+def ifft(frequencies, amplitudes, time_delta, validate=True):
+    """
+    Inverse Fast Fourier Transform (iFFT).
+    """
+    n = int(round(1 / (frequencies[1] * time_delta)))
+
+    if validate is True:
+        assert(len(amplitudes) == (n//2 + 1))
+
+    amplitudes = np.fft.irfft(amplitudes / time_delta, n)
+
+    return amplitudes
+
+
 def plot_fass(fass, labels=None, colors=None, styles=None, widths=None, unit=None, space='loglog', min_frequency=None, max_frequency=None, min_amplitude=None, max_amplitude=None, title=None, size=None, png_filespec=None):
     """
     """
     if unit is None:
         unit = fass[0].unit
 
-    fig, ax = plt.subplots(figsize=size)
+    _, ax = plt.subplots(figsize=size)
 
     for i, fas in enumerate(fass):
 
