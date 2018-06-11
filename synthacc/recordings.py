@@ -22,7 +22,7 @@ from .apy import (Object, is_boolean, is_number, is_non_neg_number,
 from .time import Time, is_time
 from .units import MOTION as UNITS, MOTION_SI as SI_UNITS
 from .earth import flat as earth
-from .spectral import DFT, AccDFT
+from .spectral import DFT, AccDFT, fft
 from .response import ResponseSpectrum
 
 
@@ -210,7 +210,7 @@ class Waveform(Object):
     def slice(self, s_time=None, e_time=None, validate=True):
         """
         """
-        amplitudes = self._slice(s_time, t_time, validate=validate)
+        amplitudes = self._slice(s_time, e_time, validate=validate)
 
         if s_time is None:
             s_time = self.start_time
@@ -447,9 +447,8 @@ class Seismogram(Waveform):
             if unit is not None:
                 assert(UNITS[unit].quantity == self.gmt)
 
-        frequencies = np.fft.rfftfreq(len(self), self._time_delta)
-        amplitudes = np.fft.rfft(self.get_amplitudes(unit))
-        amplitudes *= self._time_delta
+        frequencies, amplitudes = fft(
+            self._time_delta, self.get_amplitudes(unit))
 
         return DFT(frequencies, amplitudes, unit or self._unit)
 
