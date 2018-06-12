@@ -9,7 +9,6 @@ import numpy as np
 from .apy import (Object, is_pos_number, is_1d_numeric_array,
     is_1d_complex_array)
 from .units import MOTION as UNITS, MOTION_SI as SI_UNITS
-from .response import frf
 from .plot import set_space
 
 
@@ -167,6 +166,8 @@ class AccDFT(DFT):
         """
         Get response of SDOF oscillator with frequency response function (FRF).
         """
+        from .response import frf
+
         amplitudes = self.get_amplitudes(unit='m/s2') * frf(
             self.frequencies, frequency, damping, gmt, validate=validate)
         unit = SI_UNITS[gmt]
