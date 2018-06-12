@@ -16,7 +16,8 @@ from synthacc.io.esgmd2 import read_cor, read_fas, read_spc
 from synthacc.io.resorce2013 import read_acc, read_rs
 
 from synthacc.recordings import (Pick, Waveform, Seismogram, Accelerogram,
-    Recording, ne_to_rt, rt_to_ne, plot_seismograms, plot_recordings)
+    Recording, ne_to_rt, rt_to_ne, read, plot_seismograms, plot_recordings,
+    husid_plot)
 
 
 DATA_DIR = os.path.join(os.path.dirname(__file__), 'data', 'recordings')
@@ -185,7 +186,7 @@ class TestAccelerogram(unittest.TestCase):
         """
         """
         rss = read_rs(os.path.join(DATA_DIR, '15279_V.txt'))
-        tgt_02_rs, tgt_05_rs, tgt_07_rs, tgt_10_rs, tgt_20_rs, tgt_30_rs = rss
+        tgt_02_rs, tgt_05_rs, _, _, _, tgt_30_rs = rss
         periods = tgt_02_rs.periods
         acc = read_acc(os.path.join(DATA_DIR, '15279_V.cor.acc'))
         cal_02_rs = acc.get_response_spectrum(
@@ -209,6 +210,23 @@ class TestAccelerogram(unittest.TestCase):
             colors=colors, widths=widths, unit='m/s2', png_filespec=fs2)
         plot_response_spectra([tgt_30_rs, cal_30_rs], labels=labels,
             colors=colors, widths=widths, unit='m/s2', png_filespec=fs3)
+
+    def test_get_strong_motion_duration(self):
+        """
+        """
+        self.assertEqual(np.round(
+            self.acc.get_strong_motion_duration(threshold=0.3), 2), 10.66)
+
+    def test_get_arias_intensity(self):
+        """
+        """
+        self.assertAlmostEqual(self.acc.get_arias_intensity(threshold=None),
+            0.7739819, 3)
+
+    def test_get_cav(self):
+        """
+        """
+        self.assertAlmostEqual(self.acc.get_cav(threshold=None), 5.2282833, 6)
 
 
 class TestRecording(unittest.TestCase):

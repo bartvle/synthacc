@@ -592,14 +592,7 @@ class Accelerogram(Seismogram):
         """
         Discrete Fourier transform (DFT).
         """
-        if validate is True:
-            if unit is not None:
-                assert(UNITS[unit].quantity == self.gmt)
-
-        dft = super().get_dft(unit, validate)
-        dft = AccDFT.from_dft(dft)
-
-        return dft
+        return AccDFT.from_dft(super().get_dft(unit, validate))
 
     def get_response(self, period, damping=0.05, gmt='acc', validate=True):
         """
@@ -630,6 +623,90 @@ class Accelerogram(Seismogram):
             self, periods, damping, gmt, pgm_frequency)
 
         return rs
+
+    def get_strong_motion_part(self, threshold=0.05*9.81):
+        """
+        Get strong motion part above certain threshold (in m/s2).
+
+        threshold: default is 5% of g, cfr. IAEA-SSG-9, p. 35.
+        """
+        indices = np.where(self.get_abs_amplitudes('m/s2') >= threshold)[0]
+        s_index = indices[+0]
+        e_index = indices[-1] + 1
+
+        if len(indices) == 0:
+            return None
+        else:
+            amplitudes = self._amplitudes[s_index:e_index].copy()
+
+        return self.__class__(self.time_delta, amplitudes, 'm/s2')
+
+    def get_strong_motion_duration(self, threshold=0.05*9.81):
+        """
+        Get duration of strong motion part above certain threshold (in m/s2).
+
+        threshold: default is 5% of g, cfr. IAEA-SSG-9, p. 35.
+        """
+        smp = self.get_strong_motion_part(threshold)
+
+        if smp is None:
+            return 0
+        else:
+            return smp.duration
+
+    def get_arias_intensity(self, threshold=0.05*9.81, husid=False):
+        """
+        Get areas intensity of strong motion part.
+
+        threshold: default is 5% of g, cfr. IAEA-SSG-9, p. 35.
+        """
+        if threshold is not None:
+            accelerogram = self.get_strong_motion_part(threshold)
+        else:
+            accelerogram = self
+
+        if accelerogram is None:
+            return 0
+
+        ais = np.zeros(len(self))
+        for i, acc in enumerate(accelerogram.get_amplitudes('m/s2')):
+            ais[i] += (acc**2) * accelerogram.time_delta
+        ais = np.cumsum(ais)
+
+        if husid is True:
+            return ais / ais[-1]
+        else:
+            return ais[-1] * np.pi / (2 * 9.81)
+
+    def get_arias_duration(self, min_nai=0.05, max_nai=0.95, threshold=0.05*9.81):
+        """
+        """
+        ais = self.get_arias_intensity(threshold, husid=True)
+        indices = np.where(np.logical_and(min_nai <= ais, ais <= max_nai))[0]
+        return (indices[-1] - indices[+0] + 1) * self.time_delta
+
+    def get_cav(self, threshold=0.025*9.81, increment=1):
+        """
+        Get cumulative absolute velocity of strong motion part.
+
+        threshold: default is 2.5% of g.
+        increment: default is 1 s.
+        """
+        if threshold is None:
+            threshold = 0
+
+        times, amplitudes = self.rel_times, self.get_abs_amplitudes('m/s2')
+
+        time, cav = 0, 0
+        while time <= times[-1]:
+            step_amplitudes = amplitudes[np.where(
+                np.logical_and(times >= time, times < (time + increment)))]
+            if step_amplitudes.max() >= threshold:
+                for acc in step_amplitudes:
+                    cav += acc * self.time_delta
+            time += increment
+
+        return cav
 
 
 class Recording(Object):
@@ -898,6 +975,17 @@ def rt_to_ne(r, t, back_azimuth, validate=True):
     return n, e
 
 
+def read(filespec, unit, validate=True):
+    """
+    """
+    if validate is True:
+        assert(is_string(filespec) and filespec.endswith('.sac'))
+
+    [t] = _read(filespec)
+
+    return Seismogram.from_trace(t, unit, validate)
+
+
 def plot_seismograms(seismograms, titles=None, labels=None, colors=None, styles=None, widths=None, unit=None, s_time=None, e_time=None, scale=True, picks=[], title=None, size=None, png_filespec=None, validate=True):
     """
     seismograms: list of lists of 'recordings.Seismogram' instances
@@ -1117,12 +1205,36 @@ def plot_recordings(recordings, labels=None, colors=None, styles=None, widths=No
         size=size, png_filespec=png_filespec, validate=False)
 
 
-def read(filespec, unit, validate=True):
+def husid_plot(accelerograms, labels=None, threshold=None, title=None, size=None, png_filespec=None, validate=True):
     """
     """
     if validate is True:
-        assert(is_string(filespec) and filespec.endswith('.sac'))
+        pass
 
-    [t] = _read(filespec)
+    fig, ax = plt.subplots(figsize=size)
 
-    return Seismogram.from_trace(t, unit, validate)
+    for i, acc in enumerate(accelerograms):
+
+        kwargs = {}
+        if labels is not None:
+            kwargs['label'] = labels[i]
+
+        ax.plot(acc.rel_times, acc.get_arias_intensity(
+            threshold=threshold, husid=True), **kwargs)
+
+    ax.grid()
+
+    if labels is not None:
+        ax.legend()
+
+    x_label, y_label = 'Time (s)', 'Normalized Arias Intensity'
+    ax.xaxis.set_label_text(x_label)
+    ax.yaxis.set_label_text(y_label)
+
+    if title is not None:
+        ax.set_title(title)
+
+    if png_filespec is not None:
+        plt.savefig(png_filespec)
+    else:
+        plt.show()
