@@ -3,12 +3,15 @@ The 'response' module.
 """
 
 
+from abc import ABC, abstractmethod
+
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mpl_ticker
 import numpy as np
 
 from .apy import Object, is_pos_number, is_fraction, is_1d_numeric_array
-from .units import MOTION as UNITS
+from .units import MOTION as UNITS, MOTION_SI as SI_UNITS
+from .spectral import fft, ifft
 from .plot import set_space
 
 
@@ -132,6 +135,193 @@ class ResponseSpectrum(Object):
         plot_response_spectra([self], labels, colors, styles, widths, unit,
             space, pgm_period, min_period, max_period, max_response, title,
             size, png_filespec)
+
+
+class Calculator(ABC, Object):
+    """
+    Calculate response for a single degree of freedom (SDOF) oscillator.
+    """
+
+    @abstractmethod
+    def __call__(self, time_delta, accelerations, frequencies, damping, gmt, validate):
+        """
+        Returns relative displacement, relative velocity and/or absolute
+        acceleration.
+        """
+        if validate is True:
+            if gmt is not None:
+                assert(gmt[:3] in ('dis', 'vel', 'acc'))
+
+    def get_response_spectrum(self, acc, periods, damping=0.05, gmt='acc', pgm_frequency=100, validate=True):
+        """
+        """
+        if validate is True:
+            assert(is_1d_numeric_array(periods) and
+                np.all(np.diff(periods) > 0))
+
+        if periods[0] == 0:
+            periods = np.copy(periods)
+            periods[0] = 1 / pgm_frequency
+
+        responses = self.__call__(acc.time_delta, acc.get_amplitudes('m/s2'), 1/periods, damping, gmt, validate=validate)
+        responses = np.abs(responses).max(axis=0)
+        unit = SI_UNITS[gmt[:3]]
+        rs = ResponseSpectrum(periods, responses, unit, damping)
+
+        return rs
+
+
+class NewmarkBetaCalculator(Calculator):
+    """
+    Calculate response of SDOF in time domain with Newmark-beta method
+    (Newmark, 1959).
+    """
+
+    def __init__(self, method='lin', validate=True):
+        """
+        method: 'lin' (linear) or 'avg' (average) acceleration method
+        """
+        if validate is True:
+            assert(method in ('lin', 'avg'))
+        
+        self._a, self._b = {'lin': (1/2, 1/6), 'avg': (1/2, 1/4)}[method]
+
+    def __call__(self, time_delta, accelerations, frequencies, damping=0.05, gmt=None, validate=True):
+        """
+        """
+        super().__call__(time_delta, accelerations, frequencies, damping, gmt,
+            validate)
+
+        ca = self._a * time_delta
+        cb = self._b * time_delta**2
+        c1 = -ca + time_delta
+        c2 = -cb + time_delta**2/2
+
+        w = 2 * np.pi * frequencies
+        c = 2 * w * damping
+        k = w**2
+        d = 1 + c * ca + k * cb
+
+        rdis = np.zeros((len(accelerations), len(frequencies)))
+        rvel = np.zeros((len(accelerations), len(frequencies)))
+        racc = np.zeros((len(accelerations), len(frequencies)))
+        aacc = np.zeros((len(accelerations), len(frequencies)))
+        racc[0,:] = accelerations[0]
+        aacc[0,:] = accelerations[0]
+
+        for i in range(len(accelerations)-1):
+            p1 = rvel[i] + racc[i] * time_delta / 2
+            p2 = rdis[i] + rvel[i] * time_delta + c2 * racc[i]
+            racc_iadd1 = (-accelerations[i+1] - c * p1 - k * p2) / d
+            racc[i+1] = racc_iadd1
+            rvel[i+1] = racc[i] * c1 + racc_iadd1 * ca + rvel[i]
+            rdis[i+1] = racc[i] * c2 + racc_iadd1 * cb + rvel[i] * \
+                time_delta + rdis[i]
+            aacc[i+1] = racc_iadd1 + accelerations[i+1]
+
+        if gmt is None:
+            return rdis, rvel, aacc
+        else:
+            return {'dis': rdis, 'vel': rvel, 'acc': aacc}[gmt[:3]]
+
+
+class NigamJenningsCalculator(Calculator):
+    """
+    Calculate response of SDOF in time domain with method of Nigam & Jennings
+    (1969).
+    """
+
+    def __call__(self, time_delta, accelerations, frequencies, damping=0.05, gmt=None, validate=True):
+        """
+        """
+        super().__call__(time_delta, accelerations, frequencies, damping, gmt,
+            validate)
+
+        omega = 2 * np.pi * frequencies
+        omega2 = omega**2
+        omega_d = omega * np.sqrt(1 - damping**2)
+        f1 = (2 * damping) / (omega**3 * time_delta)
+        f2 = 1 / omega2
+        f3 = damping * omega
+        f4 = 1 / omega_d
+        f5 = f3 * f4
+        f6 = 2 * f3
+        e = np.exp(-f3 * time_delta)
+        e_sin = e * np.sin(omega_d * time_delta)
+        e_cos = e * np.cos(omega_d * time_delta)
+        h_sub = (omega_d * e_cos) - (f3 * e_sin)
+        h_add = (omega_d * e_sin) + (f3 * e_cos)
+
+        shape = (len(accelerations)-1, len(frequencies))
+        rdis = np.zeros(shape)
+        rvel = np.zeros(shape)
+        aacc = np.zeros(shape)
+        
+        for i in range(0, shape[0]):
+            diff = accelerations[i+1] - accelerations[i]
+            z_1 = f2 * diff
+            z_2 = f2 * accelerations[i]
+            z_3 = f1 * diff
+            z_4 = z_1 / time_delta
+
+            if i == 0:
+                rdis_imin1 = 0
+                rvel_imin1 = 0
+            else:
+                rdis_imin1 = rdis[i-1]
+                rvel_imin1 = rvel[i-1]
+
+            b_val = rdis_imin1 + z_2 - z_3
+            a_val = (f4 * rvel_imin1) + (f5 * b_val) + (f4 * z_4)
+
+            rdis[i] = (a_val * e_sin) + (b_val * e_cos) + z_3 - z_2 - z_1
+            rvel[i] = (a_val * h_sub) - (b_val * h_add) - z_4
+            aacc[i] = (-f6 * rvel[i]) - (omega2 * rdis[i, :]) ## eq 7
+
+        if gmt is None:
+            return rdis, rvel, aacc
+        else:
+            return {'dis': rdis, 'vel': rvel, 'acc': aacc}[gmt[:3]]
+
+
+class SpectralCalculator(Calculator):
+    """
+    Calculate response of SDOF in spectral domain.
+    """
+
+    def _calc_gmt(self, time_delta, accelerations, frequencies, damping, gmt):
+        """
+        """
+        dft = fft(time_delta, accelerations)
+
+        responses = np.zeros((len(accelerations), len(frequencies)))
+        for i, f in enumerate(frequencies):
+            response_dft = dft[1] * frf(dft[0], f, damping, gmt, validate=False)
+            responses[:,i] = ifft(dft[0], response_dft, time_delta)
+            if gmt == 'acc':
+                responses[:,i] += accelerations
+
+        return responses
+
+    def __call__(self, time_delta, accelerations, frequencies, damping=0.05, gmt=None, validate=True):
+        """
+        """
+        super().__call__(time_delta, accelerations, frequencies, damping, gmt,
+            validate)
+
+        if gmt is None:
+            rdis = self._calc_gmt(
+                time_delta, accelerations, frequencies, damping, 'dis')
+            rvel = self._calc_gmt(
+                time_delta, accelerations, frequencies, damping, 'vel')
+            aacc = self._calc_gmt(
+                time_delta, accelerations, frequencies, damping, 'acc')
+
+            return rdis, rvel, aacc
+
+        else:
+            return self._calc_gmt(
+                time_delta, accelerations, frequencies, damping, gmt=gmt[:3])
 
 
 def frf(dft_frequencies, sdofo_frequency, damping, gmt, validate=True):
