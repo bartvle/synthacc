@@ -23,7 +23,7 @@ from .time import Time, is_time
 from .units import MOTION as UNITS, MOTION_SI as SI_UNITS
 from .earth import flat as earth
 from .spectral import DFT, AccDFT, fft
-from .response import ResponseSpectrum
+from . import response
 
 
 ## Allowed components
@@ -275,7 +275,7 @@ class Waveform(Object):
         before = int(before / self.time_delta)
         after =  int(after  / self.time_delta)
 
-        amplitudes = np.pad(self.amplitudes,
+        amplitudes = np.pad(self._amplitudes,
             (before, after), mode='constant', constant_values=(0, 0)
             )
 
@@ -604,32 +604,18 @@ class Accelerogram(Seismogram):
     def get_response(self, period, damping=0.05, gmt='acc', validate=True):
         """
         """
-        [response] = self.get_responses([period], damping, gmt, validate=validate)
+        response = self.get_responses(
+            [period], damping, gmt, validate=validate)[:,0]
         unit = SI_UNITS[gmt]
+
         return Seismogram(self.time_delta, response, unit, self.start_time)
 
     def get_responses(self, periods, damping=0.05, gmt='acc', pgm_frequency=100, validate=True):
         """
         """
         periods = np.asarray(periods)
-
-        if validate is True:
-            assert(is_1d_numeric_array(periods))
-            assert(is_pos_number(pgm_frequency))
-
-        if periods[0] == 0:
-            periods = np.copy(periods)
-            periods[0] = 1 / pgm_frequency
-
-        dft = self.dft
-        frequencies = 1 / periods
-        responses = np.zeros((len(frequencies), len(self)))
-        gmt = gmt[:3]
-        for i, frequency in enumerate(frequencies):
-            response_dft = dft.get_response(float(frequency), damping, gmt)
-            responses[i] = response_dft.inverse(self._time_delta)
-            if gmt == 'acc':
-                responses[i] += self.get_amplitudes('m/s2')
+        responses = response.SpectralCalculator()(self.time_delta,
+            self.get_amplitudes('m/s2'), 1/periods, damping, gmt)
 
         return responses
 
@@ -640,10 +626,8 @@ class Accelerogram(Seismogram):
         relative velocity or absolute acceleration. No pseudo response spectra!
         Units are m, m/s or m/s2.
         """
-        responses = self.get_responses(periods, damping, gmt, pgm_frequency, validate)
-        max_abs_responses = np.abs(responses).max(axis=1)
-        unit = SI_UNITS[gmt[:3]]
-        rs = ResponseSpectrum(periods, max_abs_responses, unit, damping)
+        rs = response.SpectralCalculator().get_response_spectrum(
+            self, periods, damping, gmt, pgm_frequency)
 
         return rs
 
