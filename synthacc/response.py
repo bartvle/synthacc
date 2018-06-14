@@ -137,7 +137,7 @@ class ResponseSpectrum(Object):
             size, png_filespec)
 
 
-class Calculator(ABC, Object):
+class ResponseCalculator(ABC, Object):
     """
     Calculate response for a single degree of freedom (SDOF) oscillator.
     """
@@ -171,7 +171,7 @@ class Calculator(ABC, Object):
         return rs
 
 
-class NewmarkBetaCalculator(Calculator):
+class NewmarkBetaRC(ResponseCalculator):
     """
     Calculate response of SDOF in time domain with Newmark-beta method
     (Newmark, 1959).
@@ -225,7 +225,7 @@ class NewmarkBetaCalculator(Calculator):
             return {'dis': rdis, 'vel': rvel, 'acc': aacc}[gmt[:3]]
 
 
-class NigamJenningsCalculator(Calculator):
+class NigamJenningsRC(ResponseCalculator):
     """
     Calculate response of SDOF in time domain with method of Nigam & Jennings
     (1969).
@@ -284,7 +284,7 @@ class NigamJenningsCalculator(Calculator):
             return {'dis': rdis, 'vel': rvel, 'acc': aacc}[gmt[:3]]
 
 
-class SpectralCalculator(Calculator):
+class SpectralRC(ResponseCalculator):
     """
     Calculate response of SDOF in spectral domain.
     """

@@ -9,8 +9,8 @@ import unittest
 import matplotlib.pyplot as plt
 import numpy as np
 
-from synthacc.response import (ResponseSpectrum, NewmarkBetaCalculator,
-    NigamJenningsCalculator, SpectralCalculator, frf, plot_response_spectra)
+from synthacc.response import (ResponseSpectrum, NewmarkBetaRC,
+    NigamJenningsRC, SpectralRC, frf, plot_response_spectra)
 
 
 OUTPUT_DIR = os.path.join(os.path.dirname(__file__), 'output')

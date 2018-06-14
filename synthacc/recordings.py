@@ -607,7 +607,7 @@ class Accelerogram(Seismogram):
         """
         """
         periods = np.asarray(periods)
-        responses = response.SpectralCalculator()(self.time_delta,
+        responses = response.SpectralRC()(self.time_delta,
             self.get_amplitudes('m/s2'), 1/periods, damping, gmt)
 
         return responses
@@ -619,7 +619,7 @@ class Accelerogram(Seismogram):
         relative velocity or absolute acceleration. No pseudo response spectra!
         Units are m, m/s or m/s2.
         """
-        rs = response.SpectralCalculator().get_response_spectrum(
+        rs = response.SpectralRC().get_response_spectrum(
             self, periods, damping, gmt, pgm_frequency)
 
         return rs
