@@ -176,9 +176,9 @@ class RFSlipDistributionGenerator(Object):
         return self._srfg
 
 
-class FCSlipDistribution(SlipDistribution):
+class CSSlipDistribution(SlipDistribution):
     """
-    Fractal composite slip distribution.
+    Composite source slip distribution.
     """
 
     def __init__(self, w, l, slip, sources, validate=True):
@@ -244,9 +244,9 @@ def _calc(input):
     return np.sqrt(input)
 
 
-class FCSlipDistributionGenerator(Object):
+class CSSlipDistributionGenerator(Object):
     """
-    Fractal composite slip distribution generator.
+    Composite source slip distribution generator.
     """
 
     def __init__(self, w, l, d, rmin=2**(0.5), rmax=0.5, dimension=2, validate=True):
@@ -297,7 +297,7 @@ class FCSlipDistributionGenerator(Object):
 
         slip = constant * np.sum(int, axis=2)
 
-        sd = FCSlipDistribution(self.surface.w, self.surface.l, slip, sources)
+        sd = CSSlipDistribution(self.surface.w, self.surface.l, slip, sources)
 
         return sd
 
