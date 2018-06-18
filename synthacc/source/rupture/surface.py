@@ -17,7 +17,7 @@ class Distribution(ABC, space2.DiscretizedRectangularSurface):
     """
 
     @property
-    def mean(self):
+    def avg(self):
         """
         """
         return self._values.mean()
