@@ -6,7 +6,7 @@ The 'spectral' module.
 import matplotlib.pyplot as plt
 import numpy as np
 
-from .apy import (Object, is_pos_number, is_1d_numeric_array,
+from .apy import (Object, is_number, is_pos_number, is_1d_numeric_array,
     is_1d_complex_array)
 from .units import MOTION as UNITS, MOTION_SI as SI_UNITS
 from .plot import set_space
@@ -201,6 +201,17 @@ class FAS(Object):
         """
         """
         return len(self._frequencies)
+
+    def __mul__(self, value, validate=True):
+        """
+        """
+        if validate is True:
+            assert(is_number(value))
+
+        fas = self.__class__(
+            self.frequencies, self._amplitudes * value, self.unit)
+
+        return fas
 
     @property
     def frequencies(self):
