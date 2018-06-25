@@ -7,6 +7,7 @@ from abc import ABC, abstractmethod
 
 from numba import jit
 import numpy as np
+import scipy.special
 
 from .apy import PRECISION, Object, is_number, is_pos_number, is_pos_integer
 
