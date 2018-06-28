@@ -42,6 +42,7 @@ class Point(Object):
         s += ', '
         s += 'y={:{}.3f}'.format(self.y, '+' if self.y else '')
         s += ' >'
+
         return s
 
     def __getitem__(self, i):
@@ -78,7 +79,7 @@ class Point(Object):
 
 class RectangularSurface(Object):
     """
-    The origin is in the upper left corner.
+    The origin is in the upper left corner. X is along W and Y is along L.
     """
 
     def __init__(self, w, l, validate=True):
@@ -103,6 +104,12 @@ class RectangularSurface(Object):
         """
         return self._l
 
+    @property
+    def area(self):
+        """
+        """
+        return self.w * self.l
+
     def get_random(self, seed=None, validate=True):
         """
         Get a random point on the surface.
@@ -123,7 +130,8 @@ class RectangularSurface(Object):
 
 class DiscretizedRectangularSurface(RectangularSurface):
     """
-    The origin is in the upper left corner.
+    The origin is in the upper left corner. X is along W and Y is along L. The
+    dw and dl parameters are recalculated based on nw and nl.
     """
 
     def __init__(self, w, l, dw, dl, validate=True):
@@ -139,14 +147,12 @@ class DiscretizedRectangularSurface(RectangularSurface):
 
         nw = round(w / dw)
         nl = round(l / dl)
-
         dw = w / nw
         dl = l / nl
-
         ws = np.linspace(0+dw/2, w-dw/2, nw)
         ls = np.linspace(0+dl/2, l-dl/2, nl)
-        self._grid = np.dstack(np.meshgrid(ls, ws))
 
+        self._grid = np.dstack(np.meshgrid(ls, ws))
         self._dw = dw
         self._dl = dl
 
@@ -186,38 +192,32 @@ class DiscretizedRectangularSurface(RectangularSurface):
         return self.shape[1]
 
     @property
-    def ws(self):
+    def xs(self):
         """
         return: 1d numerical array
         """
         return self._grid[:,0,1]
 
     @property
-    def ls(self):
+    def ys(self):
         """
         return: 1d numerical array
         """
         return self._grid[0,:,0]
 
     @property
-    def wgrid(self):
+    def xgrid(self):
         """
         return: 2d numerical array
         """
         return self._grid[:,:,1]
 
     @property
-    def lgrid(self):
+    def ygrid(self):
         """
         return: 2d numerical array
         """
         return self._grid[:,:,0]
-
-    @property
-    def area(self):
-        """
-        """
-        return self.w * self.l
 
 
 class ACF(ABC, Object):
@@ -226,13 +226,13 @@ class ACF(ABC, Object):
     """
 
     @abstractmethod
-    def __call__(self):
+    def __call__(self, r, a):
         """
         """
         pass
 
     @abstractmethod
-    def get_psd(self, k, a=1):
+    def get_psd(self, k, a):
         """
         a is product of a of each dimension.
         """
@@ -285,19 +285,20 @@ class VonKarmanACF(ACF):
 
         self._h = h
 
-    @property
-    def h(self):
-        """
-        """
-        return self._h
-
     def __call__(self, r, a=1):
         """
         """
         r = r + (r[1]-r[0])
         acf = r**self.h * scipy.special.kv(self.h, r/a)
         acf /= acf[0]
+
         return acf
+
+    @property
+    def h(self):
+        """
+        """
+        return self._h
 
     def get_psd(self, k, a=1):
         """
@@ -305,92 +306,37 @@ class VonKarmanACF(ACF):
         return a/(1+k**2)**(self.h+1)
 
 
-class SpatialRandomFieldGenerator(Object):
+class SpatialRandomFieldCalculator(Object):
     """
-    The origin is in the upper left corner.
     """
 
-    def __init__(self, nw, nl, dw, dl, acf, aw, al, validate=True):
+    def __init__(self, dw, dl, acf, aw, al, validate=True):
         """
         """
         if validate is True:
-            assert(is_pos_integer(nw) and nw % 2 == 1)
-            assert(is_pos_integer(nl) and nl % 2 == 1)
             assert(is_pos_number(dw))
             assert(is_pos_number(dl))
             assert(isinstance(acf, ACF))
             assert(is_pos_number(aw))
             assert(is_pos_number(al))
 
-        self._nw = nw
-        self._nl = nl
         self._dw = dw
         self._dl = dl
         self._acf = acf
         self._aw = aw
         self._al = al
 
-    def __call__(self, seed=None, validate=True):
+    def __call__(self, nw, nl, validate=True):
         """
         """
         if validate is True:
-            if seed is not None:
-                assert(is_pos_integer(seed))
+            assert(is_pos_integer(nw) and nw % 2 == 1)
+            assert(is_pos_integer(nl) and nl % 2 == 1)
 
-        rw = self.nw // 2 ## index of middle row
-        rl = self.nl // 2 ## index of middle col
+        srf = SpatialRandomFieldGenerator(nw, nl, self.dw, self.dl,
+            self.acf, self.aw, self.al, validate=False)
 
-        ## Take upper half of psd (including middle row)
-        psd = self.psd[:rw+1]
-
-        ## Normalize PSD for iFFT
-        amplitudes = np.sqrt(psd/psd.max())
-        # amplitudes = np.sqrt(psd)
-
-        ## Set DC-component to 0
-        amplitudes[rw, rl] = 0
-
-        ## Get random phases
-        if seed is not None:
-            np.random.seed(seed)
-        phases = 2 * np.pi * np.random.random(size=amplitudes.shape)
-
-        ## Construct DFT for upper half (positive frequency rows)
-        Y = amplitudes * np.cos(phases) + 1j * amplitudes * np.sin(phases)
-
-        ## Construct DFT for lower half (negative frequency rows)
-        Y = np.concatenate((Y, np.conj(np.fliplr(np.flipud(Y[:-1])))))
-
-        ## Construct DFT for for middle row (zero frequency row)
-        Y[rw,:rl:-1] = np.conj(Y[rw,:rl])
-
-        ## Shift
-        dft = np.fft.ifftshift(Y)
-
-        ## inverse 2D complex FFT
-        ## remaining imaginary part is due to machine precision
-        field = np.real(np.fft.ifft2(dft))
-
-        # Remove mean and scale to unit variance
-        field = field / np.std(field, ddof=1)
-
-        ## Positive (small) mean
-        if np.mean(field) < 0:
-            field *= -1
-
-        return field
-
-    @property
-    def nw(self):
-        """
-        """
-        return self._nw
-
-    @property
-    def nl(self):
-        """
-        """
-        return self._nl
+        return srf
 
     @property
     def dw(self):
@@ -422,6 +368,85 @@ class SpatialRandomFieldGenerator(Object):
         """
         return self._al
 
+
+class SpatialRandomFieldGenerator(SpatialRandomFieldCalculator):
+    """
+    The origin is in the upper left corner. X is along W and Y is along L.
+    """
+
+    def __init__(self, nw, nl, dw, dl, acf, aw, al, validate=True):
+        """
+        """
+        super().__init__(dw, dl, acf, aw, al, validate=validate)
+
+        if validate is True:
+            assert(is_pos_integer(nw) and nw % 2 == 1)
+            assert(is_pos_integer(nl) and nl % 2 == 1)
+
+        self._nw = nw
+        self._nl = nl
+
+        self._kw = self._calc_kw()
+        self._kl = self._calc_kl()
+        self._kr = self._calc_kr()
+
+        self._psd = self._calc_psd()
+
+        self._rw = self._nw // 2 ## index of middle row
+        self._rl = self._nl // 2 ## index of middle col
+
+        self._amplitudes = self._calc_amplitudes()
+
+    def __call__(self, seed=None, validate=True):
+        """
+        """
+        if validate is True:
+            if seed is not None:
+                assert(is_pos_integer(seed))
+
+        if seed is not None:
+            np.random.seed(seed)
+
+        ## Get random phases
+        phases = 2 * np.pi * np.random.random(size=self._amplitudes.shape)
+
+        ## 1. Construct DFT for upper half (positive frequency rows)
+        real = self._amplitudes * np.cos(phases)
+        imag = self._amplitudes * np.sin(phases)
+        Y =  real + 1j * imag
+
+        ## 2. Construct DFT for lower half (negative frequency rows)
+        flip_1 = np.flipud(Y[:-1])
+        flip_2 = np.fliplr(flip_1)
+        Y = np.concatenate((Y, np.conj(flip_2)))
+
+        ## 3. Construct DFT for for middle row (zero frequency row)
+        Y[self._rw,:self._rl:-1] = np.conj(Y[self._rw,:self._rl])
+
+        ## inverse FFT (remaining imaginary part is due to machine precision)
+        field = np.real(np.fft.ifft2(np.fft.ifftshift(Y)))
+
+        ## Remove mean and scale to unit variance
+        field = field / np.std(field, ddof=1)
+
+        ## Positive (small) mean
+        if np.mean(field) < 0:
+            field *= -1
+
+        return field
+
+    @property
+    def nw(self):
+        """
+        """
+        return self._nw
+
+    @property
+    def nl(self):
+        """
+        """
+        return self._nl
+
     @property
     def shape(self):
         """
@@ -431,6 +456,23 @@ class SpatialRandomFieldGenerator(Object):
     @property
     def kw(self):
         """
+        """
+        return self._kw
+
+    @property
+    def kl(self):
+        """
+        """
+        return self._kl
+
+    @property
+    def kr(self):
+        """
+        """
+        return self._kr
+
+    def _calc_kw(self):
+        """
         nw wavenumbers from -half the sampling rate to +half the sampling rate
 
         For an odd nw this is in practice not the sampling rate but
@@ -438,10 +480,9 @@ class SpatialRandomFieldGenerator(Object):
 
         returns kw from - over 0 to +
         """
-        return 2 * np.pi * np.fft.fftshift(np.fft.fftfreq(self.nw, self.dw))
+        return 2 * np.pi * np.fft.fftshift(np.fft.fftfreq(self._nw, self._dw))
 
-    @property
-    def kl(self):
+    def _calc_kl(self):
         """
         nl wavenumbers from -half the sampling rate to +half the sampling rate
 
@@ -450,24 +491,36 @@ class SpatialRandomFieldGenerator(Object):
 
         returns kl from - over 0 to +
         """
-        return 2 * np.pi * np.fft.fftshift(np.fft.fftfreq(self.nl, self.dl))
+        return 2 * np.pi * np.fft.fftshift(np.fft.fftfreq(self._nl, self._dl))
 
-    @property
-    def kr(self):
+    def _calc_kr(self):
         """
         Radial wavenumbers
         """
         kr = np.sqrt(np.add.outer(
-            self.kw**2 * self.aw**2,
-            self.kl**2 * self.al**2,
+            self._kw**2 * self._aw**2,
+            self._kl**2 * self._al**2,
         ))
         return kr
 
-    @property
-    def psd(self):
+    def _calc_psd(self):
         """
         """
-        return self.acf.get_psd(self.kr, a=self.aw*self.al)
+        return self._acf.get_psd(self._kr, a=self._aw*self._al)
+
+    def _calc_amplitudes(self):
+        """
+        """
+        ## Take upper half of psd (including middle row)
+        psd = self._psd[:self._rw+1]
+
+        ## Normalize PSD for iFFT
+        amplitudes = np.sqrt(psd/psd.max())
+
+        ## Set DC-component to 0
+        amplitudes[self._rw,self._rl] = 0
+
+        return amplitudes
 
 
 @jit(nopython=True)

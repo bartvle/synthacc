@@ -9,8 +9,23 @@ import numpy as np
 
 from synthacc.space2 import (Point, RectangularSurface,
     DiscretizedRectangularSurface, GaussianACF, ExponentialACF, VonKarmanACF,
-    SpatialRandomFieldGenerator, distance, cartesian_to_polar,
-    polar_to_cartesian)
+    SpatialRandomFieldCalculator, SpatialRandomFieldGenerator, distance,
+    cartesian_to_polar, polar_to_cartesian)
+
+
+class TestRectangularSurface(unittest.TestCase):
+    """
+    """
+    w = 6000
+    l = 12000
+    s = RectangularSurface(w, l)
+
+    def test_properties(self):
+        """
+        """
+        self.assertEqual(self.s.w, self.w)
+        self.assertEqual(self.s.l, self.l)
+        self.assertEqual(self.s.area, 72000000)
 
 
 class TestDiscretizedRectangularSurface(unittest.TestCase):

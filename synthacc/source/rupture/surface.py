@@ -3,7 +3,7 @@ The 'source.rupture.surface' module.
 """
 
 
-from abc import ABC
+from abc import ABC, abstractmethod
 
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import make_axes_locatable
@@ -15,6 +15,13 @@ from ... import space2
 class Distribution(ABC, space2.DiscretizedRectangularSurface):
     """
     """
+
+    @property
+    @abstractmethod
+    def LABEL(self):
+        """
+        """
+        pass
 
     @property
     def avg(self):
@@ -40,40 +47,43 @@ class Distribution(ABC, space2.DiscretizedRectangularSurface):
         """
         s = space2.DiscretizedRectangularSurface(
             self.w, self.l, self.dw, self.dl, validate=False)
+
         return s
 
-    def interpolate(self, ws, ls, validate=True):
+    def interpolate(self, xs, ys, validate=True):
         """
         """
         if validate is True:
-            assert(ws[-1] <= self.surface.w)
-            assert(ls[-1] <= self.surface.l)
+            assert(xs[-1] <= self.surface.w)
+            assert(ys[-1] <= self.surface.l)
 
         i = scipy.interpolate.RectBivariateSpline(
-            self.surface.ws,
-            self.surface.ls,
+            self.surface.xs,
+            self.surface.ys,
             self._values)
 
-        return i(ws, ls)
+        return i(xs, ys)
 
     def plot(self, contours=False, size=None, png_filespec=None, validate=True):
         """
         """
-        f, ax = plt.subplots(figsize=size)
+        fig, ax = plt.subplots(figsize=size)
 
         extent = [0, self.l/1000, self.w/1000, 0]
         p = ax.imshow(self._values, interpolation='bicubic', extent=extent)
+
         if contours is True:
-            ax.contour(self.lgrid/1000, self.wgrid/1000, self._values,
+            ax.contour(self.ygrid/1000, self.xgrid/1000, self._values,
                 extent=extent, colors='gray')
-        plt.axis('scaled')
+
+        ax.axis('scaled')
 
         xlabel, ylabel = 'Along strike (km)', 'Along dip (km)'
-        plt.xlabel(xlabel)
-        plt.ylabel(ylabel)
+        ax.set_xlabel(xlabel)
+        ax.set_ylabel(ylabel)
 
         cax = make_axes_locatable(ax).append_axes('right', size='1%', pad=0.25)
-        cbar = f.colorbar(p, cax=cax)
+        cbar = fig.colorbar(p, cax=cax)
         cbar.set_label(self.LABEL)
 
         plt.tight_layout()
