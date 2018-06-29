@@ -8,6 +8,7 @@ from abc import ABC, abstractmethod
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mpl_ticker
 import numpy as np
+from scipy.integrate import quad
 
 from .apy import Object, is_pos_number, is_fraction, is_1d_numeric_array
 from .units import MOTION as UNITS, MOTION_SI as SI_UNITS
@@ -322,6 +323,86 @@ class SpectralRC(ResponseCalculator):
         else:
             return self._calc_gmt(
                 time_delta, accelerations, frequencies, damping, gmt=gmt[:3])
+
+
+class PeakCalculator(ABC, Object):
+    """
+    """
+
+    @abstractmethod
+    def __call__(self):
+        """
+        """
+
+
+class CartwrightLonguetHiggins1956PC(PeakCalculator):
+    """
+    Cartwright & Longuet-Higgins (1956).
+    """
+
+    def __call__(self, m0, m2, m4, duration):
+        """
+        """
+        fz = np.sqrt(m2/m0)/(2*np.pi)
+        fe = np.sqrt(m4/m2)/(2*np.pi)
+        nz = 2*fz*duration
+        ne = 2*fe*duration
+        eta = nz/ne
+        pf = np.sqrt(2) * quad(
+                lambda z: 1. - (1. - eta * np.exp(-z * z)) ** ne, 0, np.inf)[0]
+
+        return pf
+
+
+class RVTCalculator(Object):
+    """
+    Estimate response spectrum from Fourier amplitude spectrum (FAS) with
+    Random Vibration Theory (RVT). RVT uses an estimate of the ratio of peak
+    motion to rms motion. Parseval’s theorem is used to obtain the rms motion.
+    See Boore (2003).
+    """
+
+    def __init__(self, pc=CartwrightLonguetHiggins1956PC(), validate=True):
+        """
+        """
+        if validate is True:
+            assert(isinstance(pc, PeakCalculator))
+
+        self._pc = pc
+
+    def _calc_spectral_moments(self, orders, frequencies, amplitudes):
+        """
+        Frequencies must be spaced close enough to get correct result!
+        """
+        spectral_moments = []
+        a_squared = amplitudes**2
+        two_pi_f = 2 * np.pi * frequencies
+        for o in orders:
+            sm = 2 * np.trapz(a_squared * np.power(two_pi_f, o), frequencies)
+            spectral_moments.append(sm)
+        return spectral_moments
+
+    def __call__(self, fas, frequencies, damping, duration, rms_duration_fnc=None, gmt='dis'):
+        """
+        Responses are dis.
+        """
+        responses = []
+        for f in frequencies:
+            if rms_duration_fnc is None: ## no correction
+                rms_duration = duration
+            else:
+                rms_duration = rms_duration_fnc(f)
+
+            response_amplitudes = fas.amplitudes * np.abs(frf(fas.frequencies, float(f), damping, gmt=gmt))# * (2 * np.pi * f)**2
+            m0, m1, m2, m4 = self._calc_spectral_moments([0, 1, 2, 4], fas.frequencies, response_amplitudes)
+            y_rms = np.sqrt(m0/rms_duration)
+            pf = self._pc(m0, m2, m4, duration)
+            response = y_rms * pf
+            responses.append(response)
+
+        unit = SI_UNITS[gmt]
+
+        return ResponseSpectrum(1/frequencies, np.array(responses), unit, damping)
 
 
 def frf(dft_frequencies, sdofo_frequency, damping, gmt, validate=True):

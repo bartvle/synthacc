@@ -27,6 +27,8 @@ Clone the Synthacc repository and add its folder to the PYTHONPATH environment v
 * Akkar S., Sandikkaya M.A., Senyurt M., Sisi A.A., Ay B.Ö., Traversa P., Douglas J., Cotton F., Luzi L., Hernandez B. and Godey S. (2014). Reference database for seismic ground-motion in Europe (RESORCE). Bulletin of Earthquake Engineering, 12(1), 311-339.
 * Ambraseys N., Smit P., Douglas J., Margaris B., Sigbjornsson R., Olafsson S., Suhadolc P. and Costa G. (2004). Internet-Site for European Strong-Motion Data. Bollettino di Geofisica Teorica ed Applicata, 45(3), 113-129.
 * Beyreuther M., Barsch R., Krischer L., Megies T., Behr Y. and Wassermann J. (2010). ObsPy: A Python Toolbox for Seismology. Seismological Research Letters, 81(3), 530-533.
+* Boore D. (2003). Simulation of Ground Motion Using the Stochastic Method. Pure and Applied Geophysics, 160(3-4), 635-676.
+* Cartwright D. and Longuet-Higgins M. (1956). The statistical distribution of maxima of a random function. Proceedings of the Royal Society of London. Series A, 237(1209), 212-232.
 * Cotton F. and Coutant O. (1997). Dynamic stress variations due to shear faults in a plane-layered medium. Geophysical Journal International, 128, 676-688.
 * Graves R. and Pitarka A. (2010). Broadband Ground-Motion Simulation Using a Hybrid Approach. Bulletin of the Seismological Society of America, 100(5A), 2095-2123.
 * Graves R. and Pitarka A. (2016). Kinematic Ground-Motion Simulations on Rough Faults Including Effects of 3D Stochastic Velocity Perturbations. Bulletin of the Seismological Society of America, 106(5), 2136-2153.
