@@ -65,8 +65,8 @@ class ConstantVelocityTravelTimeCalculator(Object):
             assert(is_non_neg_number(y) and y <= self._surface.l)
 
         tts = space2.distance(x, y,
-            self._surface.wgrid,
-            self._surface.lgrid,
+            self._surface.xgrid,
+            self._surface.ygrid,
             ) / self._velocity
 
         return TravelTimes(self._surface.w, self._surface.l, tts)
@@ -100,7 +100,7 @@ class TravelTimeCalculator(Object):
         self._wgrid = wgrid
         self._lgrid = lgrid
 
-    def __call__(self, x, y, validate=True):
+    def __call__(self, x, y, ds=None, validate=True):
         """
         The origin is in the upper left corner.
         """
@@ -115,7 +115,13 @@ class TravelTimeCalculator(Object):
 
         tts = skfmm.travel_time(phi, self._vs, dx=self._d)
         tts = TravelTimes(self._vd.w, self._vd.l, tts)
-        tts = tts.interpolate(self._vd.ws, self._vd.ls)
+
+        if ds is None:
+            xs, ys = self._vd.xs, self._vd.ys
+        else:
+            xs, ys = ds.xs, ds.ys
+        tts = tts.interpolate(xs, ys)
+
         tts[tts < 0] = 0
 
         return TravelTimes(self._vd.w, self._vd.l, tts)

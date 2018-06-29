@@ -35,9 +35,9 @@ class SlipDistribution(Distribution):
         dw = w / slip.shape[0]
         dl = l / slip.shape[1]
 
-        super().__init__(w, l, dw, dl, validate=False)
-
         self._values = slip
+
+        super().__init__(w, l, dw, dl, validate=False)
 
     @property
     def slip(self):
@@ -120,21 +120,94 @@ class RFSlipDistribution(SlipDistribution):
         super().__init__(w, l, slip, validate=validate)
 
 
+class RFSlipDistributionCalculator(Object):
+    """
+    Random field slip distribution calculator.
+    """
+
+    def __init__(self, sd, acf, aw, al, std=1, validate=True):
+        """
+        """            
+        self._srfc = space2.SpatialRandomFieldCalculator(
+            sd, sd, acf, aw, al, validate=validate)
+    
+        self._std = std
+
+    def __call__(self, surface, magnitude, rigidity=RIGIDITY, validate=True):
+        """
+        """
+        if validate is True:
+            assert(is_number(magnitude))
+            assert(is_pos_number(rigidity))
+
+        sdg = RFSlipDistributionGenerator(
+            surface.width, surface.length, magnitude, rigidity, self._srfc.dw,
+            self._srfc.dl, self._srfc.acf, self._srfc.aw, self._srfc.al,
+            self._std, validate=False)
+
+        return sdg
+
+
+class MaiBeroza2002RFSDC(RFSlipDistributionCalculator):
+    """
+    """
+
+    def __init__(self, sd, std=1, validate=True):
+        """
+        """
+        if validate is True:
+            pass
+
+        self._sd = sd
+        self._std = std
+
+    def __call__(self, surface, magnitude, rigidity=RIGIDITY, validate=True):
+        """
+        """
+        if validate is True:
+            assert(is_number(magnitude))
+            assert(is_pos_number(rigidity))
+
+        acf = space2.VonKarmanACF(h=0.75)
+        aw = 10**(1/3*magnitude-1.6) * 1000
+        al = 10**(1/2*magnitude-2.5) * 1000
+
+        sdg = RFSlipDistributionGenerator(surface.width, surface.length,
+            magnitude, rigidity, self._sd, self._sd, acf, aw, al, self._std,
+            validate=False)
+
+        return sdg
+
+
 class RFSlipDistributionGenerator(Object):
     """
     Random field slip distribution generator.
     """
 
-    def __init__(self, w, l, dw, dl, acf, aw, al, validate=True):
+    def __init__(self, w, l, magnitude, rigidity, dw, dl, acf, aw, al, std, validate=True):
         """
         """
         if validate is True:
             assert(is_pos_number(w))
             assert(is_pos_number(l))
-            assert(is_pos_number(dw))
-            assert(is_pos_number(dl))
-            assert(round(w / dw) % 2 == 1)
-            assert(round(l / dl) % 2 == 1)
+            assert(is_number(magnitude))
+            assert(is_pos_number(rigidity))
+        
+        if not (round(w / dw) % 2 == 1):
+            nw = round(w / (2*dw)) *2 + 1
+            dw = w / nw
+
+        if not (round(l / dl) % 2 == 1):
+            nl = round(l / (2*dl)) * 2 + 1
+            dl = l / nl
+
+        self._srfc = space2.SpatialRandomFieldCalculator(
+            dw, dl, acf, aw, al, validate=validate)
+    
+        self._std = std
+
+        self._magnitude = magnitude
+        self._rigidity = rigidity
 
         self._surface = space2.DiscretizedRectangularSurface(
             w, l, dw, dl, validate=False)
@@ -144,19 +217,14 @@ class RFSlipDistributionGenerator(Object):
             self._surface.dw, self._surface.dl,
             acf, aw, al, validate=validate)
 
-    def __call__(self, magnitude, rigidity=RIGIDITY, std=1, seed=None, validate=True):
+    def __call__(self, seed=None, validate=True):
         """
         """
-        if validate is True:
-            assert(is_number(magnitude))
-            assert(is_pos_number(rigidity))
-
         field = self.srfg(seed, validate=validate)
 
-        mean_slip = mw_to_m0(magnitude) / (self.surface.area * rigidity)
-
-        # slip = mean_slip + field * 0,85
-        slip = mean_slip * (1 + field * std)
+        mean_slip = (mw_to_m0(self._magnitude) /
+            (self.surface.area * self._rigidity))
+        slip = mean_slip * (1 + field * self._std)
         slip[slip < 0] = 0
 
         sd = RFSlipDistribution(self.surface.w, self.surface.l, slip)
@@ -202,19 +270,19 @@ class CSSlipDistribution(SlipDistribution):
     def plot_sources(self, n=1000, size=None, png_filespec=None, validate=True):
         """
         """
-        f, ax = plt.subplots(figsize=size)
+        f_, ax = plt.subplots(figsize=size)
 
         for i in np.random.randint(0, len(self), n):
             c = plt.Circle(tuple([self._sources[i][1]/1000, self._sources[i][0]/1000]), radius=self._sources[i][2]/1000, fill=False)
             ax.add_patch(c)
 
-        plt.axis('scaled')
-        plt.xlim(0, self.l/1000)
-        plt.ylim(0, self.w/1000)
+        ax.axis('scaled')
+        ax.set_xlim(0, self.l/1000)
+        ax.set_ylim(0, self.w/1000)
 
         xlabel, ylabel = 'Along strike (km)', 'Along dip (km)'
-        plt.xlabel(xlabel)
-        plt.ylabel(ylabel)
+        ax.set_xlabel(xlabel)
+        ax.set_ylabel(ylabel)
 
         plt.tight_layout()
 
@@ -222,6 +290,60 @@ class CSSlipDistribution(SlipDistribution):
             plt.savefig(png_filespec)
         else:
             plt.show()
+
+
+class CSSlipDistributionCalculator(Object):
+    """
+    Composite source slip distribution calculator.
+    """
+
+    def __init__(self, d, rminf=2**(0.5), rmaxf=0.5, dimension=2, validate=True):
+        """
+        """
+        if validate is True:
+            assert(is_pos_number(dimension))
+
+        self._d = d
+        self._rminf = rminf
+        self._rmaxf = rmaxf
+        self._dimension = dimension
+
+    def __call__(self, surface, magnitude, rigidity=RIGIDITY, validate=True):
+        """
+        """
+        if validate is True:
+            assert(is_number(magnitude))
+            assert(is_pos_number(rigidity))
+
+        sdg = CSSlipDistributionGenerator(surface.width, surface.length,
+            magnitude, rigidity, self._d, self._rminf, self._rmaxf,
+            self._dimension, validate=False)
+
+        return sdg
+
+    @property
+    def d(self):
+        """
+        """
+        return self._d
+
+    @property
+    def rminf(self):
+        """
+        """
+        return self._rminf
+
+    @property
+    def rmaxf(self):
+        """
+        """
+        return self._rmaxf
+
+    @property
+    def dimension(self):
+        """
+        """
+        return self._dimension
 
 
 @jit(nopython=True)
@@ -234,90 +356,67 @@ def _calc_sources(n, p, d, rmax, w, l):
     sources[:,0] = radii + randoms[1] * (w-2*radii)
     sources[:,1] = radii + randoms[2] * (l-2*radii)
     sources[:,2] = radii
+
     return sources
 
 
-@jit(nopython=True)
-def _calc(input):
-    """
-    """
-    return np.sqrt(input)
-
-
-class CSSlipDistributionGenerator(Object):
+class CSSlipDistributionGenerator(CSSlipDistributionCalculator):
     """
     Composite source slip distribution generator.
     """
 
-    def __init__(self, w, l, d, rmin=2**(0.5), rmax=0.5, dimension=2, validate=True):
+    def __init__(self, w, l, magnitude, rigidity, d, rminf, rmaxf, dimension, validate=True):
         """
         """
+        super().__init__(d, rminf, rmaxf, dimension, validate=validate)
+
         if validate is True:
-            assert(is_pos_number(dimension))
+            assert(is_pos_number(w))
+            assert(is_pos_number(l))
+            assert(is_number(magnitude))
+            assert(is_pos_number(rigidity))
 
         self._surface = space2.DiscretizedRectangularSurface(
             w, l, d, d, validate=validate)
 
-        self._rmin = rmin * d
-        self._rmax = rmax * w
-        self._dimension = dimension
+        self._magnitude = magnitude
+        self._rigidity = rigidity
+
+        self._rmin = self._rminf * d
+        self._rmax = self._rmaxf * w
 
         self._p = self._calc_p()
         self._n = self._calc_n()
+        self._c = self._calc_c()
 
-    def __call__(self, magnitude, rigidity=RIGIDITY, seed=None, validate=True):
+        self._xs = np.tile(self.surface.xgrid[(Ellipsis,None)], (1,1,self._n))
+        self._ys = np.tile(self.surface.ygrid[(Ellipsis,None)], (1,1,self._n))
+
+    def __call__(self, seed=None, validate=True):
         """
         """
         if validate is True:
-            assert(is_number(magnitude))
-            assert(is_pos_number(rigidity))
             if seed is not None:
                 assert(is_pos_integer(seed))
 
         if seed is not None:
             np.random.seed(seed)
 
-        w = self.surface.w
-        l = self.surface.l
+        sources = _calc_sources(self.n, self.p, self.dimension, self.rmax,
+            self.surface.w, self.surface.l)
 
-        sources = _calc_sources(self.n, self.p, self.dimension, self.rmax, w, l)
-
-        ws = np.tile(self.surface.wgrid[(Ellipsis,None)], (1,1,len(sources)))
-        ls = np.tile(self.surface.lgrid[(Ellipsis,None)], (1,1,len(sources)))
-
-        distances = space2.distance(ws, ls, sources[:,0], sources[:,1])
-
-        constant = ((1.5 / np.pi) * (mw_to_m0(magnitude) /
-            (np.sqrt(self.surface.area/np.pi)**3 * rigidity)))
+        distances = space2.distance(self._xs, self._ys, sources[:,0], sources[:,1])
 
         int = np.zeros_like(distances)
         res = sources[:,2]**2-distances**2
         indices = res > 0
         int[indices] = np.sqrt(res[indices])
 
-        slip = constant * np.sum(int, axis=2)
+        slip = self._c * np.sum(int, axis=2)
 
         sd = CSSlipDistribution(self.surface.w, self.surface.l, slip, sources)
 
         return sd
-
-    def _calc_p(self):
-        """
-        """
-        rmax = self.rmax**(3-self.dimension)
-        rmin = self.rmin**(3-self.dimension)
-        p = (self.surface.area/np.pi)**(3/2) * (3-self.dimension) / (rmax-rmin)
-
-        return p
-
-    def _calc_n(self):
-        """
-        """
-        rmin = self.rmin**-self.dimension
-        rmax = self.rmax**-self.dimension
-        n = int((self.p/self.dimension) * (rmin - rmax))
-
-        return n
 
     @property
     def surface(self):
@@ -338,12 +437,6 @@ class CSSlipDistributionGenerator(Object):
         return self._rmax
 
     @property
-    def dimension(self):
-        """
-        """
-        return self._dimension
-
-    @property
     def p(self):
         """
         """
@@ -355,15 +448,34 @@ class CSSlipDistributionGenerator(Object):
         """
         return self._n
 
+    def _calc_p(self):
+        """
+        """
+        rmax = self.rmax**(3-self.dimension)
+        rmin = self.rmin**(3-self.dimension)
+        p = (self.surface.area/np.pi)**(3/2) * (3-self.dimension) / (rmax-rmin)
 
-class MASlipDistributionGenerator(Object):
-    """
-    Multiple asperity slip distribution generator.
-    """
-    pass
+        return p
+
+    def _calc_n(self):
+        """
+        """
+        rmin = self.rmin**-self.dimension
+        rmax = self.rmax**-self.dimension
+        n = int((self.p/self.dimension) * (rmin - rmax))
+
+        return n
+
+    def _calc_c(self):
+        """
+        """
+        c = ((1.5 / np.pi) * (mw_to_m0(self._magnitude) /
+            (np.sqrt(self.surface.area/np.pi)**3 * self._rigidity)))
+
+        return c
 
 
-class LiuEtAl2006NormalizedSlipRateGenerator(Object):
+class LiuEtAl2006NormalizedSlipRateCalculator(Object):
     """
     Normalized slip rate generator of Liu et al. (2006).
     """
@@ -410,7 +522,7 @@ class LiuEtAl2006NormalizedSlipRateGenerator(Object):
         return self._time_delta
 
 
-class GP2010SlipRateGenerator(Object):
+class GP2010SlipRateCalculator(Object):
     """
     """
 
@@ -421,9 +533,9 @@ class GP2010SlipRateGenerator(Object):
             assert(is_pos_number(time_delta))
 
         self._time_delta = time_delta
-        self._nsrf_g = LiuEtAl2006NormalizedSlipRateGenerator(time_delta)
+        self._nsrf_g = LiuEtAl2006NormalizedSlipRateCalculator(time_delta)
 
-    def __call__(self, surface, sd, tts, magnitude):
+    def __call__(self, surface, magnitude, sd):
         """
         """
         surface = surface.get_discretized(shape=sd.shape)
@@ -434,17 +546,30 @@ class GP2010SlipRateGenerator(Object):
             (10**7*mw_to_m0(magnitude))**(1/3))
 
         rise_times = rise_times * (average / rise_times.mean())
+        #print(surface.shape, (np.round(rise_times / self._time_delta).astype(np.int).max()+1,))
+        slip_rates = np.zeros(surface.shape + (np.round(rise_times / self._time_delta).astype(np.int).max()+1,))
 
-        n_onsets = np.round(tts.interpolate(sd.ws, sd.ls) / self._time_delta).astype(np.int)
-        n_rise_times = np.round(rise_times / self._time_delta).astype(np.int)
-        n = n_onsets + n_rise_times
-
-        slip_rates = np.zeros(surface.shape + (n.max()+2,))
+        
 
         for i in np.ndindex(surface.shape):
             t = rise_times[i]
             if t != 0:
-                srf = self._nsrf_g(float(t))
-                slip_rates[i][n_onsets[i]:n_onsets[i]+len(srf)] = srf * sd.slip[i]
+                sr = self._nsrf_g(float(t)) * sd.slip[i]
+                slip_rates[i][:len(sr)] = sr
 
-        return slip_rates
+        return GP2010SlipRateGenerator(slip_rates)
+
+
+class GP2010SlipRateGenerator(Object):
+    """
+    """
+
+    def __init__(self, slip_rates):
+        """
+        """
+        self._slip_rates = slip_rates
+
+    def __call__(self):
+        """
+        """
+        return self._slip_rates

@@ -87,6 +87,25 @@ class RFVelocityDistributionGenerator(Object):
         return self._srfg
 
 
+class GP2010VelocityDistributionCalculator(Object):
+    """
+    """
+
+    def __init__(self, d, vs, validate=True):
+        """
+        """
+        self._d = d
+        self._vs = vs
+
+    def __call__(self, surface, magnitude, sd, validate=True):
+        """
+        """
+        vdg = GP2010VelocityDistributionGenerator(
+            surface.width, surface.length, self._d, surface.upper_depth,
+            surface.lower_depth, self._vs)
+
+        return vdg
+
 class GP2010VelocityDistributionGenerator(Object):
     """
     """
@@ -100,7 +119,7 @@ class GP2010VelocityDistributionGenerator(Object):
         surface = space2.DiscretizedRectangularSurface(w, l, d, d)
 
         depths = np.tile(np.interp(
-            surface.ws, [0, w], [upper_depth, lower_depth])[np.newaxis].T, (1, surface.nl))
+            surface.xs, [0, w], [upper_depth, lower_depth])[np.newaxis].T, (1, surface.nl))
 
         self._surface = surface
         self._velocities = np.interp(depths, [5000, 8000], [0.56, 0.80]) * vs

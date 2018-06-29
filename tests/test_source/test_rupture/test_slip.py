@@ -8,8 +8,11 @@ import unittest
 import numpy as np
 
 from synthacc.source.rupture.slip import (SlipDistribution, RFSlipDistribution,
+    RFSlipDistributionCalculator, MaiBeroza2002RFSDC,
     RFSlipDistributionGenerator, CSSlipDistribution,
-    CSSlipDistributionGenerator, LiuEtAl2006NormalizedSlipRateGenerator)
+    CSSlipDistributionCalculator, CSSlipDistributionGenerator,
+    LiuEtAl2006NormalizedSlipRateCalculator, GP2010SlipRateCalculator,
+    GP2010SlipRateGenerator)
 
 
 class TestSlipDistribution(unittest.TestCase):
