@@ -333,7 +333,26 @@ class MomentFunction(_Function):
     def moment(self):
         """
         """
-        return self._values[-1]
+        return float(self._values[-1])
+
+    @property
+    def magnitude(self):
+        """
+        return: number
+        """
+        return m0_to_mw(self.moment)
+
+    def get_duration(self, percentile=5):
+        """
+        """
+        min_moment = self.moment * percentile / 100
+        max_moment = self.moment - min_moment
+
+        times = self.times
+        min_time = times[self._values >= min_moment][0]
+        max_time = times[self._values >= max_moment][0]
+
+        return max_time - min_time
 
     def plot(self, model=None, title=None, size=None, png_filespec=None, validate=True):
         """
@@ -579,6 +598,14 @@ class MomentRateFunction(_RateFunction):
         return: number
         """
         return m0_to_mw(self.moment)
+
+    def get_moment_function(self):
+        """
+        """
+        mf = MomentFunction(self._time_delta, np.cumsum(self._rates) * \
+            self._time_delta, self._start_time, validate=False)
+
+        return mf
 
     def plot(self, model=None, title=None, size=None, png_filespec=None, validate=True):
         """
