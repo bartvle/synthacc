@@ -114,10 +114,32 @@ class RFSlipDistribution(SlipDistribution):
     Random field slip distribution.
     """
 
-    def __init__(self, w, l, slip, validate=True):
+    def __init__(self, w, l, slip, acf, aw, al, validate=True):
         """
         """
         super().__init__(w, l, slip, validate=validate)
+
+        self._acf = acf
+        self._aw = aw
+        self._al = al
+
+    @property
+    def acf(self):
+        """
+        """
+        return self._acf
+
+    @property
+    def aw(self):
+        """
+        """
+        return self._aw
+
+    @property
+    def al(self):
+        """
+        """
+        return self._al
 
 
 class RFSlipDistributionCalculator(Object):
@@ -220,14 +242,15 @@ class RFSlipDistributionGenerator(Object):
     def __call__(self, seed=None, validate=True):
         """
         """
-        field = self.srfg(seed, validate=validate)
+        field = self._srfg(seed, validate=validate)
 
         mean_slip = (mw_to_m0(self._magnitude) /
             (self.surface.area * self._rigidity))
         slip = mean_slip * (1 + field * self._std)
         slip[slip < 0] = 0
 
-        sd = RFSlipDistribution(self.surface.w, self.surface.l, slip)
+        sd = RFSlipDistribution(self.surface.w, self.surface.l, slip,
+            self._srfg.acf, self._srfg.aw, self._srfg.al)
 
         return sd
 
@@ -270,10 +293,13 @@ class CSSlipDistribution(SlipDistribution):
     def plot_sources(self, n=1000, size=None, png_filespec=None, validate=True):
         """
         """
-        f_, ax = plt.subplots(figsize=size)
+        _, ax = plt.subplots(figsize=size)
 
         for i in np.random.randint(0, len(self), n):
-            c = plt.Circle(tuple([self._sources[i][1]/1000, self._sources[i][0]/1000]), radius=self._sources[i][2]/1000, fill=False)
+            c = plt.Circle(tuple([
+                self._sources[i][1]/1000,
+                self._sources[i][0]/1000,
+                ]), radius=self._sources[i][2]/1000, fill=False)
             ax.add_patch(c)
 
         ax.axis('scaled')
@@ -284,10 +310,8 @@ class CSSlipDistribution(SlipDistribution):
         ax.set_xlabel(xlabel)
         ax.set_ylabel(ylabel)
 
-        plt.tight_layout()
-
         if png_filespec is not None:
-            plt.savefig(png_filespec)
+            plt.savefig(png_filespec, bbox_inches='tight')
         else:
             plt.show()
 
