@@ -4,6 +4,7 @@ The 'source.faults' module.
 
 
 import matplotlib.pyplot as plt
+import numpy as np
 
 from ..apy import Object, is_pos_number
 from ..earth.flat import Rectangle
@@ -66,6 +67,35 @@ class SingularFault(Rectangle):
         return: number, maximum moment magnitude
         """
         return m0_to_mw(self.get_max_moment(slip, validate), validate=False)
+
+    def get_random_rectangle(self, area, ar, validate=True):
+        """
+        Get a random rectangular surface on the fault from its area and aspect
+        ratio (ar). The spect ratio (length / width) must be greater than or
+        equal to 1 (width <= length).
+        """
+        if validate is True:
+            assert(is_pos_number(area) and is_pos_number(ar) and ar >= 1)
+    
+        if area >= self.area:
+            return self.rectangle
+
+        w = float(min(np.sqrt(area / ar), self.width))
+        l = float(area / w)
+
+        surface = self.surface
+
+        advu = self.ad_vector.unit
+        asvu = self.as_vector.unit
+        wtv = advu * float(np.random.uniform(0, 1) * (surface.w - w))
+        ltv = asvu * float(np.random.uniform(0, 1) * (surface.l - l))
+        ulc = self.ulc.translate(wtv + ltv)
+        llc = ulc.translate(advu * w)
+        urc = ulc.translate(asvu * l)
+
+        r = Rectangle(ulc.x, ulc.y, urc.x, urc.y, ulc.z, llc.z, self.dip)
+
+        return r
 
 
 class ComposedFault(Object):
