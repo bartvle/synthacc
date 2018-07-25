@@ -86,9 +86,7 @@ class Distribution(ABC, space2.DiscretizedRectangularSurface):
         cbar = fig.colorbar(p, cax=cax)
         cbar.set_label(self.LABEL)
 
-        plt.tight_layout()
-
         if png_filespec is not None:
-            plt.savefig(png_filespec)
+            plt.savefig(png_filespec, bbox_inches='tight')
         else:
             plt.show()
