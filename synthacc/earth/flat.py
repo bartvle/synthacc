@@ -400,7 +400,7 @@ class Rectangle(Object):
         """
         Get a discretized rectangular surface.
 
-        return: 'earth.DiscretizedRectangle' instance
+        return: 'earth.flat.DiscretizedRectangle' instance
         """
         drs = DiscretizedRectangle(
             self._x1, self._y1,
@@ -424,28 +424,10 @@ class Rectangle(Object):
 
         return space3.Point(x, y, z)
 
-    def plot(self):
+    def plot(self, fill=True, validate=True):
         """
         """
-        fig, ax = plt.subplots()
-
-        ulc, urc, llc, lrc = self.corners
-
-        ax.plot([ulc.y, urc.y], [ulc.x, urc.x], c='r', lw=2)
-
-        ax.fill(
-            [ulc.y, urc.y, lrc.y, llc.y],
-            [ulc.x, urc.x, lrc.x, llc.x],
-            color='coral', alpha=0.5,
-            )
-
-        ax.axis('equal')
-
-        x_label, y_label = 'East (m)', 'North (m)'
-        ax.xaxis.set_label_text(x_label)
-        ax.yaxis.set_label_text(y_label)
-
-        plt.show()
+        plot_rectangles([self], fill=fill, validate=validate)
 
 
 class DiscretizedRectangle(Object):
@@ -623,3 +605,32 @@ def is_dip(obj):
     Check if object is dip.
     """
     return is_number(obj) and (0 < obj <= 90)
+
+
+def plot_rectangles(rectangles, fill=True, validate=True):
+    """
+    """
+    if validate is True:
+        pass
+
+    _, ax = plt.subplots()
+
+    for r in rectangles:
+        ulc, urc, llc, lrc = r.corners
+
+        ax.plot([ulc.y, urc.y], [ulc.x, urc.x], c='r', lw=2)
+
+        if fill is True:
+            ax.fill(
+                [ulc.y, urc.y, lrc.y, llc.y],
+                [ulc.x, urc.x, lrc.x, llc.x],
+                color='coral', alpha=0.5,
+                )
+
+    ax.axis('equal')
+
+    x_label, y_label = 'East (m)', 'North (m)'
+    ax.xaxis.set_label_text(x_label)
+    ax.yaxis.set_label_text(y_label)
+
+    plt.show()
