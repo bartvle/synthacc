@@ -10,16 +10,16 @@ import numpy as np
 from .moment import mw_to_m0
 
 
-PARAMS = ('m', 'a', 'sl', 'l', 'w', 'ad', 'md')
+PARAMS = ('m', 'a', 'sl', 'l', 'w', 'as', 'ms')
 
 
 class ScalingRelationship(ABC):
     """
     """
 
-    OF, TO = None, None
-
-    STD = None
+    OF = None
+    TO = None
+    SD = None
 
     def __init__(self):
         """
@@ -53,10 +53,17 @@ class LinScalingRelationship(ScalingRelationship, ABC):
     def sample(self, of):
         """
         """
-        if self.STD is not None:
-            return np.random.normal(self(of), self.STD)
+        if self.SD is not None:
+            return np.random.normal(self(of), self.SD)
         else:
             return None
+
+    def get_sd(self, to, n=1, validate=True):
+        """
+        """
+        std = self.SD * n
+
+        return (to-std, to+std)
 
 
 class LogScalingRelationship(ScalingRelationship, ABC):
@@ -72,61 +79,18 @@ class LogScalingRelationship(ScalingRelationship, ABC):
     def sample(self, of):
         """
         """
-        if self.STD is not None:
-            return 10**(np.random.normal(np.log10(self(of)), self.STD))
+        if self.SD is not None:
+            return 10**(np.random.normal(np.log10(self(of)), self.SD))
         else:
             return None
 
-
-class WC1994_sl2m(LinScalingRelationship):
-    """
-    Relation between surface rupture length and magnitude.
-
-    See Wells & Coppersmith (1994) p. 990 (r=0.89).
-    """
-
-    OF, TO = 'sl', 'm'
-
-    STD = 0.28
-
-    def __call__(self, sl):
+    def get_sd(self, to, n=1, validate=True):
         """
         """
-        return 5.08 + 1.16 * np.log10(sl/1000)
+        to = np.log10(to)
+        std = self.SD * n
 
-
-class WC1994_m2sl(LogScalingRelationship):
-    """
-    Relation between magnitude and surface rupture length.
-
-    See Wells & Coppersmith (1994) p. 990 (r=0.89).
-    """
-
-    OF, TO = 'm', 'sl'
-
-    STD = 0.22
-
-    def __call__(self, m):
-        """
-        """
-        return 1000*10**(-3.22 + 0.69 * m)
-
-
-class WC1994_a2m(LinScalingRelationship):
-    """
-    Relation between area and magnitude.
-
-    See Wells & Coppersmith (1994) p. 990 (r=0.95).
-    """
-
-    OF, TO = 'a', 'm'
-
-    STD = 0.24
-
-    def __call__(self, a):
-        """
-        """
-        return 4.07 + 0.98 * np.log10(a/10**6)
+        return (10**(to-std), 10**(to+std))
 
 
 class WC1994_m2a(LogScalingRelationship):
@@ -138,80 +102,131 @@ class WC1994_m2a(LogScalingRelationship):
 
     OF, TO = 'm', 'a'
 
-    STD = 0.24
+    SD = 0.24
 
-    def __call__(self, m):
+    def __call__(self, of):
         """
         """
-        return 10**6 * 10**(-3.49 + 0.91 * m)
+        return 10**6 * 10**(-3.49 + 0.91 * of)
 
 
-class WC1994_ad2m(LinScalingRelationship):
+class WC1994_a2m(LinScalingRelationship):
     """
-    Relation between average displacement and magnitude.
+    Relation between area and magnitude.
+
+    See Wells & Coppersmith (1994) p. 990 (r=0.95).
+    """
+
+    OF, TO = 'a', 'm'
+
+    SD = 0.24
+
+    def __call__(self, of):
+        """
+        """
+        return 4.07 + 0.98 * np.log10(of/10**6)
+
+
+class WC1994_m2sl(LogScalingRelationship):
+    """
+    Relation between magnitude and surface length.
+
+    See Wells & Coppersmith (1994) p. 990 (r=0.89).
+    """
+
+    OF, TO = 'm', 'sl'
+
+    SD = 0.22
+
+    def __call__(self, of):
+        """
+        """
+        return 1000*10**(-3.22 + 0.69 * of)
+
+
+class WC1994_sl2m(LinScalingRelationship):
+    """
+    Relation between surface length and magnitude.
+
+    See Wells & Coppersmith (1994) p. 990 (r=0.89).
+    """
+
+    OF, TO = 'sl', 'm'
+
+    SD = 0.28
+
+    def __call__(self, of):
+        """
+        """
+        return 5.08 + 1.16 * np.log10(of/1000)
+
+
+class WC1994_m2as(LogScalingRelationship):
+    """
+    Relation between magnitude and average slip.
 
     See Wells & Coppersmith (1994) p. 991 (r=0.75).
     """
 
-    OF, TO = 'ad', 'm'
+    OF, TO = 'm', 'as'
 
-    STD = 0.39
+    SD = 0.36
 
-    def __call__(self, ad):
+    def __call__(self, of):
         """
         """
-        return 6.93 + 0.82 * np.log10(ad)
+        return 10**(-4.80 + 0.69 * of)
 
 
-class WC1994_m2ad(LogScalingRelationship):
+class WC1994_as2m(LinScalingRelationship):
     """
-    Relation between magnitude and average displacement.
+    Relation between average slip and magnitude.
 
     See Wells & Coppersmith (1994) p. 991 (r=0.75).
     """
 
-    OF, TO = 'm', 'ad'
+    OF, TO = 'as', 'm'
 
-    STD = 0.36
+    SD = 0.39
 
-    def __call__(self, m):
+    def __call__(self, of):
         """
         """
-        return 10**(-4.80 + 0.69 * m)
+        return 6.93 + 0.82 * np.log10(of)
 
 
-class WC1994_md2m(LinScalingRelationship):
+class WC1994_m2ms(LogScalingRelationship):
     """
-    Relation between maximum displacement and magnitude.
+    Relation between magnitude and maximum slip.
 
     See Wells & Coppersmith (1994) p. 991 (r=0.78).
     """
 
-    OF, TO = 'md', 'm'
+    OF, TO = 'm', 'ms'
 
-    STD = 0.40
+    SD = 0.42
 
-    def __call__(self, md):
+    def __call__(self, of):
         """
         """
-        return 6.69 + 0.74 * np.log10(md)
+        return 10**(-5.46 + 0.82 * of)
 
 
-class WC1994_m2md(LogScalingRelationship):
+class WC1994_ms2m(LinScalingRelationship):
     """
-    Relation between magnitude and maximum displacement.
+    Relation between maximum slip and magnitude.
 
     See Wells & Coppersmith (1994) p. 991 (r=0.78).
     """
 
-    OF, TO = 'm', 'md'
+    OF, TO = 'ms', 'm'
 
-    STD = 0.42
+    SD = 0.40
 
-    def __call__(self, m):
+    def __call__(self, of):
         """
         """
-        return 10**(-5.46 + 0.82 * m)
+        return 6.69 + 0.74 * np.log10(of)
 
 
 class SommervilleEtAl1999_m2a(LinScalingRelationship):
@@ -223,43 +238,94 @@ class SommervilleEtAl1999_m2a(LinScalingRelationship):
 
     OF, TO = 'm', 'a'
 
-    STD = None
+    SD = None
 
-    def __call__(self, m):
+    def __call__(self, of):
         """
         """
-        return 2.23 * 10**-15 * (10**7 * mw_to_m0(m))**(2/3) * 10**6
+        return 2.23 * 10**-15 * (10**7 * mw_to_m0(of))**(2/3) * 10**6
 
 
-class SommervilleEtAl1999_m2ad(LinScalingRelationship):
+class SommervilleEtAl1999_m2as(LinScalingRelationship):
     """
-    Relation between magnitude and average displacement.
+    Relation between magnitude and average slip.
 
     See Sommerville et al. (1999) p. 70.
     """
 
-    OF, TO = 'm', 'ad'
+    OF, TO = 'm', 'as'
 
-    STD = None
+    SD = None
 
-    def __call__(self, m):
+    def __call__(self, of):
         """
         """
-        return 1.56 * 10**-7 * (10**7 * mw_to_m0(m))**(1/3) / 100
+        return 1.56 * 10**-7 * (10**7 * mw_to_m0(of))**(1/3) / 100
 
 
 class Wesnousky2008_sl2m(LinScalingRelationship):
     """
-    Relation between surface rupture length and magnitude.
+    Relation between surface length and magnitude.
 
     See Wesnousky (2008) p. 1620 (r=0.82).
     """
 
     OF, TO = 'sl', 'm'
 
-    STD = 0.28
+    SD = 0.28
 
-    def __call__(self, sl):
+    def __call__(self, of):
         """
         """
-        return 5.30 + 1.02 * np.log10(sl/1000)
+        return 5.30 + 1.02 * np.log10(of/1000)
+
+
+class ThingbaijamEA2017_m2a_n(LogScalingRelationship):
+    """
+    Relation between magnitude and area.
+
+    See Thingbaijam et al. (2017) p. 2231 (r=0.94).
+    """
+
+    OF, TO = 'm', 'a'
+
+    SD = 0.181
+
+    def __call__(self, of):
+        """
+        """
+        return 10**(-2.551 + 0.808 * of) * 10**6
+
+
+class ThingbaijamEA2017_m2l_n(LogScalingRelationship):
+    """
+    Relation between magnitude and area.
+
+    See Thingbaijam et al. (2017) p. 2231 (r=0.94).
+    """
+
+    OF, TO = 'm', 'l'
+
+    SD = 0.128
+
+    def __call__(self, of):
+        """
+        """
+        return 10**(-1.722 + 0.485 * of) * 10**3
+
+
+class ThingbaijamEA2017_m2as_n(LogScalingRelationship):
+    """
+    Relation between magnitude and average slip.
+
+    See Thingbaijam et al. (2017) p. 2234 (r=0.93).
+    """
+
+    OF, TO = 'm', 'as'
+
+    SD = 0.195
+
+    def __call__(self, of):
+        """
+        """
+        return 10**(-4.967 + 0.693 * of)

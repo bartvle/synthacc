@@ -47,6 +47,7 @@ Clone the Synthacc repository and add its folder to the PYTHONPATH environment v
 * Shearer P. (2009). Introduction to Seismology (2nd edition). Cambridge University Press.
 * Somerville P., Irikura K., Graves R., Sawada S., Wald D., Abrahamson N., Iwasaki Y., Kagawa T., Smith N. and Kowada A. (1999). Characterizing Crustal Earthquake Slip Models for the Prediction of Strong Ground Motion. Seismological Research Letters, 70(1), 59-80.
 * Stein S. and Wyession M. (2003). An Introduction to Seismology, Earthquakes, and Earth Structure. Blackwell Publishing.
+* Thingbaijam K., Mai P. and Goda K. (2017). New Empirical Earthquake Source-Scaling Laws. Bulletin of the Seismological Society of America, 107(5), 2225-2246.
 * Vallée M. and Douet V. (2016). A new database of source time functions (STFs) extracted from the SCARDEC method. Physics of the Earth and Planetary Interiors, 257, 149-157.
 * Vallée M., Charléty J., Ferreira A., Delouis B. and Vergoz J. (2011). SCARDEC: a new technique for the rapid determination of seismic moment magnitude, focal mechanism and source time functions for large earthquakes using body-wave deconvolution. Geophysical Journal International, 184, 338-358.
 * van Driel M., Krischer L., Stähler S., Hosseini K. and Nissen-Meyer T. (2015). Instaseis: instant global seismograms based on a broadband waveform database. Solid Earth, 6, 701-717.
