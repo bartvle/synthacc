@@ -193,19 +193,10 @@ class Path(Sites):
 
         return self.__class__(list(xs), list(ys))
 
-    def plot(self, size=None):
+    def plot(self, points=False, selection=[], size=None, validate=True):
         """
         """
-        fig, ax = plt.subplots(figsize=size)
-        ax.plot(self.ys, self.xs, lw=2)
-
-        plt.axis('equal')
-
-        x_label, y_label = 'East (m)', 'North (m)'
-        ax.xaxis.set_label_text(x_label)
-        ax.yaxis.set_label_text(y_label)
-
-        plt.show()
+        plot_paths([self], points, selection, size, validate=validate)
 
 
 class Rectangle(Object):
@@ -531,8 +522,6 @@ class DiscretizedRectangle(Object):
     def _discretize(self):
         """
         """
-        l, w = self.outline.length, self.outline.width
-
         l_n = self.shape[1] + 1
         w_n = self.shape[0] + 1
 
@@ -607,13 +596,39 @@ def is_dip(obj):
     return is_number(obj) and (0 < obj <= 90)
 
 
-def plot_rectangles(rectangles, fill=True, validate=True):
+def plot_paths(paths, points=False, selection=[], size=None, validate=True):
     """
     """
     if validate is True:
         pass
 
-    _, ax = plt.subplots()
+    _, ax = plt.subplots(figsize=size)
+
+    for p in paths:
+        ax.plot(p.ys, p.xs, c='k', lw=2)
+
+        if points is True:
+            ax.scatter(p.ys, p.xs, c='k')
+
+    for p in selection:
+        ax.scatter(p[1], p[0], c='r')
+
+    plt.axis('equal')
+
+    x_label, y_label = 'East (m)', 'North (m)'
+    ax.xaxis.set_label_text(x_label)
+    ax.yaxis.set_label_text(y_label)
+
+    plt.show()
+
+
+def plot_rectangles(rectangles, fill=True, size=None, validate=True):
+    """
+    """
+    if validate is True:
+        pass
+
+    _, ax = plt.subplots(figsize=size)
 
     for r in rectangles:
         ulc, urc, llc, lrc = r.corners

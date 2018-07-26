@@ -7,7 +7,8 @@ import unittest
 
 from synthacc.apy import PRECISION
 from synthacc.earth.flat import (Sites, Grid, Path, Rectangle,
-    DiscretizedRectangle, azimuth, is_azimuth, is_strike, is_dip)
+    DiscretizedRectangle, azimuth, is_azimuth, is_strike, is_dip, plot_paths,
+    plot_rectangles)
 
 
 class TestSites(unittest.TestCase):
