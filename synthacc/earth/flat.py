@@ -421,7 +421,7 @@ class Rectangle(Object):
         plot_rectangles([self], fill=fill, validate=validate)
 
 
-class DiscretizedRectangle(Object):
+class DiscretizedRectangle(Rectangle):
     """
     A discretized rectangular surface below the Earth's surface.
     """
@@ -429,18 +429,16 @@ class DiscretizedRectangle(Object):
     def __init__(self, x1, y1, x2, y2, upper_depth, lower_depth, dip, shape, validate=True):
         """
         """
+        super().__init__(x1, y1, x2, y2, upper_depth, lower_depth, dip,
+            validate=validate)
+
         if validate is True:
             assert(type(shape) is tuple)
             assert(is_pos_integer(shape[0]))
             assert(is_pos_integer(shape[1]))
 
-        outline = Rectangle(
-            x1, y1, x2, y2, upper_depth, lower_depth, dip, validate=validate)
-        spacing = (outline.width / shape[0], outline.length / shape[1])
-
-        self._outline = outline
         self._shape = shape
-        self._spacing = spacing
+        self._spacing = (self.width / shape[0], self.length / shape[1])
 
         corners, centers = self._discretize()
 
@@ -451,17 +449,6 @@ class DiscretizedRectangle(Object):
         """
         """
         return np.prod(self.shape)
-
-    def __contains__(self, p):
-        """
-        """
-        return p in self.outline
-
-    @property
-    def outline(self):
-        """
-        """
-        return self._outline
 
     @property
     def shape(self):
@@ -488,36 +475,11 @@ class DiscretizedRectangle(Object):
         return self._centers
 
     @property
-    def dip(self):
-        """
-        """
-        return self._outline.dip
-
-    @property
-    def length(self):
-        """
-        """
-        return self._outline.length
-
-    @property
-    def width(self):
-        """
-        """
-        return self._outline.width
-
-    @property
-    def area(self):
-        """
-        return: pos number
-        """
-        return self._outline.area
-
-    @property
     def cell_area(self):
         """
         return: pos number
         """
-        return self.outline.area / len(self)
+        return self.area / len(self)
 
     def _discretize(self):
         """
@@ -525,15 +487,15 @@ class DiscretizedRectangle(Object):
         l_n = self.shape[1] + 1
         w_n = self.shape[0] + 1
 
-        as_vector = self.outline.as_vector
-        ad_vector = self.outline.ad_vector
+        as_vector = self.as_vector
+        ad_vector = self.ad_vector
 
         as_vectors = [as_vector * float(m) for m in np.linspace(0, 1, l_n)]
         ad_vectors = [ad_vector * float(m) for m in np.linspace(0, 1, w_n)]
 
         corners = np.zeros((w_n, l_n, 3))
         for w_i, l_i in np.ndindex((w_n, l_n)):
-            p = self.outline.ulc.translate(ad_vectors[w_i] + as_vectors[l_i])
+            p = self.ulc.translate(ad_vectors[w_i] + as_vectors[l_i])
             corners[w_i,l_i] = tuple(p)
 
         v = ad_vector.unit * self.spacing[0] + as_vector.unit * self.spacing[1]
@@ -545,7 +507,7 @@ class DiscretizedRectangle(Object):
     def get_front_projected_corners(self):
         """
         """
-        l, w = self.outline.length, self.outline.width
+        l, w = self.length, self.width
         nw, nl = self.shape
         xs = np.linspace(0, l, nl+1)
         ys = np.linspace(0, w, nw+1)
@@ -555,7 +517,7 @@ class DiscretizedRectangle(Object):
     def get_front_projected_centers(self):
         """
         """
-        l, w = self.outline.length, self.outline.width
+        l, w = self.length, self.width
         nw, nl = self.shape
         cl = (l / nl) / 2
         cw = (w / nw) / 2

@@ -104,7 +104,7 @@ class TestDiscretizedRectangle(unittest.TestCase):
     def test_properties(self):
         """
         """
-        drs = Rectangle(0, 0, 100, 0, 10, 25, 60, 1)
+        drs = DiscretizedRectangle(0, 0, 100, 0, 5, 25, 60, (20, 100))
 
 
 class Test(unittest.TestCase):
