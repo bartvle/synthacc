@@ -24,6 +24,12 @@ class Distribution(ABC, space2.DiscretizedRectangularSurface):
         pass
 
     @property
+    def values(self):
+        """
+        """
+        return self._values
+
+    @property
     def avg(self):
         """
         """
