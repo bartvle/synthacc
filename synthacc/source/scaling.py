@@ -7,13 +7,14 @@ from abc import ABC, abstractmethod
 
 import numpy as np
 
+from ..apy import Object
 from .moment import mw_to_m0
 
 
 PARAMS = ('m', 'a', 'sl', 'l', 'w', 'as', 'ms')
 
 
-class ScalingRelationship(ABC):
+class ScalingRelationship(ABC, Object):
     """
     """
 
