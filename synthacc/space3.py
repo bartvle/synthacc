@@ -1,8 +1,6 @@
 """
-The 'space3' module.
-
-Module for 3d Euclidean space in a right-handed Cartesian coordinate system
-with coordinates x, y and z.
+The 'space3' module. 3-dimensional Euclidean space in a right-handed Cartesian
+coordinate system.
 """
 
 
@@ -13,9 +11,12 @@ from .apy import PRECISION, Object, is_number, is_array, is_numeric
 from .math import Matrix, SquareMatrix
 
 
+# #TODO: This is needed for point in rectacle to work. Can't it work with 10?
+# PRECISION = 9
+
+
 class Point(Object):
     """
-    A point.
     """
 
     def __init__(self, x, y, z=0, validate=True):
@@ -40,17 +41,17 @@ class Point(Object):
         self._y = y
         self._z = z
 
-    def __repr__(self):
-        """
-        """
-        s = '< space3.Point | '
-        s += 'x={:{}.3f}'.format(self.x, '+' if self.x else '')
-        s += ', '
-        s += 'y={:{}.3f}'.format(self.y, '+' if self.y else '')
-        s += ', '
-        s += 'z={:{}.3f}'.format(self.z, '+' if self.z else '')
-        s += ' >'
-        return s
+#     def __repr__(self):
+#         """
+#         """
+#         s = '< space3.Point | '
+#         s += 'x={:{}.3f}'.format(self.x, '+' if self.x else '')
+#         s += ', '
+#         s += 'y={:{}.3f}'.format(self.y, '+' if self.y else '')
+#         s += ', '
+#         s += 'z={:{}.3f}'.format(self.z, '+' if self.z else '')
+#         s += ' >'
+#         return s
 
     def __getitem__(self, i):
         """
@@ -175,6 +176,7 @@ class Plane(Object):
     @classmethod
     def from_points(cls, p1, p2, p3, validate=True):
         """
+        #TODO: add assert that points are not on one line
         """
         p1 = Point(*p1, validate=validate)
         p2 = Point(*p2, validate=validate)
@@ -217,12 +219,12 @@ class Plane(Object):
         """
         return self._d
 
-    @property
-    def normal(self):
-        """
-        return: 'space3.Vector' instance
-        """
-        return Vector(self.a, self.b, self.c, validate=False)
+#     @property
+#     def normal(self):
+#         """
+#         return: 'space3.Vector' instance
+#         """
+#         return Vector(self.a, self.b, self.c, validate=False)
 
     def get_distance(self, p, validate=True):
         """
@@ -234,8 +236,8 @@ class Plane(Object):
         """
         x, y, z = Point(*p, validate=validate)
 
-        d = float(np.abs(self.a*x + self.b*y + self.c*z + self.d)
-            / np.sqrt(self.a**2+self.b**2+self.c**2))
+        d = float(abs(self.a*x + self.b*y + self.c*z + self.d)
+            / (self.a**2+self.b**2+self.c**2)**(1/2))
 
         if abs(d) < 10**-PRECISION:
             d = 0
@@ -270,17 +272,17 @@ class Vector(Object):
         self._y = y
         self._z = z
 
-    def __repr__(self):
-        """
-        """
-        s = '< space3.Vector | '
-        s += 'x={:{}.3f}'.format(self.x, '+' if self.x else '')
-        s += ', '
-        s += 'y={:{}.3f}'.format(self.y, '+' if self.y else '')
-        s += ', '
-        s += 'z={:{}.3f}'.format(self.z, '+' if self.z else '')
-        s += ' >'
-        return s
+#     def __repr__(self):
+#         """
+#         """
+#         s = '< space3.Vector | '
+#         s += 'x={:{}.3f}'.format(self.x, '+' if self.x else '')
+#         s += ', '
+#         s += 'y={:{}.3f}'.format(self.y, '+' if self.y else '')
+#         s += ', '
+#         s += 'z={:{}.3f}'.format(self.z, '+' if self.z else '')
+#         s += ' >'
+#         return s
 
     def __getitem__(self, i):
         """
@@ -362,7 +364,7 @@ class Vector(Object):
 
     def __matmul__(self, other):
         """
-        Cross product.
+        Cross product = (y1*z2-z1*y2, z1*x2-x1*z2, x1*y2-y1*x2)
 
         magnitude = (magnitude1 * magnitude2) * sin(angle)
         a x b = -(b x a)
@@ -642,7 +644,7 @@ def prepare_coordinates(c1, c2, c3, validate=True):
     return c1, c2, c3
 
 
-@jit
+@jit(nopython=True)
 def _distance(x1, y1, z1, x2, y2, z2):
     """
     """
@@ -680,24 +682,24 @@ def distance(x1, y1, z1, x2, y2, z2, validate=True):
     return distance
 
 
-def nearest(x, y, z, xs, ys, zs, validate=True):
-    """
-    Find nearest point in cloud.
+# def nearest(x, y, z, xs, ys, zs, validate=True):
+#     """
+#     Find nearest point in cloud.
 
-    x: number, x coordinate of point
-    y: number, y coordinate of point
-    z: number, z coordinate of point
-    xs: nd array, x coordinates of cloud
-    ys: nd array, y coordinates of cloud
-    zs: nd array, z coordinates of cloud
+#     x: number, x coordinate of point
+#     y: number, y coordinate of point
+#     z: number, z coordinate of point
+#     xs: nd array, x coordinates of cloud
+#     ys: nd array, y coordinates of cloud
+#     zs: nd array, z coordinates of cloud
 
-    return: 3-number tuple, (x, y, z) coordinates of nearest point
-    """
-    distances = distance(x, y, z, xs, ys, zs)
-    index = np.unravel_index(distances.argmin(), distances.shape)
+#     return: 3-number tuple, (x, y, z) coordinates of nearest point
+#     """
+#     distances = distance(x, y, z, xs, ys, zs)
+#     index = np.unravel_index(distances.argmin(), distances.shape)
 
-    x = float(xs[index])
-    y = float(ys[index])
-    z = float(zs[index])
+#     x = float(xs[index])
+#     y = float(ys[index])
+#     z = float(zs[index])
 
-    return x, y, z
+#     return x, y, z

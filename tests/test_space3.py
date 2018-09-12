@@ -5,43 +5,52 @@ Tests for 'space3' module.
 
 import unittest
 
+import random
+
 import numpy as np
 
 from synthacc.apy import PRECISION, is_number
 from synthacc.math import Matrix
 from synthacc.space3 import (Point, Plane, Vector, RotationMatrix,
-    are_coordinates, prepare_coordinates, distance, nearest)
+    are_coordinates, prepare_coordinates, distance)
 
 
 class TestPoint(unittest.TestCase):
     """
     """
 
-    p  = Point(1, 2, 3)
+    x = random.uniform(-1000, 1000)
+    y = random.uniform(-1000, 1000)
+    z = random.uniform(-1000, 1000)
+    p = Point(x, y, z)
 
     def test_properties(self):
         """
         """
-        self.assertEqual(self.p.x, 1)
-        self.assertEqual(self.p.y, 2)
-        self.assertEqual(self.p.z, 3)
+        self.assertEqual(self.p.x, self.x)
+        self.assertEqual(self.p.y, self.y)
+        self.assertEqual(self.p.z, self.z)
 
     def test___getitem__(self):
         """
         """
+        self.assertEqual(self.p[0], self.x)
+        self.assertEqual(self.p[1], self.y)
+        self.assertEqual(self.p[2], self.z)
         x, y, z = self.p
-        self.assertEqual(x, 1)
-        self.assertEqual(y, 2)
-        self.assertEqual(z, 3)
+        self.assertEqual(x, self.x)
+        self.assertEqual(y, self.y)
+        self.assertEqual(z, self.z)
 
     def test___eq__(self):
         """
         """
-        self.assertTrue(self.p == Point(1, 2, 3))
-        self.assertTrue(self.p == (1, 2, 3))
-        self.assertTrue(self.p != Point(1, 2, 4))
-        self.assertTrue(self.p == Point(1, 2, 3.00000000001))
-        self.assertTrue(self.p != Point(1, 2, 3.00000000010))
+        p = Point(0, 1, 2)
+        self.assertTrue(p == Point(0, 1, 2))
+        self.assertTrue(p == (0, 1, 2))
+        self.assertTrue(p != Point(0, 1, 3))
+        self.assertTrue(p == Point(0, 1, 2.00000000001))
+        self.assertTrue(p != Point(0, 1, 2.00000000010))
 
     def test_vector(self):
         """
@@ -52,17 +61,22 @@ class TestPoint(unittest.TestCase):
         self.assertEqual(v.y, self.p.y)
         self.assertEqual(v.z, self.p.z)
 
-    def test_translate(self):
+    def test_translate1(self):
         """
         """
+        p = Point(1, 2, 3)
         v = (2, 4, 6)
-        p = self.p.translate(v)
+        p = p.translate(v)
         self.assertEqual(p.x, 3)
         self.assertEqual(p.y, 6)
         self.assertEqual(p.z, 9)
 
-        v = Vector(*v)
-        p = self.p.translate(v)
+    def test_translate2(self):
+        """
+        """
+        p = Point(1, 2, 3)
+        v = Vector(*(2, 4, 6))
+        p = p.translate(v)
         self.assertEqual(p.x, 3)
         self.assertEqual(p.y, 6)
         self.assertEqual(p.z, 9)
@@ -115,6 +129,10 @@ class TestPlane(unittest.TestCase):
     def test___getitem__(self):
         """
         """
+        self.assertEqual(self.p[0], 1)
+        self.assertEqual(self.p[1], 2)
+        self.assertEqual(self.p[2], 3)
+        self.assertEqual(self.p[3], 4)
         a, b, c, d = self.p
         self.assertEqual(a, 1)
         self.assertEqual(b, 2)
@@ -132,12 +150,30 @@ class TestPlane(unittest.TestCase):
 
         self.assertEqual(round(p.d), 1022226448407260)
 
+    def test_get_distance(self):
+        """
+        """
+        p = Plane.from_points((0, 0, 1), (0, 1, 1), (1, 0, 1))
+        self.assertEqual(p.get_distance((0, 0, 0)), 1)
+        p = Plane.from_points((0.5, 0.5, 0), (0, 1, 1), (1, 0, 1))
+        self.assertTrue(abs(
+            p.get_distance((0, 0, 0)) - float(np.sqrt(2)/2)) < 10**-PRECISION)
+        p = Plane.from_points((0, 0, 1), (0, 2, 0), (2, 0, 0))
+        self.assertEqual(p.get_distance((0, 0, 0)), np.sqrt(2) / np.sqrt(3))
+
 
 class TestVector(unittest.TestCase):
     """
     """
 
     v = Vector(1, 2, 3)
+
+    def test_properties(self):
+        """
+        """
+        self.assertEqual(self.v.x, 1)
+        self.assertEqual(self.v.y, 2)
+        self.assertEqual(self.v.z, 3)
 
     def test___getitem__(self):
         """
@@ -186,7 +222,7 @@ class TestVector(unittest.TestCase):
         self.assertEqual(v.y, 0)
         self.assertEqual(v.z, 2)
 
-    def test___mul__(self):
+    def test___mul__1(self):
         """
         """
         v1 = Vector(1, 2, 3)
@@ -195,6 +231,15 @@ class TestVector(unittest.TestCase):
         self.assertEqual(v2.y, 6)
         self.assertEqual(v2.z, 9)
         self.assertEqual(v2.magnitude, v1.magnitude * 3)
+
+    def test___mul__2(self):
+        """
+        """
+        v1 = Vector(1, 2, 3)
+        v2 = Vector(4, 5, 6)
+        self.assertEqual(v1 * v2, 1*4+2*5+3*6)
+        self.assertEqual(v1 * v2, v1.magnitude * v2.magnitude *
+            np.cos(np.radians(v1.get_angle(v2))))
 
     def test___truediv__(self):
         """
@@ -205,6 +250,15 @@ class TestVector(unittest.TestCase):
         self.assertEqual(v2.y, 1.0)
         self.assertEqual(v2.z, 1.5)
         self.assertEqual(v2.magnitude, v1.magnitude / 3)
+
+    def test___matmul__(self):
+        """
+        """
+        v1 = Vector(1, 2, 3)
+        v2 = Vector(4, 5, 6)
+        v =  v1 @ v2
+        self.assertTrue(abs(v.magnitude - (v1.magnitude * v2.magnitude *
+            np.sin(np.radians(v1.get_angle(v2))))) < 10**-PRECISION)
 
     def test___pos__(self):
         """
@@ -223,13 +277,6 @@ class TestVector(unittest.TestCase):
         self.assertEqual(v.x, -self.v.x)
         self.assertEqual(v.y, -self.v.y)
         self.assertEqual(v.z, -self.v.z)
-
-    def test_properties(self):
-        """
-        """
-        self.assertEqual(self.v.x, 1)
-        self.assertEqual(self.v.y, 2)
-        self.assertEqual(self.v.z, 3)
 
     def test_row(self):
         """
@@ -352,3 +399,9 @@ class Test(unittest.TestCase):
         self.assertListEqual(list(c1), [1., 1.])
         self.assertListEqual(list(c2), [2., 2.])
         self.assertListEqual(list(c3), [3., 3.])
+
+    def test_distance(self):
+        """
+        """
+        d = distance(0, 0, 0, 1, 1, np.array([0, 1]))
+        self.assertListEqual(list(d), [np.sqrt(2), np.sqrt(3)])
