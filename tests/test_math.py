@@ -89,6 +89,11 @@ class TestSquareMatrix(unittest.TestCase):
         [7, 8, 9],
         ])
 
+    def test_diagonal(self):
+        """
+        """
+        self.assertListEqual(list(self.m.diagonal), [1, 5, 9])
+
     def test_trace(self):
         """
         """
@@ -100,3 +105,12 @@ class TestIdentityMatrix(unittest.TestCase):
     """
 
     m = IdentityMatrix(3)
+
+    def test_properties(self):
+        """
+        """
+        self.assertEqual(self.m.order, (3, 3))
+        rows = self.m.rows
+        self.assertListEqual(list(rows[0]), [1, 0, 0])
+        self.assertListEqual(list(rows[1]), [0, 1, 0])
+        self.assertListEqual(list(rows[2]), [0, 0, 1])

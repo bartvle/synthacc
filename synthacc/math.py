@@ -132,6 +132,12 @@ class SquareMatrix(Matrix):
         self._array = array
 
     @property
+    def diagonal(self):
+        """
+        """
+        return self._array.diagonal()
+
+    @property
     def trace(self):
         """
         return: number, sum of the main diagonal
