@@ -1,9 +1,7 @@
 """
-The 'apy' module.
-
-Module for tweaking Python. Arrays are Numpy arrays. 0d arrays are not allowed
-(they only complicate things). We allow only the native Python int and float,
-not Numpy ones.
+The 'apy' module. Tweaking Python. Arrays are Numpy arrays but 0-dimensional
+arrays are not allowed (they only complicate things). Except voor arrays we use
+only Python native types.
 """
 
 
@@ -18,8 +16,8 @@ PRECISION = 10
 
 class Object(object):
     """
-    An object that can have only private attributes. They can be made public
-    with properties and setters.
+    An object can only have private attributes. They can be made public with
+    property getters and setters.
     """
 
     def __setattr__(self, attr, val):
@@ -146,8 +144,7 @@ def _is_numeric_array(obj, n):
     """
     Check if object is a n-dimensional array of real numbers.
     """
-    return (_is_array(obj, n=n) and obj.dtype in
-        (np.int32, np.int64, np.float64))
+    return (_is_array(obj, n=n) and obj.dtype in (np.int32, np.float64))
 
 
 def is_numeric_array(obj):
@@ -190,10 +187,11 @@ def is_in_range(obj, min_val, max_val):
     """
     Check if object is numeric and between 'min_val' and 'max_val' (included).
     """
-    b = (is_numeric(obj) and (
-        np.all(min_val <= obj) and np.all(obj <= max_val)))
-
-    return b
+    if (is_numeric(obj) and (
+        np.all(min_val <= obj) and np.all(obj <= max_val))):
+        return T
+    else:
+        return F
 
 
 def is_complex(obj):

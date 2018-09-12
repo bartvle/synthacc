@@ -20,7 +20,19 @@ class TestObject(unittest.TestCase):
 
     def test_1(self):
         """
-        Public attribute (without setter) can't be set.
+        Private attribute can be set.
+        """
+        class X(Object):
+            pass
+
+        x = X()
+        x._x = True
+
+        self.assertTrue(x._x)
+
+    def test_2(self):
+        """
+        Public attribute can't be set.
         """
         class X(Object):
             pass
@@ -32,21 +44,46 @@ class TestObject(unittest.TestCase):
 
         self.assertRaises(AttributeError, f)
 
-    def test_2(self):
-        """
-        Private attribute (without setter) can be set.
-        """
-        class X(Object):
-            pass
-
-        x = X()
-        x._x = True
-
-        self.assertTrue(x._x)
-
     def test_3(self):
         """
-        Public attribute as private attribute with property and setter works.
+        Public attribute can with private attribute and property getter. Also
+        if property is set on superclass!
+        """
+        class X(Object):
+
+            def __init__(self, x):
+                self._x = x
+
+            @property
+            def x(self):
+                return self._x
+
+        x = X(x=True)
+        self.assertTrue(x._x)
+        self.assertTrue(x.x)
+
+        def fx():
+            x.x = True
+
+        self.assertRaises(AttributeError, fx)
+
+        class Y(X):
+            pass
+
+        y = Y(x=True)
+
+        self.assertTrue(y._x)
+        self.assertTrue(y.x)
+
+        def fy():
+            y.x = False
+
+        self.assertRaises(AttributeError, fy)
+
+
+    def test_4(self):
+        """
+        Public attribute can with private attribute and property getter/setter.
         Also if property is set on superclass!
         """
         class X(Object):
@@ -61,9 +98,6 @@ class TestObject(unittest.TestCase):
             @x.setter
             def x(self, val):
                 self._x = val
-
-        o = Object()
-        o._o = 0
 
         x = X(x=True)
         self.assertTrue(x._x)
