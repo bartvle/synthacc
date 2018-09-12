@@ -1,11 +1,9 @@
 """
-The 'earth.geo' module.
-
-
-Module for an oblate spheroid Earth (WGS84 reference ellipsoid). Longitudes and
-latitudes are geodetic (not geocentric). For projections the WGS84 geographic
-coordinate system is used. The center of the reference ellipsoid coincides with
-the center of mass of the Earth. Z points to the north pole.
+The 'earth.geo' module. An oblate spheroid Earth (WGS84 reference ellipsoid).
+Longitudes and latitudes are geodetic (not geocentric). For projections the
+WGS84 geographic coordinate system is used. The center of the reference
+ellipsoid coincides with the center of mass of the Earth. Z points to the north
+pole.
 """
 
 
@@ -46,12 +44,12 @@ class Point(Object):
         self._lat = float(lat)
         self._alt = float(alt)
 
-    def __repr__(self):
-        """
-        """
-        s = '< geo.Point | lon={:.3f}, lat={:.3f}, alt={:.3f} >'.format(
-            self.lon, self.lat, self.alt)
-        return s
+    # def __repr__(self):
+    #     """
+    #     """
+    #     s = '< geo.Point | lon={:.3f}, lat={:.3f}, alt={:.3f} >'.format(
+    #         self.lon, self.lat, self.alt)
+    #     return s
 
     def __getitem__(self, i):
         """

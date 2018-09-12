@@ -7,30 +7,32 @@ import unittest
 
 import numpy as np
 
-from synthacc.earth.geo import (Point, Path, SphericalEarth, is_lon, is_lat,
+from synthacc.earth.geo import (Point, Path, is_lon, is_lat,
     are_coordinates, distance, project)
 
 
 class TestPoint(unittest.TestCase):
     """
     """
+    lon, lat, alt = 0, 1, 20.1
+    p = Point(lon, lat, alt)
 
-    p = Point(0., 1., 20.1)
-
-    def test_properties(self):
+    def test_from_projection(self):
         """
+        #TODO: implement test
         """
-        self.assertEqual(self.p.lon, 0.)
-        self.assertEqual(self.p.lat, 1.)
-        self.assertEqual(self.p.alt, 20.1)
-        self.assertEqual(self.p.depth, -20.1)
+        pass
 
     def test___getitem__(self):
         """
         """
-        self.assertEqual(self.p[0], 0.)
-        self.assertEqual(self.p[1], 1.)
-        self.assertEqual(self.p[2], 20.1)
+        self.assertEqual(self.p[0], self.lon)
+        self.assertEqual(self.p[1], self.lat)
+        self.assertEqual(self.p[2], self.alt)
+        lon, lat, alt = self.p
+        self.assertEqual(lon, self.lon)
+        self.assertEqual(lat, self.lat)
+        self.assertEqual(alt, self.alt)
 
     def test___eq__(self):
         """
@@ -38,10 +40,38 @@ class TestPoint(unittest.TestCase):
         self.assertEqual(self.p, Point(0., 1., 20.1))
         self.assertNotEqual(self.p, Point(0., 1., 20.10001))
 
+    def test_properties(self):
+        """
+        """
+        self.assertEqual(self.p.lon, self.lon)
+        self.assertEqual(self.p.lat, self.lat)
+        self.assertEqual(self.p.alt, self.alt)
+        self.assertEqual(self.p.depth, -self.alt)
+
     def test_get_geo_distance(self):
         """
         """
         self.assertEqual(self.p.get_geo_distance((0, 0)), distance(0, 0, 0, 1))
+
+    def test_project(self):
+        """
+        #TODO: implement test
+        """
+        pass
+
+
+class TestPath(unittest.TestCase):
+    """
+    #TODO: implement test
+    """
+    pass
+
+
+class TestSphericalEarth(unittest.TestCase):
+    """
+    #TODO: implement test
+    """
+    pass
 
 
 class Test(unittest.TestCase):
@@ -122,3 +152,9 @@ class Test(unittest.TestCase):
         )
         tgt = np.array([[0, tgt_d13, tgt_d14], [tgt_d12, tgt_d23, tgt_d24]])
         self.assertTrue(np.array_equal(np.round(cal, 8), np.round(tgt, 8)))
+
+    def test_project(self):
+        """
+        #TODO: implement test
+        """
+        pass
