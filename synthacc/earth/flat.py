@@ -1,9 +1,8 @@
 """
-The 'earth.flat' module.
-
-A flat Earth as 3-dimensional Euclidean space in a right-handed Cartesian
-coordinate system where x is north, y is east and z is down (or depth). Earth's
-surface has z=0. The azimuth is the angle from x (north) to y (east).
+The 'earth.flat' module. A flat Earth as 3-dimensional Euclidean space in a
+right-handed Cartesian coordinate system where x is north, y is east and z is
+down (or depth). Earth's surface has z=0. The azimuth is the angle from x
+(north) to y (east).
 """
 
 
