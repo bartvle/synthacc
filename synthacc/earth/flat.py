@@ -447,8 +447,8 @@ class DiscretizedSimpleSurface(SimpleSurface):
         self._spacing = (self.width / shape[0], self.length / shape[1])
 
         corners, centers = self._discretize()
-        self._corners = corners
-        self._centers = centers
+        self._cell_corners = corners
+        self._cell_centers = centers
 
     def __len__(self):
         """
@@ -468,16 +468,16 @@ class DiscretizedSimpleSurface(SimpleSurface):
         return self._spacing
 
     @property
-    def corners(self):
+    def cell_corners(self):
         """
         """
-        return self._corners
+        return self._cell_corners
 
     @property
-    def centers(self):
+    def cell_centers(self):
         """
         """
-        return self._centers
+        return self._cell_centers
 
     @property
     def cell_area(self):

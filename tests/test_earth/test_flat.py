@@ -172,8 +172,9 @@ class TestDiscretizedSimpleSurface(unittest.TestCase):
         dss = DiscretizedSimpleSurface(x1, y1, x2, y2, ud, ld, dip, shape)
         self.assertEqual(dss.shape, shape)
         self.assertEqual(dss.spacing, (1, 2))
-        self.assertEqual(dss.centers.shape, shape + (3,))
-        self.assertEqual(dss.corners.shape, (shape[0] + 1, shape[1] + 1, 3))
+        self.assertEqual(dss.cell_centers.shape, shape + (3,))
+        self.assertEqual(dss.cell_corners.shape,
+            (shape[0] + 1, shape[1] + 1, 3))
         self.assertEqual(dss.cell_area, 2)
 
     def test_surface(self):
