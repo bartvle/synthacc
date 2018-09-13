@@ -104,7 +104,7 @@ def make_motion_units():
     units = {}
     for base in bases:
         units[base.symbol] = base
-        for (name, symbol, scale) in SI_PREFIXES:
+        for (_, symbol, scale) in SI_PREFIXES:
             symbol += base.symbol
             assert(symbol not in units)
             si_scale = base.si_scale * scale
