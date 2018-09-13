@@ -31,15 +31,15 @@ class MomentTensor(Object):
         self._m = SquareMatrix(
             [[xx, xy, zx], [xy, yy, yz], [zx, yz, zz]], validate=validate)
 
-    def __repr__(self):
-        """
-        """
-        s = '< Moment Tensor |'
-        for c in self.six:
-            s += ' {}'.format(c)
-        s += ' >'
+#     def __repr__(self):
+#         """
+#         """
+#         s = '< Moment Tensor |'
+#         for c in self.six:
+#             s += ' {}'.format(c)
+#         s += ' >'
 
-        return s
+#         return s
 
     def __getitem__(self, item):
         """
@@ -186,27 +186,426 @@ class MomentTensor(Object):
         return self.trace != 0
 
 
-class _TimeSeries(ABC, Object):
+# class TimeSeries(Object, ABC):
+#     """
+#     """
+
+#     def __init__(self, time_delta, start_time=0, validate=True):
+#         """
+#         time_delta: pos number (in s)
+#         start_time: number (in s) (default: 0)
+#         """
+#         if validate is True:
+#             assert(is_pos_number(time_delta))
+#             assert(is_number(start_time))
+
+#         self._time_delta = time_delta
+#         self._start_time = start_time
+
+#     @abstractmethod
+#     def __len__(self):
+#         """
+#         """
+#         pass
+
+#     @property
+#     def time_delta(self):
+#         """
+#         return: pos number (in s)
+#         """
+#         return self._time_delta
+
+#     @property
+#     def start_time(self):
+#         """
+#         return: number (in s)
+#         """
+#         return self._start_time
+
+#     @property
+#     def times(self):
+#         """
+#         """
+#         return self.time_delta * np.arange(len(self))
+
+
+# class _Function(_TimeSeries):
+#     """
+#     """
+
+#     def __init__(self, time_delta, values, start_time=0, validate=True):
+#         """
+#         time_delta: (in s)
+#         start_time: (in s)
+#         """
+#         super().__init__(time_delta, start_time, validate=validate)
+
+#         values = np.asarray(values, dtype=float)
+
+#         if validate is True:
+#             assert(is_1d_numeric_array(values))
+#             assert(values[0] == 0)
+#             assert(np.all(np.diff(values) >= 0))
+
+#         self._values = values
+
+#     def __len__(self):
+#         """
+#         """
+#         return len(self._values)
+
+
+# class SlipFunction(_Function):
+#     """
+#     Total slip in function of time.
+#     """
+
+#     def __init__(self, time_delta, slips, start_time=0, validate=True):
+#         """
+#         time_delta: (in s)
+#         slips: (in m)
+#         start_time: (in s)
+#         """
+#         super().__init__(time_delta, slips, start_time, validate=validate)
+
+#     @property
+#     def slips(self):
+#         """
+#         """
+#         return np.copy(self._values)
+
+#     @property
+#     def slip(self):
+#         """
+#         """
+#         return self._values[-1]
+
+#     def plot(self, model=None, title=None, size=None, png_filespec=None, validate=True):
+#         """
+#         """
+#         fig, ax = plt.subplots(figsize=size)
+
+#         ax.plot(self.times, self.slips, c='dimgrey', lw=2)
+#         ax.fill_between(self.times, self.slips, color='lightgrey')
+
+#         if model is not None:
+#             ax.plot(model.times, model.slips, c='red', lw=2)
+
+#         ax.set_xlim(ax.get_xaxis().get_data_interval())
+#         ax.set_ylim((0, None))
+
+#         x_label, y_label = 'Time (s)', 'Slip (m)'
+
+#         ax.xaxis.set_label_text(x_label)
+#         ax.yaxis.set_label_text(y_label)
+
+#         if title is None:
+#             ax.set_title('Slip function')
+
+#         plt.grid()
+
+#         if png_filespec is not None:
+#             plt.savefig(png_filespec)
+#         else:
+#             plt.show()
+
+
+# class MomentFunction(_Function):
+#     """
+#     Released moment in function of time.
+#     """
+
+#     def __init__(self, time_delta, moments, start_time=0, validate=True):
+#         """
+#         time_delta: (in s)
+#         moments: (in Nm)
+#         start_time: (in s)
+#         """
+#         super().__init__(time_delta, moments, start_time, validate=validate)
+
+#     @property
+#     def moments(self):
+#         """
+#         """
+#         return np.copy(self._values)
+
+#     @property
+#     def moment(self):
+#         """
+#         """
+#         return float(self._values[-1])
+
+#     @property
+#     def magnitude(self):
+#         """
+#         return: number
+#         """
+#         return m0_to_mw(self.moment)
+
+#     def get_duration(self, percentile=5):
+#         """
+#         """
+#         min_moment = self.moment * percentile / 100
+#         max_moment = self.moment - min_moment
+
+#         times = self.times
+#         min_time = times[self._values >= min_moment][0]
+#         max_time = times[self._values >= max_moment][0]
+
+#         return max_time - min_time
+
+#     def plot(self, model=None, title=None, size=None, png_filespec=None, validate=True):
+#         """
+#         """
+#         fig, ax = plt.subplots(figsize=size)
+
+#         ax.plot(self.times, self.moments, c='dimgrey', lw=2)
+#         ax.fill_between(self.times, self.moments, color='lightgrey')
+
+#         if model is not None:
+#             ax.plot(model.times, model.moments, c='red', lw=2)
+
+#         ax.set_xlim(ax.get_xaxis().get_data_interval())
+#         ax.set_ylim((0, None))
+
+#         x_label, y_label = 'Time (s)', 'Moment (Nm)'
+
+#         ax.xaxis.set_label_text(x_label)
+#         ax.yaxis.set_label_text(y_label)
+
+#         if title is None:
+#             ax.set_title('Moment function')
+
+#         plt.grid()
+
+#         if png_filespec is not None:
+#             plt.savefig(png_filespec)
+#         else:
+#             plt.show()
+
+
+# class _NormalizedFunction(_Function):
+#     """
+#     """
+
+#     def __init__(self, time_delta, values, start_time=0, validate=True):
+#         """
+#         """
+#         super().__init__(time_delta, values, start_time, validate=validate)
+
+#         if validate is True:
+#             assert(np.abs(values[-1] - 1) <= 10**-PRECISION)
+
+
+# class NormalizedSlipFunction(_NormalizedFunction):
+#     """
+#     Normalized total slip in function of time.
+#     """
+
+#     def __mul__(self, slip):
+#         """
+#         return: 'moment.SlipFunction' instance
+#         """
+#         assert(is_pos_number(slip))
+
+#         sf = SlipFunction(
+#             self.time_delta,
+#             self._values * slip,
+#             self.start_time,
+#             )
+
+#         return sf
+
+#     @property
+#     def slips(self):
+#         """
+#         """
+#         return np.copy(self._values)
+
+#     def plot(self, model=None, title=None, size=None, png_filespec=None, validate=True):
+#         """
+#         """
+#         fig, ax = plt.subplots(figsize=size)
+
+#         ax.plot(self.times, self.slips, c='dimgrey', lw=2)
+#         ax.fill_between(self.times, self.slips, color='lightgrey')
+
+#         if model is not None:
+#             ax.plot(model.times, model.slips, c='red', lw=2)
+
+#         ax.set_xlim(ax.get_xaxis().get_data_interval())
+#         ax.set_ylim((0, None))
+
+#         x_label, y_label = 'Time (s)', 'Normalized slip'
+
+#         ax.xaxis.set_label_text(x_label)
+#         ax.yaxis.set_label_text(y_label)
+
+#         if title is None:
+#             ax.set_title('Normalized slip function')
+
+#         plt.grid()
+
+#         if png_filespec is not None:
+#             plt.savefig(png_filespec)
+#         else:
+#             plt.show()
+
+
+# class NormalizedMomentFunction(_NormalizedFunction):
+#     """
+#     Normalized released moment in function of time.
+#     """
+
+#     def __mul__(self, moment):
+#         """
+#         return: 'moment.MomentFunction' instance
+#         """
+#         assert(is_pos_number(moment))
+
+#         mf = MomentFunction(
+#             self.time_delta,
+#             self._values * moment,
+#             self.start_time,
+#             )
+
+#         return mf
+
+#     @property
+#     def moments(self):
+#         """
+#         """
+#         return np.copy(self._values)
+
+#     def plot(self, model=None, title=None, size=None, png_filespec=None, validate=True):
+#         """
+#         """
+#         fig, ax = plt.subplots(figsize=size)
+
+#         ax.plot(self.times, self.moments, c='dimgrey', lw=2)
+#         ax.fill_between(self.times, self.moments, color='lightgrey')
+
+#         if model is not None:
+#             ax.plot(model.times, model.moments, c='red', lw=2)
+
+#         ax.set_xlim(ax.get_xaxis().get_data_interval())
+#         ax.set_ylim((0, None))
+
+#         x_label, y_label = 'Time (s)', 'Normalized moment'
+
+#         ax.xaxis.set_label_text(x_label)
+#         ax.yaxis.set_label_text(y_label)
+
+#         if title is None:
+#             ax.set_title('Normalized moment function')
+
+#         plt.grid()
+
+#         if png_filespec is not None:
+#             plt.savefig(png_filespec)
+#         else:
+#             plt.show()
+
+
+# class RateFunction(TimeSeries, ABC):
+#     """
+#     """
+
+#     def __init__(self, time_delta, rates, start_time=0, validate=True):
+#         """
+#         """
+#         super().__init__(time_delta, start_time, validate=validate)
+
+#         rates = np.asarray(rates, dtype=float)
+
+#         if validate is True:
+#             assert(is_1d_numeric_array(rates))
+#             assert(np.all(rates >= 0))
+#             assert(rates[+0] == 0)
+#             assert(rates[-1] == 0)
+
+#         self._rates = rates
+
+#     def __len__(self):
+#         """
+#         """
+#         return len(self.rates)
+
+#     @property
+#     def rates(self):
+#         """
+#         return: 1d numerical array
+#         """
+#         return np.copy(self._rates)
+
+
+# class SlipRateFunction(_RateFunction):
+#     """
+#     A slip rate function (or slip velocity function (SVF)).
+#     """
+
+#     @property
+#     def slip(self):
+#         """
+#         return: pos number
+#         """
+#         return float(np.sum(self._rates) * self._time_delta)
+
+#     def plot(self, model=None, title=None, size=None, png_filespec=None, validate=True):
+#         """
+#         """
+#         fig, ax = plt.subplots(figsize=size)
+
+#         ax.plot(self.times, self.rates, c='dimgrey', lw=2)
+#         ax.fill(self.times, self.rates, c='lightgrey')
+
+#         if model is not None:
+#             ax.plot(model.times, model.rates, c='red', lw=2)
+
+#         ax.set_ylim((0, None))
+
+#         x_label, y_label = 'Time (s)', 'Slip rate (m/s)'
+
+#         ax.xaxis.set_label_text(x_label)
+#         ax.yaxis.set_label_text(y_label)
+
+#         if title is None:
+#             ax.set_title('Slip rate function')
+
+#         plt.grid()
+
+#         if png_filespec is not None:
+#             plt.savefig(png_filespec)
+#         else:
+#             plt.show()
+
+
+class MomentRateFunction(Object):
     """
+    A moment rate function (or source time function (STF)).
     """
 
-    def __init__(self, time_delta, start_time=0, validate=True):
+    def __init__(self, time_delta, rates, start_time=0, validate=True):
         """
-        time_delta: pos number (in s)
-        start_time: number (in s) (default: 0)
         """
+        rates = np.asarray(rates, dtype=float)
+
         if validate is True:
             assert(is_pos_number(time_delta))
             assert(is_number(start_time))
+            assert(is_1d_numeric_array(rates))
+            assert(np.all(rates >= 0))
+            assert(rates[+0] == 0)
+            assert(rates[-1] == 0)
 
         self._time_delta = time_delta
         self._start_time = start_time
+        self._rates = rates
 
-    @abstractmethod
     def __len__(self):
         """
         """
-        pass
+        return len(self.rates)
 
     @property
     def time_delta(self):
@@ -223,367 +622,17 @@ class _TimeSeries(ABC, Object):
         return self._start_time
 
     @property
-    def times(self):
-        """
-        """
-        return self.time_delta * np.arange(len(self))
-
-
-class _Function(_TimeSeries):
-    """
-    """
-
-    def __init__(self, time_delta, values, start_time=0, validate=True):
-        """
-        time_delta: (in s)
-        start_time: (in s)
-        """
-        super().__init__(time_delta, start_time, validate=validate)
-
-        values = np.asarray(values, dtype=float)
-
-        if validate is True:
-            assert(is_1d_numeric_array(values))
-            assert(values[0] == 0)
-            assert(np.all(np.diff(values) >= 0))
-
-        self._values = values
-
-    def __len__(self):
-        """
-        """
-        return len(self._values)
-
-
-class SlipFunction(_Function):
-    """
-    Total slip in function of time.
-    """
-
-    def __init__(self, time_delta, slips, start_time=0, validate=True):
-        """
-        time_delta: (in s)
-        slips: (in m)
-        start_time: (in s)
-        """
-        super().__init__(time_delta, slips, start_time, validate=validate)
-
-    @property
-    def slips(self):
-        """
-        """
-        return np.copy(self._values)
-
-    @property
-    def slip(self):
-        """
-        """
-        return self._values[-1]
-
-    def plot(self, model=None, title=None, size=None, png_filespec=None, validate=True):
-        """
-        """
-        fig, ax = plt.subplots(figsize=size)
-
-        ax.plot(self.times, self.slips, c='dimgrey', lw=2)
-        ax.fill_between(self.times, self.slips, color='lightgrey')
-
-        if model is not None:
-            ax.plot(model.times, model.slips, c='red', lw=2)
-
-        ax.set_xlim(ax.get_xaxis().get_data_interval())
-        ax.set_ylim((0, None))
-
-        x_label, y_label = 'Time (s)', 'Slip (m)'
-
-        ax.xaxis.set_label_text(x_label)
-        ax.yaxis.set_label_text(y_label)
-
-        if title is None:
-            ax.set_title('Slip function')
-
-        plt.grid()
-
-        if png_filespec is not None:
-            plt.savefig(png_filespec)
-        else:
-            plt.show()
-
-
-class MomentFunction(_Function):
-    """
-    Released moment in function of time.
-    """
-
-    def __init__(self, time_delta, moments, start_time=0, validate=True):
-        """
-        time_delta: (in s)
-        moments: (in Nm)
-        start_time: (in s)
-        """
-        super().__init__(time_delta, moments, start_time, validate=validate)
-
-    @property
-    def moments(self):
-        """
-        """
-        return np.copy(self._values)
-
-    @property
-    def moment(self):
-        """
-        """
-        return float(self._values[-1])
-
-    @property
-    def magnitude(self):
-        """
-        return: number
-        """
-        return m0_to_mw(self.moment)
-
-    def get_duration(self, percentile=5):
-        """
-        """
-        min_moment = self.moment * percentile / 100
-        max_moment = self.moment - min_moment
-
-        times = self.times
-        min_time = times[self._values >= min_moment][0]
-        max_time = times[self._values >= max_moment][0]
-
-        return max_time - min_time
-
-    def plot(self, model=None, title=None, size=None, png_filespec=None, validate=True):
-        """
-        """
-        fig, ax = plt.subplots(figsize=size)
-
-        ax.plot(self.times, self.moments, c='dimgrey', lw=2)
-        ax.fill_between(self.times, self.moments, color='lightgrey')
-
-        if model is not None:
-            ax.plot(model.times, model.moments, c='red', lw=2)
-
-        ax.set_xlim(ax.get_xaxis().get_data_interval())
-        ax.set_ylim((0, None))
-
-        x_label, y_label = 'Time (s)', 'Moment (Nm)'
-
-        ax.xaxis.set_label_text(x_label)
-        ax.yaxis.set_label_text(y_label)
-
-        if title is None:
-            ax.set_title('Moment function')
-
-        plt.grid()
-
-        if png_filespec is not None:
-            plt.savefig(png_filespec)
-        else:
-            plt.show()
-
-
-class _NormalizedFunction(_Function):
-    """
-    """
-
-    def __init__(self, time_delta, values, start_time=0, validate=True):
-        """
-        """
-        super().__init__(time_delta, values, start_time, validate=validate)
-
-        if validate is True:
-            assert(np.abs(values[-1] - 1) <= 10**-PRECISION)
-
-
-class NormalizedSlipFunction(_NormalizedFunction):
-    """
-    Normalized total slip in function of time.
-    """
-
-    def __mul__(self, slip):
-        """
-        return: 'moment.SlipFunction' instance
-        """
-        assert(is_pos_number(slip))
-
-        sf = SlipFunction(
-            self.time_delta,
-            self._values * slip,
-            self.start_time,
-            )
-
-        return sf
-
-    @property
-    def slips(self):
-        """
-        """
-        return np.copy(self._values)
-
-    def plot(self, model=None, title=None, size=None, png_filespec=None, validate=True):
-        """
-        """
-        fig, ax = plt.subplots(figsize=size)
-
-        ax.plot(self.times, self.slips, c='dimgrey', lw=2)
-        ax.fill_between(self.times, self.slips, color='lightgrey')
-
-        if model is not None:
-            ax.plot(model.times, model.slips, c='red', lw=2)
-
-        ax.set_xlim(ax.get_xaxis().get_data_interval())
-        ax.set_ylim((0, None))
-
-        x_label, y_label = 'Time (s)', 'Normalized slip'
-
-        ax.xaxis.set_label_text(x_label)
-        ax.yaxis.set_label_text(y_label)
-
-        if title is None:
-            ax.set_title('Normalized slip function')
-
-        plt.grid()
-
-        if png_filespec is not None:
-            plt.savefig(png_filespec)
-        else:
-            plt.show()
-
-
-class NormalizedMomentFunction(_NormalizedFunction):
-    """
-    Normalized released moment in function of time.
-    """
-
-    def __mul__(self, moment):
-        """
-        return: 'moment.MomentFunction' instance
-        """
-        assert(is_pos_number(moment))
-
-        mf = MomentFunction(
-            self.time_delta,
-            self._values * moment,
-            self.start_time,
-            )
-
-        return mf
-
-    @property
-    def moments(self):
-        """
-        """
-        return np.copy(self._values)
-
-    def plot(self, model=None, title=None, size=None, png_filespec=None, validate=True):
-        """
-        """
-        fig, ax = plt.subplots(figsize=size)
-
-        ax.plot(self.times, self.moments, c='dimgrey', lw=2)
-        ax.fill_between(self.times, self.moments, color='lightgrey')
-
-        if model is not None:
-            ax.plot(model.times, model.moments, c='red', lw=2)
-
-        ax.set_xlim(ax.get_xaxis().get_data_interval())
-        ax.set_ylim((0, None))
-
-        x_label, y_label = 'Time (s)', 'Normalized moment'
-
-        ax.xaxis.set_label_text(x_label)
-        ax.yaxis.set_label_text(y_label)
-
-        if title is None:
-            ax.set_title('Normalized moment function')
-
-        plt.grid()
-
-        if png_filespec is not None:
-            plt.savefig(png_filespec)
-        else:
-            plt.show()
-
-
-class _RateFunction(_TimeSeries):
-    """
-    """
-
-    def __init__(self, time_delta, rates, start_time=0, validate=True):
-        """
-        """
-        super().__init__(time_delta, start_time, validate=validate)
-
-        rates = np.asarray(rates, dtype=float)
-
-        if validate is True:
-            assert(is_1d_numeric_array(rates))
-            assert(np.all(rates >= 0))
-            assert(rates[+0] == 0)
-            assert(rates[-1] == 0)
-
-        self._rates = rates
-
-    def __len__(self):
-        """
-        """
-        return len(self.rates)
-
-    @property
     def rates(self):
         """
         return: 1d numerical array
         """
         return np.copy(self._rates)
 
-
-class SlipRateFunction(_RateFunction):
-    """
-    A slip rate function (or slip velocity function (SVF)).
-    """
-
     @property
-    def slip(self):
-        """
-        return: pos number
-        """
-        return float(np.sum(self._rates) * self._time_delta)
-
-    def plot(self, model=None, title=None, size=None, png_filespec=None, validate=True):
+    def times(self):
         """
         """
-        fig, ax = plt.subplots(figsize=size)
-
-        ax.plot(self.times, self.rates, c='dimgrey', lw=2)
-        ax.fill(self.times, self.rates, c='lightgrey')
-
-        if model is not None:
-            ax.plot(model.times, model.rates, c='red', lw=2)
-
-        ax.set_ylim((0, None))
-
-        x_label, y_label = 'Time (s)', 'Slip rate (m/s)'
-
-        ax.xaxis.set_label_text(x_label)
-        ax.yaxis.set_label_text(y_label)
-
-        if title is None:
-            ax.set_title('Slip rate function')
-
-        plt.grid()
-
-        if png_filespec is not None:
-            plt.savefig(png_filespec)
-        else:
-            plt.show()
-
-
-class MomentRateFunction(_RateFunction):
-    """
-    A moment rate function (or source time function (STF)).
-    """
+        return self.time_delta * np.arange(len(self))
 
     @property
     def moment(self):
@@ -599,216 +648,216 @@ class MomentRateFunction(_RateFunction):
         """
         return m0_to_mw(self.moment)
 
-    def get_moment_function(self):
-        """
-        """
-        mf = MomentFunction(self._time_delta, np.cumsum(self._rates) * \
-            self._time_delta, self._start_time, validate=False)
+    # def get_moment_function(self):
+    #     """
+    #     """
+    #     mf = MomentFunction(self._time_delta, np.cumsum(self._rates) * \
+    #         self._time_delta, self._start_time, validate=False)
 
-        return mf
+    #     return mf
 
-    def plot(self, model=None, title=None, size=None, png_filespec=None, validate=True):
-        """
-        """
-        fig, ax = plt.subplots(figsize=size)
+    # def plot(self, model=None, title=None, size=None, png_filespec=None, validate=True):
+    #     """
+    #     """
+    #     fig, ax = plt.subplots(figsize=size)
 
-        ax.plot(self.times, self.rates, c='dimgrey', lw=2)
-        ax.fill(self.times, self.rates, c='lightgrey')
+    #     ax.plot(self.times, self.rates, c='dimgrey', lw=2)
+    #     ax.fill(self.times, self.rates, c='lightgrey')
 
-        if model is not None:
-            ax.plot(model.times, model.rates, c='red', lw=2)
+    #     if model is not None:
+    #         ax.plot(model.times, model.rates, c='red', lw=2)
 
-        ax.set_ylim((0, None))
+    #     ax.set_ylim((0, None))
 
-        x_label, y_label = 'Time (s)', 'Moment rate (Nm/s)'
+    #     x_label, y_label = 'Time (s)', 'Moment rate (Nm/s)'
 
-        ax.xaxis.set_label_text(x_label)
-        ax.yaxis.set_label_text(y_label)
+    #     ax.xaxis.set_label_text(x_label)
+    #     ax.yaxis.set_label_text(y_label)
 
-        if title is None:
-            ax.set_title('Moment rate function')
+    #     if title is None:
+    #         ax.set_title('Moment rate function')
 
-        plt.grid()
+    #     plt.grid()
 
-        if png_filespec is not None:
-            plt.savefig(png_filespec)
-        else:
-            plt.show()
-
-
-class _NormalizedRateFunction(_RateFunction):
-    """
-    """
-
-    def __init__(self, time_delta, rates, start_time=0, validate=True):
-        """
-        time_delta: (in s)
-        rates: (in 1/s)
-        start_time: (in s)
-        """
-        super().__init__(time_delta, rates, start_time, validate=validate)
-
-        if validate is True:
-            assert(np.abs((np.sum(rates) * self.time_delta) - 1)
-            <= 10**-PRECISION)
+    #     if png_filespec is not None:
+    #         plt.savefig(png_filespec)
+    #     else:
+    #         plt.show()
 
 
-class NormalizedSlipRateFunction(_NormalizedRateFunction):
-    """
-    A normalized slip rate function (normalized slip velocity function (SVF)).
-    """
+# class _NormalizedRateFunction(_RateFunction):
+#     """
+#     """
 
-    def __mul__(self, slip):
-        """
-        return: 'moment.SlipRateFunction' instance
-        """
-        assert(is_pos_number(slip))
+#     def __init__(self, time_delta, rates, start_time=0, validate=True):
+#         """
+#         time_delta: (in s)
+#         rates: (in 1/s)
+#         start_time: (in s)
+#         """
+#         super().__init__(time_delta, rates, start_time, validate=validate)
 
-        srf = SlipRateFunction(
-            self.time_delta,
-            self._rates * slip,
-            self.start_time,
-            )
-
-        return srf
-
-    def plot(self, model=None, title=None, size=None, png_filespec=None, validate=True):
-        """
-        """
-        fig, ax = plt.subplots(figsize=size)
-
-        ax.plot(self.times, self.rates, c='dimgrey', lw=2)
-        ax.fill(self.times, self.rates, c='lightgrey')
-
-        if model is not None:
-            ax.plot(model.times, model.rates, c='red', lw=2)
-
-        ax.set_ylim((0, None))
-
-        x_label, y_label = 'Time (s)', 'Normalized slip rate (1/s)'
-
-        ax.xaxis.set_label_text(x_label)
-        ax.yaxis.set_label_text(y_label)
-
-        if title is None:
-            ax.set_title('Normalized slip rate function')
-
-        plt.grid()
-
-        if png_filespec is not None:
-            plt.savefig(png_filespec)
-        else:
-            plt.show()
+#         if validate is True:
+#             assert(np.abs((np.sum(rates) * self.time_delta) - 1)
+#             <= 10**-PRECISION)
 
 
-class NormalizedMomentRateFunction(_NormalizedRateFunction):
-    """
-    A normalized moment rate function (normalized source time function (STF)).
-    """
+# class NormalizedSlipRateFunction(_NormalizedRateFunction):
+#     """
+#     A normalized slip rate function (normalized slip velocity function (SVF)).
+#     """
 
-    def __mul__(self, moment):
-        """
-        return: 'moment.MomentRateFunction' instance
-        """
-        assert(is_pos_number(moment))
+#     def __mul__(self, slip):
+#         """
+#         return: 'moment.SlipRateFunction' instance
+#         """
+#         assert(is_pos_number(slip))
 
-        mrf = MomentRateFunction(
-            self.time_delta,
-            self._rates * moment,
-            self.start_time,
-            )
+#         srf = SlipRateFunction(
+#             self.time_delta,
+#             self._rates * slip,
+#             self.start_time,
+#             )
 
-        return mrf
+#         return srf
 
-    def plot(self, model=None, title=None, size=None, png_filespec=None, validate=True):
-        """
-        """
-        fig, ax = plt.subplots(figsize=size)
+#     def plot(self, model=None, title=None, size=None, png_filespec=None, validate=True):
+#         """
+#         """
+#         fig, ax = plt.subplots(figsize=size)
 
-        ax.plot(self.times, self.rates, c='dimgrey', lw=2)
-        ax.fill(self.times, self.rates, c='lightgrey')
+#         ax.plot(self.times, self.rates, c='dimgrey', lw=2)
+#         ax.fill(self.times, self.rates, c='lightgrey')
 
-        if model is not None:
-            ax.plot(model.times, model.rates, c='red', lw=2)
+#         if model is not None:
+#             ax.plot(model.times, model.rates, c='red', lw=2)
 
-        ax.set_ylim((0, None))
+#         ax.set_ylim((0, None))
 
-        x_label, y_label = 'Time (s)', 'Normalized moment rate (1/s)'
+#         x_label, y_label = 'Time (s)', 'Normalized slip rate (1/s)'
 
-        ax.xaxis.set_label_text(x_label)
-        ax.yaxis.set_label_text(y_label)
+#         ax.xaxis.set_label_text(x_label)
+#         ax.yaxis.set_label_text(y_label)
 
-        if title is None:
-            ax.set_title('Normalized moment rate function')
+#         if title is None:
+#             ax.set_title('Normalized slip rate function')
 
-        plt.grid()
+#         plt.grid()
 
-        if png_filespec is not None:
-            plt.savefig(png_filespec)
-        else:
-            plt.show()
-
-
-class InstantRateGenerator(Object):
-    """
-    """
-
-    def get_nmrf(self, time_delta=10**-PRECISION, validate=True):
-        """
-        return: 'moment.NormalizedMomentRateFunction' instance
-        """
-        if validate is True:
-            assert(is_pos_number(time_delta))
-
-        rates = [0, 1 / time_delta, 0]
-
-        return NormalizedMomentRateFunction(time_delta, rates)
+#         if png_filespec is not None:
+#             plt.savefig(png_filespec)
+#         else:
+#             plt.show()
 
 
-class ConstantRateGenerator(Object):
-    """
-    """
+# class NormalizedMomentRateFunction(_NormalizedRateFunction):
+#     """
+#     A normalized moment rate function (normalized source time function (STF)).
+#     """
 
-    def get_nmrf(self, time_delta, rise_time, validate=True):
-        """
-        return: 'moment.NormalizedMomentRateFunction' instance
-        """
-        if validate is True:
-            assert(is_pos_number(time_delta))
-            assert(is_pos_number(rise_time))
+#     def __mul__(self, moment):
+#         """
+#         return: 'moment.MomentRateFunction' instance
+#         """
+#         assert(is_pos_number(moment))
 
-        n = int(round(rise_time / time_delta))
-        rates = np.zeros(n+3)
-        rates[1:-1] = 1 / ((n+1)*time_delta)
+#         mrf = MomentRateFunction(
+#             self.time_delta,
+#             self._rates * moment,
+#             self.start_time,
+#             )
 
-        return NormalizedMomentRateFunction(time_delta, rates)
+#         return mrf
+
+#     def plot(self, model=None, title=None, size=None, png_filespec=None, validate=True):
+#         """
+#         """
+#         fig, ax = plt.subplots(figsize=size)
+
+#         ax.plot(self.times, self.rates, c='dimgrey', lw=2)
+#         ax.fill(self.times, self.rates, c='lightgrey')
+
+#         if model is not None:
+#             ax.plot(model.times, model.rates, c='red', lw=2)
+
+#         ax.set_ylim((0, None))
+
+#         x_label, y_label = 'Time (s)', 'Normalized moment rate (1/s)'
+
+#         ax.xaxis.set_label_text(x_label)
+#         ax.yaxis.set_label_text(y_label)
+
+#         if title is None:
+#             ax.set_title('Normalized moment rate function')
+
+#         plt.grid()
+
+#         if png_filespec is not None:
+#             plt.savefig(png_filespec)
+#         else:
+#             plt.show()
 
 
-class TriangularRateGenerator(Object):
-    """
-    Gives a (normalized) moment rate function with the shape of an isosceles
-    triangle. The height of the triangle (i.e. the maximum rate) is equal to
-    the inverse of half its base (i.e. the half duration).
-    """
+# # class InstantRateGenerator(Object):
+# #     """
+# #     """
 
-    def get_nmrf(self, time_delta, half_duration, validate=True):
-        """
-        return: 'moment.NormalizedMomentRateFunction' instance
-        """
-        if validate is True:
-            assert(is_pos_number(time_delta))
-            assert(is_pos_number(half_duration))
+# #     def get_nmrf(self, time_delta=10**-PRECISION, validate=True):
+# #         """
+# #         return: 'moment.NormalizedMomentRateFunction' instance
+# #         """
+# #         if validate is True:
+# #             assert(is_pos_number(time_delta))
 
-        n = int(round(half_duration / time_delta))
-        assert(abs((n * time_delta) - half_duration) <= 10**-PRECISION)
+# #         rates = [0, 1 / time_delta, 0]
 
-        rates = np.zeros(2*n+1)
-        rates[:n+1] = np.linspace(0, 1 / half_duration, n+1)
-        rates[n+1:] = rates[:n][::-1]
+# #         return NormalizedMomentRateFunction(time_delta, rates)
 
-        nmrf = NormalizedMomentRateFunction(time_delta, rates)
 
-        return nmrf
+# # class ConstantRateGenerator(Object):
+# #     """
+# #     """
+
+# #     def get_nmrf(self, time_delta, rise_time, validate=True):
+# #         """
+# #         return: 'moment.NormalizedMomentRateFunction' instance
+# #         """
+# #         if validate is True:
+# #             assert(is_pos_number(time_delta))
+# #             assert(is_pos_number(rise_time))
+
+# #         n = int(round(rise_time / time_delta))
+# #         rates = np.zeros(n+3)
+# #         rates[1:-1] = 1 / ((n+1)*time_delta)
+
+# #         return NormalizedMomentRateFunction(time_delta, rates)
+
+
+# # class TriangularRateGenerator(Object):
+# #     """
+# #     Gives a (normalized) moment rate function with the shape of an isosceles
+# #     triangle. The height of the triangle (i.e. the maximum rate) is equal to
+# #     the inverse of half its base (i.e. the half duration).
+# #     """
+
+# #     def get_nmrf(self, time_delta, half_duration, validate=True):
+# #         """
+# #         return: 'moment.NormalizedMomentRateFunction' instance
+# #         """
+# #         if validate is True:
+# #             assert(is_pos_number(time_delta))
+# #             assert(is_pos_number(half_duration))
+
+# #         n = int(round(half_duration / time_delta))
+# #         assert(abs((n * time_delta) - half_duration) <= 10**-PRECISION)
+
+# #         rates = np.zeros(2*n+1)
+# #         rates[:n+1] = np.linspace(0, 1 / half_duration, n+1)
+# #         rates[n+1:] = rates[:n][::-1]
+
+# #         nmrf = NormalizedMomentRateFunction(time_delta, rates)
+
+# #         return nmrf
 
 
 def calculate(area, slip, rigidity, validate=True):

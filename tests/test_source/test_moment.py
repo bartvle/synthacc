@@ -5,11 +5,13 @@ Tests for 'source.moment' module.
 
 import unittest
 
-from synthacc.source.moment import (MomentTensor, SlipFunction, MomentFunction,
-    NormalizedSlipFunction, NormalizedMomentFunction, SlipRateFunction,
-    MomentRateFunction, NormalizedSlipRateFunction,
-    NormalizedMomentRateFunction, InstantRateGenerator, ConstantRateGenerator,
-    TriangularRateGenerator, calculate, m0_to_mw, mw_to_m0)
+from synthacc.source.moment import (MomentTensor,
+# SlipFunction, MomentFunction,
+    # NormalizedSlipFunction, NormalizedMomentFunction, SlipRateFunction,
+    MomentRateFunction,
+    #NormalizedSlipRateFunction,
+    # NormalizedMomentRateFunction,
+    calculate, m0_to_mw, mw_to_m0)
 
 
 from synthacc.units import round_to_significant
@@ -31,6 +33,12 @@ class TestMomentTensor(unittest.TestCase):
         self.assertEqual(mt.zx, 6)
         self.assertEqual(mt.six, (1, 2, 3, 4, 5, 6))
         self.assertEqual(mt.trace, 6)
+
+    def test_moment(self):
+        """
+        #TODO: implement test
+        """
+        pass
 
     def test___add__(self):
         """
@@ -60,61 +68,80 @@ class TestMomentTensor(unittest.TestCase):
             self.assertEqual(m.yz, +5.5 * f)
             self.assertEqual(m.zx, -6.6 * f)
 
-
-class TestNormalizedSlipFunction(unittest.TestCase):
-    """
-    """
-
-    nsf = NormalizedSlipFunction(0.1, [0, 0.2, 0.4, 0.6, 0.8, 1])
-
-    def test___mul__(self):
+    def test_get_six(self):
         """
+        #TODO: implement test
         """
-        sf = self.nsf * 2
-        self.assertEqual(type(sf), SlipFunction)
-        self.assertEqual(sf.slip, 2)
+        pass
+
+    def has_isotropic_part(self):
+        """
+        #TODO: implement test
+        """
+        pass
 
 
-class TestNormalizedMomentFunction(unittest.TestCase):
+# class TestNormalizedSlipFunction(unittest.TestCase):
+#     """
+#     """
+
+#     nsf = NormalizedSlipFunction(0.1, [0, 0.2, 0.4, 0.6, 0.8, 1])
+
+#     def test___mul__(self):
+#         """
+#         """
+#         sf = self.nsf * 2
+#         self.assertEqual(type(sf), SlipFunction)
+#         self.assertEqual(sf.slip, 2)
+
+
+# class TestNormalizedMomentFunction(unittest.TestCase):
+#     """
+#     """
+
+#     nmf = NormalizedMomentFunction(0.1, [0, 0.2, 0.4, 0.6, 0.8, 1])
+
+#     def test___mul__(self):
+#         """
+#         """
+#         mf = self.nmf * 2
+#         self.assertEqual(type(mf), MomentFunction)
+#         self.assertEqual(mf.moment, 2)
+
+
+# class TestNormalizedSlipRateFunction(unittest.TestCase):
+#     """
+#     """
+
+#     nsrf = NormalizedSlipRateFunction(0.1, [0, 2, 2, 2, 2, 2, 0])
+
+#     def test___mul__(self):
+#         """
+#         """
+#         srf = self.nsrf * 2
+#         self.assertEqual(type(srf), SlipRateFunction)
+#         self.assertEqual(srf.slip, 2)
+
+
+# class TestNormalizedMomentRateFunction(unittest.TestCase):
+#     """
+#     """
+
+#     nmrf = NormalizedMomentRateFunction(0.1, [0, 2, 2, 2, 2, 2, 0])
+
+#     def test___mul__(self):
+#         """
+#         """
+#         mrf = self.nmrf * 2
+#         self.assertEqual(type(mrf), MomentRateFunction)
+#         self.assertEqual(mrf.moment, 2)
+
+
+class TestMomentRateFunction(unittest.TestCase):
     """
+    #TODO: implement test
     """
-
-    nmf = NormalizedMomentFunction(0.1, [0, 0.2, 0.4, 0.6, 0.8, 1])
-
-    def test___mul__(self):
-        """
-        """
-        mf = self.nmf * 2
-        self.assertEqual(type(mf), MomentFunction)
-        self.assertEqual(mf.moment, 2)
-
-
-class TestNormalizedSlipRateFunction(unittest.TestCase):
-    """
-    """
-
-    nsrf = NormalizedSlipRateFunction(0.1, [0, 2, 2, 2, 2, 2, 0])
-
-    def test___mul__(self):
-        """
-        """
-        srf = self.nsrf * 2
-        self.assertEqual(type(srf), SlipRateFunction)
-        self.assertEqual(srf.slip, 2)
-
-
-class TestNormalizedMomentRateFunction(unittest.TestCase):
-    """
-    """
-
-    nmrf = NormalizedMomentRateFunction(0.1, [0, 2, 2, 2, 2, 2, 0])
-
-    def test___mul__(self):
-        """
-        """
-        mrf = self.nmrf * 2
-        self.assertEqual(type(mrf), MomentRateFunction)
-        self.assertEqual(mrf.moment, 2)
+    pass
 
 
 class Test(unittest.TestCase):
@@ -122,6 +149,12 @@ class Test(unittest.TestCase):
     """
 
     m0, mw = 1.1*10**17, 5.3
+
+    def test_calculate(self):
+        """
+        #TODO: implement test
+        """
+        pass
 
     def test_m0_to_mw(self):
         """
