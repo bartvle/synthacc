@@ -5,7 +5,7 @@ The 'units' module.
 
 import numpy as np
 
-from .apy import (Object, is_number, is_pos_number, is_pos_integer,
+from .apy import (PRECISION, Object, is_number, is_pos_number, is_pos_integer,
     is_non_pos_integer, is_string)
 
 
@@ -117,15 +117,15 @@ def make_motion_units():
 MOTION = make_motion_units()
 
 
-def round_to_significant(x, n, validate=True):
+def round_to_significant(x, n, p=PRECISION, validate=True):
     """
     Round number x to n significant figures.
     """
     if validate is True:
         assert(is_number(x) and is_pos_integer(n))
 
-    round_to = -int(np.floor(np.log10(np.abs(x)))) + n - 1
-    out = float(np.round(x, round_to))
+    round_to = min([-int(np.floor(np.log10(np.abs(x)))) + n - 1, p])
+    out = float(round(x, round_to))
 
     if is_non_pos_integer(round_to):
         out = int(out)
