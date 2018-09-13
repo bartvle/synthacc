@@ -9,8 +9,10 @@ import unittest
 import numpy as np
 
 from synthacc.apy import PRECISION
-from synthacc.spectral import DFT, AccDFT, FAS, FPS, fft, ifft, plot_fass
+from synthacc.units import round_to_significant
 from synthacc.io.esgmd2 import read_cor
+
+from synthacc.spectral import DFT, AccDFT, FAS, FPS, fft, ifft, plot_fass
 
 
 DATA_DIR = os.path.join(os.path.dirname(__file__), 'data', 'spectral')
@@ -34,9 +36,21 @@ class TestDFT(unittest.TestCase):
         """
         acc = read_cor(os.path.join(DATA_DIR, '004676xa.cor'))[-1]
         dft = acc.get_dft()
-        cal_acc = list(np.round(dft.inverse(acc.time_delta), PRECISION))
-        tgt_acc = list(np.round(acc.amplitudes, PRECISION))
-        self.assertListEqual(cal_acc[::20], tgt_acc[::20])
+        cal_acc = dft.inverse(acc.time_delta)
+        tgt_acc = acc.amplitudes
+        self.assertListEqual(
+            [round_to_significant(float(x), 6) if x != 0 else 0
+                for x in cal_acc[::20]],
+            [round_to_significant(float(x), 6) if x != 0 else 0
+                for x in tgt_acc[::20]],
+            )
+
+
+class TestAccDFT(unittest.TestCase):
+    """
+    #TODO: implement test
+    """
+    pass
 
 
 class TestFAS(unittest.TestCase):
@@ -62,3 +76,33 @@ class TestFAS(unittest.TestCase):
         """
         fs = os.path.join(OUTPUT_DIR, 'spectral.plot.png')
         self.fas.plot(png_filespec=fs)
+
+
+class TestFPS(unittest.TestCase):
+    """
+    #TODO: implement test
+    """
+    pass
+
+
+class Test(unittest.TestCase):
+    """
+    """
+
+    def test_fft(self):
+        """
+        #TODO: implement test
+        """
+        pass
+
+    def test_ifft(self):
+        """
+        #TODO: implement test
+        """
+        pass
+
+    def test_plot_fass(self):
+        """
+        #TODO: implement test
+        """
+        pass
