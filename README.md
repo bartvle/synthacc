@@ -7,13 +7,13 @@ Bart Vleminckx @ Royal Observatory of Belgium (bart . vleminckx @ observatory . 
 
 
 ## Installation
-I use Synthacc from source on Windows 10 (64-bit) with Python 3.5 in a [Miniconda](http://conda.pydata.org/miniconda.html) virtual environment. It depends on Obspy and the OpenQuake Engine. Most other dependencies are shared with them. The only additional dependencies are *pyproj*, *bokeh*, *numba* and *scikit-fmm*. Except for *scikit-fmm*, everything can be installed from the [conda-forge](https://conda-forge.org) channel (*nose* is only required for running the tests).
+I use Synthacc from source on Windows 10 (64-bit) with Python 3.6 in a [Miniconda](http://conda.pydata.org/miniconda.html) virtual environment. Install the dependencies from the [conda-forge](https://conda-forge.org) channel.
 
 ```
-conda install -c conda-forge obspy openquake.engine pyproj bokeh numba nose
+conda install -c conda-forge --file requirements.txt
 ```
 
-So no real [dependency hell](https://en.wikipedia.org/wiki/Dependency_hell) anymore thanks to conda! Install *scikit-fmm* from pip.
+So no [dependency hell](https://en.wikipedia.org/wiki/Dependency_hell) anymore thanks to conda! Only *scikit-fmm* has to be installed with pip.
 
 ```
 pip install scikit-fmm

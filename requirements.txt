@@ -1,0 +1,9 @@
+numpy
+numba
+scipy
+matplotlib
+bokeh
+pyproj
+obspy
+openquake.engine
+nose
