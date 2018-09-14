@@ -649,7 +649,6 @@ class LiuArchuleta2004NSRC(NormalizedSlipRateCalculator):
 
     def __call__(self, time_delta, rise_time, validate=True):
         """
-        See Schmedes et al. (2010) p. 4 eq. 2.
         """
         if validate is True:
             assert(is_pos_number(rise_time))

@@ -61,6 +61,7 @@ class RandomHCC(HypoCenterCalculator):
 
 class MaiEtAl2005HCC(HypoCenterCalculator):
     """
+    Based on Mai et al. (2005).
     """
 
     def __call__(self, segment, sd, validate=True):
