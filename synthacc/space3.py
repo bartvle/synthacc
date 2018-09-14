@@ -4,6 +4,8 @@ coordinate system.
 """
 
 
+import math
+
 from numba import jit
 import numpy as np
 
@@ -65,9 +67,9 @@ class Point(Object):
         assert(type(other) is self.__class__ or are_coordinates(other))
 
         x, y, z = other
-        x_eq = np.abs(self.x - x) < 10**-PRECISION
-        y_eq = np.abs(self.y - y) < 10**-PRECISION
-        z_eq = np.abs(self.z - z) < 10**-PRECISION
+        x_eq = abs(self.x - x) < 10**-PRECISION
+        y_eq = abs(self.y - y) < 10**-PRECISION
+        z_eq = abs(self.z - z) < 10**-PRECISION
 
         return (x_eq and y_eq and z_eq)
 
@@ -296,9 +298,9 @@ class Vector(Object):
         assert(type(other) is self.__class__ or are_coordinates(other))
 
         x, y, z = other
-        x_eq = np.abs(self.x - x) < 10**-PRECISION
-        y_eq = np.abs(self.y - y) < 10**-PRECISION
-        z_eq = np.abs(self.z - z) < 10**-PRECISION
+        x_eq = abs(self.x - x) < 10**-PRECISION
+        y_eq = abs(self.y - y) < 10**-PRECISION
+        z_eq = abs(self.z - z) < 10**-PRECISION
 
         return (x_eq and y_eq and z_eq)
 
@@ -478,8 +480,8 @@ class Vector(Object):
         if self == (0, 0, 0) or other == (0, 0, 0):
             return None
 
-        angle = np.degrees(
-            np.arccos(self * other / (self.magnitude * other.magnitude)))
+        angle = math.degrees(
+            math.acos(self * other / (self.magnitude * other.magnitude)))
 
         return float(angle)
 
@@ -513,29 +515,29 @@ class RotationMatrix(SquareMatrix):
             assert(is_number(y))
             assert(is_number(z))
 
-        x = np.radians(x)
-        y = np.radians(y)
-        z = np.radians(z)
+        x = math.radians(x)
+        y = math.radians(y)
+        z = math.radians(z)
 
         r_x = np.array([
             [1, 0, 0],
-            [0, +np.cos(x), -np.sin(x)],
-            [0, +np.sin(x), +np.cos(x)],
+            [0, +math.cos(x), -math.sin(x)],
+            [0, +math.sin(x), +math.cos(x)],
             ])
         r_y = np.array([
-            [+np.cos(y), 0, +np.sin(y)],
+            [+math.cos(y), 0, +math.sin(y)],
             [0, 1, 0],
-            [-np.sin(y), 0, +np.cos(y)],
+            [-math.sin(y), 0, +math.cos(y)],
             ])
         r_z = np.array([
-            [+np.cos(z), -np.sin(z), 0],
-            [+np.sin(z), +np.cos(z), 0],
+            [+math.cos(z), -math.sin(z), 0],
+            [+math.sin(z), +math.cos(z), 0],
             [0, 0, 1],
             ])
 
-        r_x[np.abs(r_x) < 10**-PRECISION] = 0
-        r_y[np.abs(r_y) < 10**-PRECISION] = 0
-        r_z[np.abs(r_z) < 10**-PRECISION] = 0
+        r_x[abs(r_x) < 10**-PRECISION] = 0
+        r_y[abs(r_y) < 10**-PRECISION] = 0
+        r_z[abs(r_z) < 10**-PRECISION] = 0
 
         r = r_z.dot(r_y).dot(r_x)
 
@@ -552,9 +554,9 @@ class RotationMatrix(SquareMatrix):
 
         x, y, z = Vector(*axis).unit
 
-        angle = np.radians(angle)
-        cos = np.cos(angle)
-        sin = np.sin(angle)
+        angle = math.radians(angle)
+        cos = math.cos(angle)
+        sin = math.sin(angle)
 
         r = np.array([
                 [cos + x**2 * (1-cos), x*y*(1-cos)-z*sin, x*z*(1-cos)+y*sin],
