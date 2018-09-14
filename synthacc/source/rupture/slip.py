@@ -36,9 +36,10 @@ class SlipDistribution(Distribution):
             assert(is_2d_numeric_array(slip))
             assert(np.all(slip >= 0))
 
+        super().__init__(w, l, *slip.shape, validate=False)
+
         self._values = slip
 
-        super().__init__(w, l, *slip.shape, validate=False)
 
     # @property
     # def histogram(self):
@@ -736,7 +737,10 @@ class RiseTimeCalculator(Object):
         """
         See Graves & Pitarka (2010) p. 2098 eq. 7. and Graves & Pitarka (2015).
         """
-        return np.interp(depths, [5000, 8000, 17000, 20000], [2, 1, 1, 2]) * (slip/100)**(1/2)
+        rts = np.interp(depths, [5000, 8000, 17000, 20000], [2, 1, 1, 2])
+        rts *= (slip/100)**(1/2)
+
+        return rts
 
     def get_average_rise_time(self, dip, moment):
         """

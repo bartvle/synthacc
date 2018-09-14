@@ -28,9 +28,9 @@ class RakeDistribution(Distribution):
             assert(is_2d_numeric_array(rake))
             # assert(np.all(slip >= 0))
 
-        self._values = rake
-
         super().__init__(w, l, *rake.shape, validate=False)
+
+        self._values = rake
 
 
 class RakeDistributionCalculator(ABC, Object):
