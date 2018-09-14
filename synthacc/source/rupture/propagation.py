@@ -28,10 +28,7 @@ class TravelTimes(Distribution):
             assert(is_2d_numeric_array(times))
             assert(np.all(times >= 0))
 
-        dw = w / times.shape[0]
-        dl = l / times.shape[1]
-
-        super().__init__(w, l, dw, dl, validate=False)
+        super().__init__(w, l, *times.shape, validate=False)
 
         self._values = times
 
@@ -46,14 +43,13 @@ class ConstantVelocityTravelTimeCalculator(Object):
     """
     """
 
-    def __init__(self, surface, velocity, validate=True):
+    def __init__(self, segment, velocity, validate=True):
         """
         """
         if validate is True:
-            assert(type(surface) is space2.DiscretizedRectangularSurface)
             assert(is_pos_number(velocity))
 
-        self._surface = surface
+        self._surface = segment.surface
         self._velocity = velocity
 
     def __call__(self, x, y, validate=True):
