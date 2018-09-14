@@ -5,11 +5,15 @@ Tests for 'source.rupture.models' module.
 
 import unittest
 
-from synthacc.source.rupture.models import (PointRupture, SimpleRupture,
-    KinematicRupture, KinematicRuptureCalculator, KinematicRuptureGenerator)
+import numpy as np
 
-from synthacc.earth.flat import Rectangle
+from synthacc.earth.flat import DiscretizedSimpleSurface
 from synthacc.source.mechanism import FocalMechanism
+from synthacc.source.moment import MomentRateFunction
+
+from synthacc.source.rupture.models import (PointRupture, FiniteRupture,
+    KinematicRuptureCalculator, KinematicRuptureGenerator,
+    KinematicRuptureCalculatorLogicTree)
 
 
 class TestPointRupture(unittest.TestCase):
@@ -20,27 +24,41 @@ class TestPointRupture(unittest.TestCase):
         """
         """
         r = PointRupture((0, 0, 5000), FocalMechanism(0, 90, 0), 1)
+        self.assertEqual(r.nmrf, None)
 
 
-class TestSimpleRupture(unittest.TestCase):
+class TestFiniteRupture(unittest.TestCase):
     """
     """
 
     def test_properties(self):
         """
         """
-        surface = Rectangle(0, 0, 10000, 0, 0, 5000, 90)
-        r = SimpleRupture(surface, (0, 0, 5000), 0, 1)
+        surface = DiscretizedSimpleSurface(
+            0, 0, 10000, 0, 0, 5000, 90, (10, 100))
+        rake = np.zeros(surface.shape)
+        slip_rates = np.zeros(surface.shape+(3,))
+        slip_rates[:,:,1] = np.ones(surface.shape)
+        r = FiniteRupture(surface, (0, 0, 5000), rake, 1, slip_rates)
+        self.assertEqual(type(r.mrf), MomentRateFunction)
 
 
-# class TestGP2016KinematicRuptureGenerator(unittest.TestCase):
-#     """
-#     """
+class TestKinematicRuptureCalculator(unittest.TestCase):
+    """
+    #TODO: implement test
+    """
+    pass
 
-#     def test_properties(self):
-#         """
-#         """
-#         surface = Rectangle(100, 200, 10100, 200, 0, 5000, 90)
-#         krg = GP2016KRG(0.01, 2700)
-#         kr = krg(surface, 0, 7, hypo=(9100, 200, 3000))
-#         kr = krg(surface, 0, 7, hypo=None)
+
+class TestKinematicRuptureGenerator(unittest.TestCase):
+    """
+    #TODO: implement test
+    """
+    pass
+
+
+class TestKinematicRuptureCalculatorLogicTree(unittest.TestCase):
+    """
+    #TODO: implement test
+    """
+    pass
