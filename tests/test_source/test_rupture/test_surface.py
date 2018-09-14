@@ -12,12 +12,12 @@ class TestDistribution(unittest.TestCase):
     """
     """
 
-    class Test(Distribution):
+    class DummyDistribution(Distribution):
         LABEL, _values = None, None
 
-    i = Test(1, 2, 0.1, 0.1)
+    i = DummyDistribution(1, 2, 2, 4)
 
     def test_properties(self):
         """
         """
-        pass
+        self.assertEqual(self.i.values, None)

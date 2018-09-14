@@ -16,12 +16,19 @@ class Distribution(ABC, space2.DiscretizedRectangularSurface):
     """
     """
 
+    def __init__(self, w, l, nw, nl, validate=True):
+        """
+        """
+        super().__init__(w, l, nw, nl, validate=validate)
+
+        self._values = None
+
     @property
     @abstractmethod
     def LABEL(self):
         """
         """
-        pass
+        raise NotImplementedError
 
     @property
     def values(self):
@@ -33,50 +40,40 @@ class Distribution(ABC, space2.DiscretizedRectangularSurface):
     def avg(self):
         """
         """
-        return self._values.mean()
+        return float(self._values.mean())
 
     @property
     def min(self):
         """
         """
-        return self._values.min()
+        return float(self._values.min())
 
     @property
     def max(self):
         """
         """
-        return self._values.max()
-
-    @property
-    def surface(self):
-        """
-        """
-        s = space2.DiscretizedRectangularSurface(
-            self.w, self.l, self.dw, self.dl, validate=False)
-
-        return s
+        return float(self._values.max())
 
     def interpolate(self, xs, ys, validate=True):
         """
         """
         if validate is True:
-            assert(xs[-1] <= self.surface.w)
-            assert(ys[-1] <= self.surface.l)
+            assert(xs[-1] <= self.w)
+            assert(ys[-1] <= self.l)
 
         i = scipy.interpolate.RectBivariateSpline(
-            self.surface.xs,
-            self.surface.ys,
-            self._values)
+            self.xs, self.ys, self._values)
 
         return i(xs, ys)
 
-    def plot(self, contours=False, size=None, png_filespec=None, validate=True):
+    def plot(self, contours=False, cmap=None, size=None, png_filespec=None, validate=True):
         """
         """
         fig, ax = plt.subplots(figsize=size)
 
         extent = [0, self.l/1000, self.w/1000, 0]
-        p = ax.imshow(self._values, interpolation='bicubic', extent=extent)
+        p = ax.imshow(
+            self._values, interpolation='bicubic', cmap=cmap, extent=extent)
 
         if contours is True:
             ax.contour(self.ygrid/1000, self.xgrid/1000, self._values,
