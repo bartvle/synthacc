@@ -5,7 +5,8 @@ Tests for 'data' module.
 
 import unittest
 
-from synthacc.data import DataRecord, DataBase
+from synthacc.data import (DataRecord, DataBase, LogicTreeLeaf,
+    LogicTreeBranch, LogicTreeLevel, LogicTree)
 
 
 class DummyDataRecord(DataRecord):
@@ -24,7 +25,7 @@ class TestDataRecord(unittest.TestCase):
     """
     """
 
-    def test_valdiation(self):
+    def test_validation(self):
         """
         Only accept pos integer as key.
         """
@@ -64,8 +65,32 @@ class TestDataBase(unittest.TestCase):
         """
         """
         self.assertEqual(self.db.get(2), self.r2)
+        self.assertRaises(LookupError, self.db.get, 4)
 
-        def f():
-            self.db.get(4)
 
-        self.assertRaises(LookupError, f)
+class TestLogicTreeLeaf(unittest.TestCase):
+    """
+    #TODO: implement test
+    """
+    pass
+
+
+class TestLogicTreeBranch(unittest.TestCase):
+    """
+    #TODO: implement test
+    """
+    pass
+
+
+class TestLogicTreeLevel(unittest.TestCase):
+    """
+    #TODO: implement test
+    """
+    pass
+
+
+class TestLogicTree(unittest.TestCase):
+    """
+    #TODO: implement test
+    """
+    pass

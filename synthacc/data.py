@@ -4,10 +4,13 @@ The 'data' module.
 
 
 from abc import ABC
+import random
 
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
+# import numpy as np
+# import scipy.stats
 
-from .apy import Object, is_boolean, is_pos_integer, is_1d_numeric_array
+from .apy import (Object, is_pos_integer, is_string)
 
 
 class DataRecord(ABC, Object):
@@ -82,58 +85,212 @@ class DataBase(ABC, Object):
         raise LookupError('No record with key %i' % key)
 
 
-class Histogram(Object):
+# class Histogram(Object):
+#     """
+#     """
+
+#     def __init__(self, values, positive=False, validate=True):
+#         """
+#         """
+#         if validate is True:
+#             assert(is_1d_numeric_array(values))
+#             assert(is_boolean(positive))
+
+#         self._values = values
+#         self._positive = positive
+
+#     @property
+#     def avg(self):
+#         """
+#         """
+#         return self._values.mean()
+
+#     @property
+#     def min(self):
+#         """
+#         """
+#         return self._values.min()
+
+#     @property
+#     def max(self):
+#         """
+#         """
+#         return self._values.max()
+
+#     @property
+#     def std(self):
+#         """
+#         """
+#         return self._values.std()
+
+#     def plot(self, bins=None, d=None, size=None, png_filespec=None, validate=True):
+#         """
+#         """
+#         _, ax = plt.subplots(figsize=size)
+
+#         if self._positive is True:
+#             values = self._values[self._values > 0]
+#         else:
+#             values = self._values
+
+#         ax.hist(values, bins=bins, density=True)
+    
+#         if d is not None:
+#             d = getattr(scipy.stats, d)
+#             x = np.linspace(self.min, self.max, 100)
+#             plt.plot(x, d.pdf(x, self.avg, self.std), c='r')
+
+#         ax.grid()
+
+#         if self._positive is True:
+#             ax.set_xlim(0, None)
+
+#         plt.tight_layout()
+
+#         if png_filespec is not None:
+#             plt.savefig(png_filespec)
+#         else:
+#             plt.show()
+
+
+class LogicTreeLeaf(Object):
     """
     """
 
-    def __init__(self, values, positive=False, validate=True):
+    def __init__(self, path, prob, validate=True):
         """
         """
         if validate is True:
-            assert(is_1d_numeric_array(values))
-            assert(is_boolean(positive))
+            pass
 
-        self._values = values
-        self._positive = positive
-
-    @property
-    def mean(self):
-        """
-        """
-        return self._values.mean()
+        self._path = path
+        self._prob = prob
 
     @property
-    def min(self):
+    def path(self):
         """
         """
-        return self._values.min()
+        return self._path
 
     @property
-    def max(self):
+    def prob(self):
         """
         """
-        return self._values.max()
+        return self._prob
 
-    def plot(self, bins=None, size=None, png_filespec=None, validate=True):
+    def get(self, name):
         """
         """
-        f, ax = plt.subplots(figsize=size)
+        for l, v in self._path:
+            if l == name:
+                return v
+        raise
 
-        if self._positive is True:
-            values = self._values[self._values > 0]
+
+class LogicTreeBranch(Object):
+    """
+    """
+
+    def __init__(self, value):
+        """
+        """
+        self._value = value
+        self._next = None
+
+
+class LogicTreeLevel(Object):
+    """
+    """
+
+    def __init__(self, name, branches, validate=True):
+        """
+        """
+        if validate is True:
+            assert(is_string(name))
+            assert(type(branches) is list)
+            assert(len(branches) > 1)
+    
+        self._name = name
+        self._branches = [LogicTreeBranch(value) for value in branches]
+
+    def __str__(self, i=0):
+        """
+        """
+        s = ''
+        ind = ''
+        if i != 0:
+            ind = '  ' * i
+        for b in self._branches:
+            s += (ind + self._name + ' - ' + str(b._value) + '\n')
+            if b._next is not None:
+                s += b._next.__str__(i+1)
+        return s
+
+    def __len__(self):
+        """
+        """
+        return len(self.get_branches())
+
+    def get_branches(self, of=None):
+        """
+        """
+        branches = []
+        for b in self._branches:
+            if b._next is None:
+                if of is None:
+                    branches.append(b)
+                else:
+                    if self._name in of and b._value in of[self._name]:
+                        branches.append(b)
+            else:
+                branches.extend(b._next.get_branches(of=of))
+        return branches
+
+    def sample(self):
+        """
+        """
+        b = random.choice(self._branches)
+        path = [(self._name, b._value)]
+        prob = 1 / len(self._branches)
+        if b._next is not None:
+            l = b._next.sample()
+            path.extend(l.path)
+            prob *= l.prob
+        return LogicTreeLeaf(path, prob)
+
+
+class LogicTree(Object):
+
+    def __init__(self):
+        """
+        """
+        self._structure = None
+
+    def __str__(self):
+        return self._structure.__str__(i=0)
+
+    def __len__(self):
+        """
+        """
+        return len(self._structure)
+
+    def get_branches(self, of=None):
+        """
+        """
+        return self._structure.get_branches(of=of)
+
+    def add_level(self, name, branches, to=None):
+        """
+        """
+        if self._structure is None:
+            assert(to is None)
+            self._structure = LogicTreeLevel(name, branches)
         else:
-            values = self._values
+            for b in self.get_branches(of=to):
+                assert(b._next is None)
+                b._next = LogicTreeLevel(name, branches)
 
-        ax.hist(values, bins=bins, density=True)
-
-        ax.grid()
-
-        if self._positive is True:
-            ax.set_xlim(0, None)
-
-        plt.tight_layout()
-
-        if png_filespec is not None:
-            plt.savefig(png_filespec)
-        else:
-            plt.show()
+    def sample(self):
+        """
+        """
+        return self._structure.sample()
