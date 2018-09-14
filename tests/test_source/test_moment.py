@@ -7,7 +7,7 @@ import unittest
 
 from synthacc.units import round_to_significant
 
-from synthacc.source.moment import (MomentTensor, TimeSeries,
+from synthacc.source.moment import (MomentTensor, TimeSeries, MomentFunction,
     MomentRateFunction, NormalizedMomentRateFunction, calculate, m0_to_mw,
     mw_to_m0)
 
@@ -77,6 +77,13 @@ class TestMomentTensor(unittest.TestCase):
 
 
 class TestTimeSeries(unittest.TestCase):
+    """
+    #TODO: implement test
+    """
+    pass
+
+
+class TestMomentFunction(unittest.TestCase):
     """
     #TODO: implement test
     """

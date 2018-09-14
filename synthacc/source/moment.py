@@ -229,104 +229,92 @@ class TimeSeries(Object, ABC):
         return self.time_delta * np.arange(len(self))
 
 
-# class _Function(_TimeSeries):
-#     """
-#     """
+class MomentFunction(TimeSeries):
+    """
+    Released moment in function of time.
+    """
 
-#     def __init__(self, time_delta, values, start_time=0, validate=True):
-#         """
-#         time_delta: (in s)
-#         start_time: (in s)
-#         """
-#         super().__init__(time_delta, start_time, validate=validate)
+    def __init__(self, time_delta, moments, start_time=0, validate=True):
+        """
+        time_delta: (in s)
+        moments: (in Nm)
+        start_time: (in s)
+        """
+        super().__init__(time_delta, start_time, validate=validate)
 
-#         values = np.asarray(values, dtype=float)
+        values = np.asarray(moments, dtype=float)
 
-#         if validate is True:
-#             assert(is_1d_numeric_array(values))
-#             assert(values[0] == 0)
-#             assert(np.all(np.diff(values) >= 0))
+        if validate is True:
+            assert(is_1d_numeric_array(values))
+            assert(values[0] == 0)
+            assert(np.all(np.diff(values) >= 0))
 
-#         self._values = values
+        self._values = values
 
-#     def __len__(self):
-#         """
-#         """
-#         return len(self._values)
+    def __len__(self):
+        """
+        """
+        return len(self._values)
 
+    @property
+    def moments(self):
+        """
+        """
+        return np.copy(self._values)
 
-# class MomentFunction(_Function):
-#     """
-#     Released moment in function of time.
-#     """
+    @property
+    def moment(self):
+        """
+        """
+        return float(self._values[-1])
 
-#     def __init__(self, time_delta, moments, start_time=0, validate=True):
-#         """
-#         time_delta: (in s)
-#         moments: (in Nm)
-#         start_time: (in s)
-#         """
-#         super().__init__(time_delta, moments, start_time, validate=validate)
+    @property
+    def magnitude(self):
+        """
+        return: number
+        """
+        return m0_to_mw(self.moment)
 
-#     @property
-#     def moments(self):
-#         """
-#         """
-#         return np.copy(self._values)
+    def get_duration(self, percentile=5):
+        """
+        """
+        min_moment = self.moment * percentile / 100
+        max_moment = self.moment - min_moment
 
-#     @property
-#     def moment(self):
-#         """
-#         """
-#         return float(self._values[-1])
+        times = self.times
+        min_time = times[self._values >= min_moment][0]
+        max_time = times[self._values >= max_moment][0]
 
-#     @property
-#     def magnitude(self):
-#         """
-#         return: number
-#         """
-#         return m0_to_mw(self.moment)
+        return max_time - min_time
 
-#     def get_duration(self, percentile=5):
-#         """
-#         """
-#         min_moment = self.moment * percentile / 100
-#         max_moment = self.moment - min_moment
+    def plot(self, model=None, title=None, size=None, png_filespec=None, validate=True):
+        """
+        """
+        fig, ax = plt.subplots(figsize=size)
 
-#         times = self.times
-#         min_time = times[self._values >= min_moment][0]
-#         max_time = times[self._values >= max_moment][0]
+        ax.plot(self.times, self.moments, c='dimgrey', lw=2)
+        ax.fill_between(self.times, self.moments, color='lightgrey')
 
-#         return max_time - min_time
+        if model is not None:
+            ax.plot(model.times, model.moments, c='red', lw=2)
 
-#     def plot(self, model=None, title=None, size=None, png_filespec=None, validate=True):
-#         """
-#         """
-#         fig, ax = plt.subplots(figsize=size)
+        ax.set_xlim(ax.get_xaxis().get_data_interval())
+        ax.set_ylim((0, None))
 
-#         ax.plot(self.times, self.moments, c='dimgrey', lw=2)
-#         ax.fill_between(self.times, self.moments, color='lightgrey')
+        x_label, y_label = 'Time (s)', 'Moment (Nm)'
 
-#         if model is not None:
-#             ax.plot(model.times, model.moments, c='red', lw=2)
+        ax.xaxis.set_label_text(x_label)
+        ax.yaxis.set_label_text(y_label)
 
-#         ax.set_xlim(ax.get_xaxis().get_data_interval())
-#         ax.set_ylim((0, None))
+        if title is None:
+            ax.set_title('Moment function')
 
-#         x_label, y_label = 'Time (s)', 'Moment (Nm)'
+        plt.grid()
 
-#         ax.xaxis.set_label_text(x_label)
-#         ax.yaxis.set_label_text(y_label)
-
-#         if title is None:
-#             ax.set_title('Moment function')
-
-#         plt.grid()
-
-#         if png_filespec is not None:
-#             plt.savefig(png_filespec)
-#         else:
-#             plt.show()
+        if png_filespec is not None:
+            plt.savefig(png_filespec)
+        else:
+            plt.show()
 
 
 # class _NormalizedFunction(_Function):
@@ -443,18 +431,18 @@ class MomentRateFunction(TimeSeries):
         """
         return m0_to_mw(self.moment)
 
-    # def get_moment_function(self):
-    #     """
-    #     """
-    #     mf = MomentFunction(self._time_delta, np.cumsum(self._rates) * \
-    #         self._time_delta, self._start_time, validate=False)
+    def get_moment_function(self):
+        """
+        """
+        mf = MomentFunction(self._time_delta, np.cumsum(self._rates) * \
+            self._time_delta, self._start_time, validate=False)
 
-    #     return mf
+        return mf
 
     def plot(self, model=None, title=None, size=None, png_filespec=None, validate=True):
         """
         """
-        fig, ax = plt.subplots(figsize=size)
+        _, ax = plt.subplots(figsize=size)
 
         ax.plot(self.times, self.rates, c='dimgrey', lw=2)
         ax.fill(self.times, self.rates, c='lightgrey')
