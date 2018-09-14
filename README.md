@@ -46,7 +46,6 @@ Clone the Synthacc repository and add its folder to the PYTHONPATH environment v
 * Nigam N. and Jennings P. (1969). Calculation of response spectra from strong-motion earthquake records. Bulletin of the Seismological Society of America, 59(2), 909-922.
 * Nissen-Meyer T., van Driel M., Stähler S., Hosseini K., Hempel S., Auer L., Colombi A. and Fournier A. (2014). AxiSEM: broadband 3-D seismic wavefields in axisymmetric media. Solid Earth, 5, 425-445.
 * Pagani M., Monelli D., Weatherill G., Danciu L., Crowley H., Silva V., Henshaw, P. Butler L., Nastasi M., Panzeri L., Simionato M. and Vigano D. (2014). OpenQuake Engine: An Open Hazard (and Risk) Software for the Global Earthquake Model. Seismological Research Letters, 85(3), 692–202.
-<!-- * Schmedes J., Archuleta R. and Lavallée D. (2010). Correlation of earthquake source parameters inferred from dynamic rupture simulations. Journal of Geophysical Research, 115, B03304.1-B03304.12 -->
 * Shearer P. (2009). Introduction to Seismology (2nd edition). Cambridge University Press.
 * Somerville P., Irikura K., Graves R., Sawada S., Wald D., Abrahamson N., Iwasaki Y., Kagawa T., Smith N. and Kowada A. (1999). Characterizing Crustal Earthquake Slip Models for the Prediction of Strong Ground Motion. Seismological Research Letters, 70(1), 59-80.
 * Stein S. and Wyession M. (2003). An Introduction to Seismology, Earthquakes, and Earth Structure. Blackwell Publishing.
@@ -57,3 +56,5 @@ Clone the Synthacc repository and add its folder to the PYTHONPATH environment v
 * Wang R. (1999). A Simple Orthonormalization Method for Stable and Efficient Computation of Green’s Functions. Bulletin of the Seismological Society of America, 89(3), 733–741.
 * Wells D. and Coppersmith K. (1994). New Empirical Relationships among Magnitude, Rupture Length, Rupture Width, Rupture Area, and Surface Displacement. Bulletin of the Seismological Society of America, 84(4), 974-1002.
 * Wesnousky, S. (2008). Displacement and Geometrical Characteristics of Earthquake Surface Ruptures: Issues and Implications for Seismic-Hazard Analysis and the Process of Earthquake Rupture. Bulletin of the Seismological Society of America, 98(4), 1609-1632.
+
+<!-- * Schmedes J., Archuleta R. and Lavallée D. (2010). Correlation of earthquake source parameters inferred from dynamic rupture simulations. Journal of Geophysical Research, 115, B03304.1-B03304.12 -->
