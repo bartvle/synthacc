@@ -7,12 +7,10 @@ import unittest
 
 import numpy as np
 
-from synthacc.source.rupture.slip import (SlipDistribution, RFSlipDistribution,
-    RFSlipDistributionCalculator, MaiBeroza2002RFSDC,
-    RFSlipDistributionGenerator, CSSlipDistribution,
-    CSSlipDistributionCalculator, CSSlipDistributionGenerator,
-    LiuEtAl2006NormalizedSlipRateCalculator, GP2010SlipRateCalculator,
-    GP2010SlipRateGenerator)
+from synthacc.source.rupture.slip import (SlipDistribution, RandomFieldSD,
+    RandomFieldSDC, MaiBeroza2002RFSDC, RandomFieldSDG, CompositeSourceSD,
+    CompositeSourceSDC, CompositeSourceSDG, LiuEtAl2006NSRC,
+    LiuArchuleta2004NSRC, RiseTimeCalculator, SlipRateCalculator)
 
 
 class TestSlipDistribution(unittest.TestCase):
@@ -35,12 +33,79 @@ class TestSlipDistribution(unittest.TestCase):
         self.assertEqual(self.s.shape, (60, 80))
         self.assertEqual(self.s.area, 72000000)
 
-    def test_surface(self):
-        """
-        """
-        s = self.s.surface
-        self.assertEqual(s.w, self.w)
-        self.assertEqual(s.l, self.l)
-        self.assertEqual(s.dw, self.dw)
-        self.assertEqual(s.dl, self.dl)
-        self.assertEqual(s.shape, (60, 80))
+
+class TestRandomFieldSD(unittest.TestCase):
+    """
+    #TODO: implement test
+    """
+    pass
+
+
+class TestRandomFieldSDC(unittest.TestCase):
+    """
+    #TODO: implement test
+    """
+    pass
+
+
+class TestMaiBeroza2002RFSDC(unittest.TestCase):
+    """
+    #TODO: implement test
+    """
+    pass
+
+
+class TestRandomFieldSDG(unittest.TestCase):
+    """
+    #TODO: implement test
+    """
+    pass
+
+
+class TestCompositeSourceSD(unittest.TestCase):
+    """
+    #TODO: implement test
+    """
+    pass
+
+
+class TestCompositeSourceSDC(unittest.TestCase):
+    """
+    #TODO: implement test
+    """
+    pass
+
+
+class TestCompositeSourceSDG(unittest.TestCase):
+    """
+    #TODO: implement test
+    """
+    pass
+
+
+class TestLiuEtAl2006NSRC(unittest.TestCase):
+    """
+    #TODO: implement test
+    """
+    pass
+
+
+class TesTLiuArchuleta2004NSRC(unittest.TestCase):
+    """
+    #TODO: implement test
+    """
+    pass
+
+
+class TestRiseTimeCalculator(unittest.TestCase):
+    """
+    #TODO: implement test
+    """
+    pass
+
+
+class TestSlipRateCalculator(unittest.TestCase):
+    """
+    #TODO: implement test
+    """
+    pass
