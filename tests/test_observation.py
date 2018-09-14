@@ -78,6 +78,13 @@ class TestEvent(unittest.TestCase):
         self.assertEqual(e.mag, 6.3)
 
 
+class TestEventRecord(unittest.TestCase):
+    """
+    #TODO: implement test
+    """
+    pass
+
+
 class TestCatalog(unittest.TestCase):
     """
     """
@@ -99,3 +106,24 @@ class TestCatalog(unittest.TestCase):
         """
         """
         self.assertEqual(self.c[1].key, 2)
+
+
+class TestStation(unittest.TestCase):
+    """
+    #TODO: implement test
+    """
+    pass
+
+
+class TestStationRecord(unittest.TestCase):
+    """
+    #TODO: implement test
+    """
+    pass
+
+
+class TestNetwork(unittest.TestCase):
+    """
+    #TODO: implement test
+    """
+    pass

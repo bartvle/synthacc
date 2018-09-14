@@ -115,12 +115,6 @@ class Event(Object):
         return self._name
 
     @property
-    def key(self):
-        """
-        """
-        return self._key
-
-    @property
     def mag(self):
         """
         """
@@ -291,12 +285,6 @@ class Station(Object):
         """
         """
         return self._e_date
-
-    @property
-    def key(self):
-        """
-        """
-        return self._key
 
 
 class StationRecord(DataRecord, Station):
