@@ -55,3 +55,14 @@ class TestFocalMechanism(unittest.TestCase):
         self.assertEqual(sv.x, 0)
         self.assertEqual(sv.y, 0)
         self.assertEqual(sv.z, 1)
+
+
+class Test(unittest.TestCase):
+    """
+    """
+
+    def test_is_rake(self):
+        """
+        """
+        self.assertTrue(is_rake(90))
+        self.assertFalse(is_rake(270))
