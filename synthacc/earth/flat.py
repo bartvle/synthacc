@@ -6,7 +6,6 @@ down (or depth). Earth's surface has z=0. The azimuth is the angle from x
 """
 
 
-# import matplotlib.pyplot as plt
 import numpy as np
 from shapely.geometry import (Point as _Point, LineString as _LineString,
     Polygon as _Polygon)
@@ -241,8 +240,6 @@ class SimpleSurface(Object):
             (lrc.x, lrc.y), (llc.x, llc.y),
              ))
         _point = _Point(point.x, point.y)
-
-        print((point.x, point.y, point.z), self.plane.get_distance(point))
 
         if (self.plane.get_distance(point) == 0 and (
             _polygon.contains(_point) or _polygon.intersects(_point))):

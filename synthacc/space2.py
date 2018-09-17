@@ -131,12 +131,6 @@ class RectangularSurface(Object):
                 is_in_range(xmin, 0, self.w)))
             assert(ymin is None or (is_number(ymin) and
                 is_in_range(ymin, 0, self.l)))
-            try:
-                assert(xmax is None or (is_number(xmax) and
-                    is_in_range(xmax, xmin, self.w)))
-            except Exception as e:
-                print(xmin, xmax, self.w)
-                raise e
             assert(ymax is None or (is_number(ymax) and
                 is_in_range(ymax, ymin, self.l)))
             assert(seed is None or is_pos_integer(seed))
