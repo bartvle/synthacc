@@ -8,7 +8,7 @@ import math
 
 import numpy as np
 
-from ...apy import Object, is_non_neg_number
+from ...apy import PRECISION, Object, is_non_neg_number
 from ... import space2
 from ..faults import SimpleFault
 
@@ -30,8 +30,13 @@ class HypoCenterCalculator(ABC, Object):
             assert(type(segment) is SimpleFault)
 
         sin = math.sin(math.radians(segment.dip))
-        xmin = float((segment.upper_sd - segment.upper_depth) / sin)
-        xmax = float((segment.lower_sd - segment.upper_depth) / sin)
+        xmin = (segment.upper_sd - segment.upper_depth) / sin
+        xmax = (segment.lower_sd - segment.upper_depth) / sin
+
+        ## It can happen that xmax is larger than segment width with a fraction
+        ## smaller than 10**-PRECISION. The next two lines correct for this.
+        if abs(xmax - segment.width) < 10**-PRECISION:
+            xmax = segment.width
 
         return xmin, xmax
 
@@ -49,12 +54,6 @@ class RandomHCC(HypoCenterCalculator):
         xmin, xmax = self.get_xrange(segment)
 
         hypo = segment.surface.get_random(xmin=xmin, xmax=xmax)
-        try:
-            assert(is_non_neg_number(hypo[0]) and hypo[0] <= sd.w)
-            assert(is_non_neg_number(hypo[1]) and hypo[1] <= sd.l)
-        except Exception as e:
-            print(xmin, xmax, hypo[0])
-            raise e
 
         return hypo
 
@@ -64,14 +63,25 @@ class MaiEtAl2005HCC(HypoCenterCalculator):
     Based on Mai et al. (2005).
     """
 
+    def __init__(self, slip1=1/2, slip2=3/4, distance1=0.2, distance2=0.4, validate=True):
+        """
+        """
+        if validate is True:
+            pass
+
+        self._slip1 = slip1
+        self._slip2 = slip2
+        self._distance1 = distance1
+        self._distance2 = distance2
+
     def __call__(self, segment, sd, validate=True):
         """
         """
         if validate is True:
             assert(type(segment) is SimpleFault)
 
-        indices1 = np.where(sd.values >= ((1.500*1/3) * sd.max)) ## 1/2
-        indices2 = np.where(sd.values >= ((1.125*2/3) * sd.max)) ## 3/4
+        indices1 = np.where(sd.values >= (self._slip1 * sd.max))
+        indices2 = np.where(sd.values >= (self._slip2 * sd.max))
         xgrid1 = sd.xgrid[indices1]
         ygrid1 = sd.ygrid[indices1]
         xgrid2 = sd.xgrid[indices2]
@@ -80,15 +90,14 @@ class MaiEtAl2005HCC(HypoCenterCalculator):
         distance2 = segment.length
         xmin, xmax = self.get_xrange(segment)
 
-        while (distance1 > (0.2 * segment.length) or distance2 > (0.4 * segment.length)):
+        while (
+            distance1 > (self._distance1 * segment.length) or
+            distance2 > (self._distance2 * segment.length)
+            ):
             hypo = segment.surface.get_random(xmin=xmin, xmax=xmax)
-            distance1 = space2.distance(hypo.x, hypo.y, xgrid1, ygrid1).min()
-            distance2 = space2.distance(hypo.x, hypo.y, xgrid2, ygrid2).min()
-        try:
-            assert(is_non_neg_number(hypo[0]) and hypo[0] <= sd.w)
-            assert(is_non_neg_number(hypo[1]) and hypo[1] <= sd.l)
-        except Exception as e:
-            print(xmin, xmax, hypo[0])
-            raise e
+            distance1 = space2.distance(
+                hypo.x, hypo.y, xgrid1, ygrid1).min()
+            distance2 = space2.distance(
+                hypo.x, hypo.y, xgrid2, ygrid2).min()
 
         return hypo
