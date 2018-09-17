@@ -9,7 +9,6 @@ import random
 
 from numba import jit
 import numpy as np
-# import scipy.special
 
 from .apy import (PRECISION, Object, is_number, is_pos_number, is_pos_integer,
     is_array, is_1d_numeric_array, is_numeric, is_in_range)
@@ -59,8 +58,8 @@ class Point(Object):
         assert(type(other) is self.__class__)
 
         x, y = other
-        x_eq = np.abs(self._x - x) < 10**-PRECISION
-        y_eq = np.abs(self._y - y) < 10**-PRECISION
+        x_eq = abs(self._x - x) < 10**-PRECISION
+        y_eq = abs(self._y - y) < 10**-PRECISION
 
         return (x_eq and y_eq)
 
@@ -127,14 +126,17 @@ class RectangularSurface(Object):
 
         return: 'space2.Point' instance
         """
-        # print(xmin, xmax, self.w, is_number(xmin), is_in_range(xmin, 0, self.w)) #TODO: remove
         if validate is True:
             assert(xmin is None or (is_number(xmin) and
                 is_in_range(xmin, 0, self.w)))
             assert(ymin is None or (is_number(ymin) and
                 is_in_range(ymin, 0, self.l)))
-            assert(xmax is None or (is_number(xmax) and
-                is_in_range(xmax, xmin, self.w)))
+            try:
+                assert(xmax is None or (is_number(xmax) and
+                    is_in_range(xmax, xmin, self.w)))
+            except Exception as e:
+                print(xmin, xmax, self.w)
+                raise e
             assert(ymax is None or (is_number(ymax) and
                 is_in_range(ymax, ymin, self.l)))
             assert(seed is None or is_pos_integer(seed))
@@ -153,6 +155,9 @@ class RectangularSurface(Object):
 
         x = random.uniform(xmin, xmax)
         y = random.uniform(ymin, ymax)
+
+        assert(x >= xmin and x <= xmax) #TODO: remove
+        assert(y >= ymin and y <= ymax) #TODO: remove
 
         return Point(x, y)
 
