@@ -13,10 +13,6 @@ from .apy import PRECISION, Object, is_number, is_array, is_numeric
 from .math import Matrix, SquareMatrix
 
 
-# #TODO: This is needed for point in rectacle to work. Can't it work with 10?
-# PRECISION = 9
-
-
 class Point(Object):
     """
     """
@@ -238,10 +234,10 @@ class Plane(Object):
         """
         x, y, z = Point(*p, validate=validate)
 
-        d = float(abs(self.a*x + self.b*y + self.c*z + self.d)
-            / (self.a**2+self.b**2+self.c**2)**(1/2))
+        d = (abs(self.a*x + self.b*y + self.c*z + self.d)
+            / math.sqrt(self.a**2+self.b**2+self.c**2))
 
-        if abs(d) < 10**-PRECISION:
+        if d < 10**-9: #TODO: Works only with precision of 9, not 10.
             d = 0
 
         return d
@@ -349,8 +345,7 @@ class Vector(Object):
             z = self._z * other
             return self.__class__(x, y, z)
         else:
-            dot = np.dot(tuple(self), tuple(other))
-            return float(dot)
+            return float(np.dot(tuple(self), tuple(other)))
 
     def __truediv__(self, other):
         """
