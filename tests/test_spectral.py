@@ -38,12 +38,8 @@ class TestDFT(unittest.TestCase):
         dft = acc.get_dft()
         cal_acc = dft.inverse(acc.time_delta)
         tgt_acc = acc.amplitudes
-        self.assertListEqual(
-            [round_to_significant(float(x), 6) if x != 0 else 0
-                for x in cal_acc[::20]],
-            [round_to_significant(float(x), 6) if x != 0 else 0
-                for x in tgt_acc[::20]],
-            )
+        for cal, tgt in zip(cal_acc[::20], tgt_acc[::20]):
+            self.assertTrue(abs(cal - tgt) < 10**-PRECISION)
 
 
 class TestAccDFT(unittest.TestCase):

@@ -117,15 +117,18 @@ def make_motion_units():
 MOTION = make_motion_units()
 
 
-def round_to_significant(x, n, p=PRECISION, validate=True):
+def round_to_significant(x, n, validate=True):
     """
     Round number x to n significant figures.
     """
     if validate is True:
         assert(is_number(x) and is_pos_integer(n))
 
-    round_to = min([-int(np.floor(np.log10(np.abs(x)))) + n - 1, p])
-    out = float(round(x, round_to))
+    if x == 0:
+        return 0
+
+    round_to = min([-int(np.floor(np.log10(np.abs(x)))) + n - 1])
+    out = round(x, round_to)
 
     if is_non_pos_integer(round_to):
         out = int(out)
