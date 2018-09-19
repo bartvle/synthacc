@@ -3,6 +3,7 @@ numba
 scipy
 matplotlib
 bokeh
+pandas
 pyproj
 obspy
 openquake.engine
