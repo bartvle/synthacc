@@ -3,9 +3,10 @@ The 'source.faults' module.
 """
 
 
-from ..apy import is_non_neg_number, is_pos_number
+import random
+
+from ..apy import Object, is_non_neg_number, is_pos_number
 from ..earth import flat as earth
-# from .moment import calculate as calculate_moment, m0_to_mw
 
 
 ## Average rigidity (in Pa) in crust (from USGS website)
@@ -56,104 +57,108 @@ class SimpleFault(earth.SimpleSurface):
         """
         return self._lower_sd
 
-#     @property
-#     def rectangle(self):
-#         """
-#         """
-#         r = Rectangle(
-#             self._x1, self._y1,
-#             self._x2, self._y2,
-#             self._upper_depth,
-#             self._lower_depth,
-#             self._dip,
-#             self._rigidity)
 
-#         return r
+class ComposedFault(Object):
+    """
+    A fault composed of multiple simple faults. All faults have the same upper
+    depth and are connected (the upper right corner equals the upper left
+    corner of the next fault). This means length and area are equal to the sum
+    of the individual lenghts and areas. All other parameters are equal.
+    """
 
-#     def get_max_moment(self, slip, validate=True):
-#         """
-#         slip: pos number, slip (in m)
+    def __init__(self, trace, upper_depth, lower_depth, dip, rigidity=RIGIDITY, upper_sd=None, lower_sd=None, validate=True):
+        """
+        faults: list of 'faults.SimpleFault' instances
+        """
+        if validate is True:
+            pass
 
-#         return: pos number, maximum seismic moment
-#         """
-#         return calculate_moment(self.area, slip, self.rigidity, validate)
+        self._faults = [SimpleFault(*trace[i], *trace[i+1], upper_depth,
+            lower_depth, dip, rigidity, upper_sd, lower_sd, validate=False)
+            for i in range(len(trace)-1)]
 
-#     def get_max_magnitude(self, slip, validate=True):
-#         """
-#         slip: pos number, slip (in m)
+    def __len__(self):
+        """
+        """
+        return len(self._faults)
 
-#         return: number, maximum moment magnitude
-#         """
-#         return m0_to_mw(self.get_max_moment(slip, validate), validate=False)
+    def __getitem__(self, i):
+        """
+        """
+        assert(type(i) is int)
+        return self._faults[i]
+
+    def __iter__(self):
+        """
+        """
+        for f in self._faults:
+            yield f
+
+    @property
+    def length(self):
+        """
+        return: pos number
+        """
+        l = 0
+        for f in self:
+            l += f.length
+        return l
+
+    @property
+    def area(self):
+        """
+        return: pos number
+        """
+        a = 0
+        for f in self:
+            a += f.area
+        return a
 
 
-# class ComposedFault(Object):
-#     """
-#     A fault composed of multiple simple faults.
-#     """
+class FaultGeometryCalculator(Object):
+    """
+    """
 
-#     def __init__(self, faults, validate=True):
-#         """
-#         faults: list of 'faults.SimpleFault' instances
-#         """
-#         if validate is True:
-#             for f in faults:
-#                 assert(type(f) is SimpleFault)
+    def __init__(self, n, mrd, dip, usd, lsd, validate=True):
+        """
+        """
+        if validate is True:
+            pass
 
-#         self._faults = faults
+        self._n = n
+        self._mrd = mrd
+        self._dip = dip
+        self._usd = usd
+        self._lsd = lsd
 
-#     def __len__(self):
-#         """
-#         """
-#         return len(self._faults)
+    def __call__(self, fault_data, validate=True):
+        """
+        """
+        if validate is True:
+            for k in fault_data:
+                assert(k in ('trace', 'dip'))
 
-#     def __getitem__(self, i):
-#         """
-#         """
-#         assert(type(i) is int)
-#         return self._faults[i]
+        trace = fault_data['trace'].get_simplified(n=self._n)
 
-#     def __iter__(self):
-#         """
-#         """
-#         for f in self._faults:
-#             yield f
+        mrd = fault_data.get('mrd', self._mrd)
+        dip = fault_data.get('dip', self._dip)
+        usd = fault_data.get('usd', self._usd)
+        lsd = fault_data.get('lsd', self._lsd)
 
-#     @property
-#     def length(self):
-#         """
-#         return: pos number
-#         """
-#         l = 0
-#         for f in self:
-#             l += f.length
-#         return l
+        if type(mrd) is tuple:
+            mrd = random.uniform(*mrd)
+        if type(dip) is tuple:
+            dip = random.uniform(*dip)
+        if type(usd) is tuple:
+            usd = random.uniform(*usd)
+        if type(lsd) is tuple:
+            lsd = random.uniform(*lsd)
 
-#     @property
-#     def area(self):
-#         """
-#         return: pos number
-#         """
-#         a = 0
-#         for f in self:
-#             a += f.area
-#         return a
+        if self._n == 1:
+            fault = SimpleFault(
+                *trace[0], *trace[1], 0, mrd, dip, upper_sd=usd, lower_sd=lsd)
+        else:
+            fault = ComposedFault(
+                trace, 0, mrd, dip, upper_sd=usd, lower_sd=lsd)
 
-#     def get_max_moment(self, slip, validate=True):
-#         """
-#         slip: pos number, slip (in m)
-
-#         return: pos number, maximum seismic moment
-#         """
-#         if validate is True:
-#             assert(is_pos_number(slip))
-
-#         return sum([f.get_max_moment(slip, validate=False) for f in self])
-
-#     def get_max_magnitude(self, slip, validate=True):
-#         """
-#         slip: pos number, slip (in m)
-
-#         return: number, maximum moment magnitude
-#         """
-#         return m0_to_mw(self.get_max_moment(slip, validate), validate=False)
+        return fault
