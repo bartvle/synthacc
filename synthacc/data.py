@@ -181,7 +181,7 @@ class LogicTreeLeaf(Object):
     def get(self, name):
         """
         """
-        for l, v in self._path:
+        for l, _, v in self._path:
             if l == name:
                 return v
         raise
@@ -191,11 +191,33 @@ class LogicTreeBranch(Object):
     """
     """
 
-    def __init__(self, value):
+    def __init__(self, name, value, validate=True):
         """
         """
+        if validate is True:
+            assert(is_string(name))
+
+        self._name = name
         self._value = value
         self._next = None
+
+    @property
+    def name(self):
+        """
+        """
+        return self._name
+
+    @property
+    def value(self):
+        """
+        """
+        return self._value
+
+    @property
+    def next(self):
+        """
+        """
+        return self._next
 
 
 class LogicTreeLevel(Object):
@@ -209,9 +231,13 @@ class LogicTreeLevel(Object):
             assert(is_string(name))
             assert(type(branches) is list)
             assert(len(branches) > 1)
+            for b in branches:
+                assert(len(b) == 2)
+
+        branches = [LogicTreeBranch(*b, validate=validate) for b in branches]
     
         self._name = name
-        self._branches = [LogicTreeBranch(value) for value in branches]
+        self._branches = branches
 
     def __str__(self, i=0):
         """
@@ -221,9 +247,9 @@ class LogicTreeLevel(Object):
         if i != 0:
             ind = '  ' * i
         for b in self._branches:
-            s += (ind + self._name + ' - ' + str(b._value) + '\n')
-            if b._next is not None:
-                s += b._next.__str__(i+1)
+            s += (ind + self._name + ' - ' + str(b.name) + '\n')
+            if b.next is not None:
+                s += b.next.__str__(i+1)
         return s
 
     def __len__(self):
@@ -236,24 +262,24 @@ class LogicTreeLevel(Object):
         """
         branches = []
         for b in self._branches:
-            if b._next is None:
+            if b.next is None:
                 if of is None:
                     branches.append(b)
                 else:
-                    if self._name in of and b._value in of[self._name]:
+                    if self._name in of and b.value in of[self._name]:
                         branches.append(b)
             else:
-                branches.extend(b._next.get_branches(of=of))
+                branches.extend(b.next.get_branches(of=of))
         return branches
 
     def sample(self):
         """
         """
         b = random.choice(self._branches)
-        path = [(self._name, b._value)]
+        path = [(self._name, b.name, b.value)]
         prob = 1 / len(self._branches)
-        if b._next is not None:
-            l = b._next.sample()
+        if b.next is not None:
+            l = b.next.sample()
             path.extend(l.path)
             prob *= l.prob
         return LogicTreeLeaf(path, prob)
