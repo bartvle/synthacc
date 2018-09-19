@@ -5,15 +5,7 @@ Tests for 'source.rupture.geometry' module.
 
 import unittest
 
-from synthacc.source.rupture.geometry import (FaultGeometryCalculator,
-    FaultSegmentCalculator)
-
-
-class TestFaultGeometryCalculator(unittest.TestCase):
-    """
-    #TODO: implement test
-    """
-    pass
+from synthacc.source.rupture.geometry import FaultSegmentCalculator
 
 
 class TestFaultSegmentCalculator(unittest.TestCase):

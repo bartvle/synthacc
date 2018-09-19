@@ -6,39 +6,9 @@ The 'source.rupture.geometry' module.
 import numpy as np
 
 from ...apy import Object, is_number, is_pos_number
-from ... import space3
 from ...earth import flat as earth
 from ..faults import SimpleFault
 from ..scaling import ScalingRelationship
-
-
-class FaultGeometryCalculator(Object):
-    """
-    """
-
-    def __init__(self, n, mrd, validate=True):
-        """
-        """
-        self._n = n
-        self._mrd = mrd
-
-    def __call__(self, fault_data, validate=True):
-        """
-        """
-        trace = fault_data['trace'].get_simplified(n=1)
-        if self._n != 1:
-            trace_n = fault_data['trace'].get_simplified(n=self._n)
-            p1 = space3.Point(*trace[0])
-            p2 = space3.Point(*trace[1])
-            v = p2.vector - p1.vector
-            v = v.unit * trace_n.length
-            p2 = p1.translate(v)
-            trace = earth.Path([p1.x, p2.x], [p1.y, p2.y])
-
-        fault = SimpleFault(
-            *trace[0], *trace[1], 0, self._mrd, 60, upper_sd=5000, lower_sd=20000)
-
-        return fault
 
 
 class FaultSegmentCalculator(Object):
