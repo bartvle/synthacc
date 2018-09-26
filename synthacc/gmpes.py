@@ -517,7 +517,7 @@ def plot_gmpes_spectrum(gmpes, parameters, damping=0.05, labels=True, unit=None,
             assert(gmpe.has_sa())
 
     default_colors = plt.rcParams['axes.prop_cycle'].by_key()['color']
-    
+
     if labels is True:
         set_labels, labels = True, []
     else:
