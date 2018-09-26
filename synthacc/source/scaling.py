@@ -90,7 +90,7 @@ class LinScalingRelationship(ScalingRelationship, ABC):
         """
         """
         if self.SD is not None:
-            v = scipy.stats.truncnorm.rvs(-n, +n, self(of), self.SD)
+            v = float(scipy.stats.truncnorm.rvs(-n, +n, self(of), self.SD))
             return self.FACTOR * v
         else:
             return None
@@ -126,7 +126,7 @@ class LogScalingRelationship(ScalingRelationship, ABC):
         """
         """
         if self.SD is not None:
-            v = scipy.stats.truncnorm.rvs(-n, +n, self(of), self.SD)
+            v = float(scipy.stats.truncnorm.rvs(-n, +n, self(of), self.SD))
             return self.FACTOR * 10**(v)
         else:
             return None
