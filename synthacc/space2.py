@@ -511,6 +511,21 @@ class SpatialRandomFieldGenerator(DiscretizedRectangularSurface):
         return amplitudes
 
 
+def are_coordinates(obj):
+    """
+    Check if object are coordinates, i.e. a 2-number tuple.
+    """
+    if type(obj) is not tuple:
+        return False
+    if len(obj) != 2:
+        return False
+    if not is_number(obj[0]):
+        return False
+    if not is_number(obj[1]):
+        return False
+    return True
+
+
 def prepare_coordinates(c1, c2, validate=True):
     """
     Convert coordinate arrays to same shape.

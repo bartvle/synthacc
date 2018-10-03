@@ -12,7 +12,8 @@ import numpy as np
 from synthacc.apy import PRECISION
 from synthacc.space2 import (Point, RectangularSurface,
     DiscretizedRectangularSurface, GaussianACF, ExponentialACF, VonKarmanACF,
-    SpatialRandomFieldGenerator, prepare_coordinates, distance)
+    SpatialRandomFieldGenerator, are_coordinates, prepare_coordinates,
+    distance)
 
 
 class TestPoint(unittest.TestCase):
@@ -155,6 +156,15 @@ class TestSpatialRandomFieldGenerator(unittest.TestCase):
 class Test(unittest.TestCase):
     """
     """
+
+    def test_are_coordinates(self):
+        """
+        """
+        self.assertTrue(are_coordinates((1, 2)))
+        self.assertFalse(are_coordinates((1,)))
+        self.assertFalse(are_coordinates((None, 2)))
+        self.assertFalse(are_coordinates((1, None)))
+        self.assertFalse(are_coordinates([1, 2]))
 
     def test_prepare_coordinates(self):
         """
