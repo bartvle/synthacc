@@ -184,10 +184,11 @@ class LayerModel(Object):
         """
         return len(self._thicknesses)
 
-    def __getitem__(self, i):
+    def __getitem__(self, i, validate=True):
         """
         """
-        assert(is_integer(i))
+        if validate is True:
+            assert(is_integer(i))
 
         thickness = self._thicknesses[i]
         vp = self._vps[i]
@@ -394,10 +395,11 @@ class ContinuousModel(Object):
         """
         return len(self._depths)
 
-    def __getitem__(self, i):
+    def __getitem__(self, i, validate=True):
         """
         """
-        assert(is_integer(i))
+        if validate is True:
+            assert(is_integer(i))
 
         depth = self._depths[i]
         vp = self._vps[i]

@@ -28,11 +28,15 @@ class Matrix(Object):
         """
         return self.size
 
-    def __getitem__(self, item):
+    def __getitem__(self, item, validate=True):
         """
         NOTE: Indices start at 1!
         """
-        assert(type(item) is tuple and len(item) == 2)
+        if validate is True:
+            assert(type(item) is tuple and len(item) == 2)
+            assert(is_pos_integer(item[0]))
+            assert(is_pos_integer(item[1]))
+
         r = item[0] - 1
         c = item[1] - 1
         return float(self._array[r,c])

@@ -11,7 +11,7 @@ import numpy as np
 import pyproj
 
 from ..apy import (PRECISION, Object, is_number, is_non_neg_number,
-    is_1d_numeric_array, is_in_range)
+    is_integer, is_1d_numeric_array, is_in_range)
 from .. import space3
 from ..units import MOTION as UNITS
 from . import flat
@@ -51,9 +51,12 @@ class Point(Object):
     #         self.lon, self.lat, self.alt)
     #     return s
 
-    def __getitem__(self, i):
+    def __getitem__(self, i, validate=True):
         """
         """
+        if validate is True:
+            assert(is_integer(i))
+
         return (self.lon, self.lat, self.alt)[i]
 
     def __eq__(self, other):

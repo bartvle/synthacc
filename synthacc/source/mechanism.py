@@ -10,7 +10,7 @@ right of the strike.
 
 import numpy as np
 
-from ..apy import Object, is_number, is_pos_number
+from ..apy import Object, is_number, is_pos_number, is_integer
 from .. import space3
 from ..earth.flat import is_strike, is_dip
 from .moment import MomentTensor
@@ -28,10 +28,11 @@ class NodalPlane(Object):
 
         self._s, self._d, self._r = strike, dip, rake
 
-    def __getitem__(self, i):
+    def __getitem__(self, i, validate=True):
         """
         """
-        assert(type(i) is int)
+        if validate is True:
+            assert(is_integer(i))
 
         return (self._s, self._d, self._r)[i]
 

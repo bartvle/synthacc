@@ -12,7 +12,7 @@ from shapely.geometry import (Point as _Point, LineString as _LineString,
     Polygon as _Polygon)
 
 from ..apy import (T, F, Object, is_number, is_non_neg_number,
-    is_non_neg_integer, is_pos_integer, is_1d_numeric_array)
+    is_integer, is_pos_integer, is_1d_numeric_array)
 from .. import space2, space3
 
 
@@ -43,10 +43,11 @@ class Sites(Object):
         """
         return len(self._points)
 
-    def __getitem__(self, i):
+    def __getitem__(self, i, validate=True):
         """
         """
-        assert(is_non_neg_integer(i))
+        if validate is True:
+            assert(is_integer(i))
 
         x, y = self._points[i]
         x = float(x)

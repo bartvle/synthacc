@@ -5,8 +5,8 @@ The 'observation' module.
 
 import numpy as np
 
-from .apy import (Object, is_number, is_non_neg_number, is_pos_integer,
-    is_string)
+from .apy import (Object, is_number, is_non_neg_number, is_integer,
+    is_pos_integer, is_string)
 from .time import Time, Date, is_time, is_date
 from .data import DataRecord, DataBase
 from .earth.geo import is_lon, is_lat
@@ -32,9 +32,12 @@ class Magnitude(Object):
         """
         return self._magnitudes.get(attr.lower(), None)
 
-    def __getitem__(self, item):
+    def __getitem__(self, item, validate=True):
         """
         """
+        if validate is True:
+            assert(is_string(item))
+
         return self._magnitudes.get(item.lower(), None)
 
     def __contains__(self, t):
@@ -145,11 +148,13 @@ class Catalog(DataBase):
         """
         super().__init__(events, EventRecord, validate=validate)
 
-    def __getitem__(self, item):
+    def __getitem__(self, i, validate=True):
         """
         """
-        assert(is_non_neg_number(item))
-        return self._records[item]
+        if validate is True:
+            assert(is_integer(i))
+
+        return self._records[i]
 
     @property
     def lons(self):

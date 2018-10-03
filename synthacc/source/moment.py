@@ -41,11 +41,11 @@ class MomentTensor(Object):
 
 #         return s
 
-    def __getitem__(self, item):
+    def __getitem__(self, item, validate=True):
         """
         NOTE: Indices start at 1!
         """
-        e = self._m[item]
+        e = self._m.__getitem__(item, validate=validate)
 
         if e.is_integer():
             return int(e)

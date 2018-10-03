@@ -10,8 +10,8 @@ import random
 from numba import jit
 import numpy as np
 
-from .apy import (PRECISION, Object, is_number, is_pos_number, is_pos_integer,
-    is_array, is_1d_numeric_array, is_numeric, is_in_range)
+from .apy import (PRECISION, Object, is_number, is_pos_number, is_integer,
+    is_pos_integer, is_array, is_1d_numeric_array, is_numeric, is_in_range)
 
 
 class Point(Object):
@@ -46,9 +46,12 @@ class Point(Object):
 
 #         return s
 
-    def __getitem__(self, i):
+    def __getitem__(self, i, validate=True):
         """
         """
+        if validate is True:
+            assert(is_integer(i))
+
         return (self._x, self._y)[i]
 
     def __eq__(self, other):

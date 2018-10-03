@@ -9,7 +9,7 @@ import math
 from numba import jit
 import numpy as np
 
-from .apy import PRECISION, Object, is_number, is_array, is_numeric
+from .apy import PRECISION, Object, is_number, is_integer, is_array, is_numeric
 from .math import Matrix, SquareMatrix
 
 
@@ -51,9 +51,12 @@ class Point(Object):
         s += ' >'
         return s
 
-    def __getitem__(self, i):
+    def __getitem__(self, i, validate=True):
         """
         """
+        if validate is True:
+            assert(is_integer(i))
+
         return (self._x, self._y, self._z)[i]
 
     def __eq__(self, other):
@@ -166,9 +169,12 @@ class Plane(Object):
         self._c = c
         self._d = d
 
-    def __getitem__(self, i):
+    def __getitem__(self, i, validate=True):
         """
         """
+        if validate is True:
+            assert(is_integer(i))
+
         return (self._a, self._b, self._c, self._d)[i]
 
     @classmethod
@@ -282,9 +288,12 @@ class Vector(Object):
         s += ' >'
         return s
 
-    def __getitem__(self, i):
+    def __getitem__(self, i, validate=True):
         """
         """
+        if validate is True:
+            assert(is_integer(i))
+
         return (self._x, self._y, self._z)[i]
 
     def __eq__(self, other):
