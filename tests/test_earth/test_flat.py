@@ -3,6 +3,7 @@ Tests for 'earth.flat' module.
 """
 
 
+import os
 import unittest
 
 import numpy as np
@@ -10,7 +11,11 @@ import numpy as np
 from synthacc.apy import PRECISION
 from synthacc import space2, space3
 from synthacc.earth.flat import (Sites, Path, SimpleSurface,
-    DiscretizedSimpleSurface, azimuth, is_azimuth, is_strike, is_dip)
+    DiscretizedSimpleSurface, azimuth, is_azimuth, is_strike, is_dip,
+    plot_rectangles)
+
+
+OUTPUT_DIR = os.path.join(os.path.dirname(__file__), '..', 'output')
 
 
 class TestSites(unittest.TestCase):
@@ -37,6 +42,27 @@ class TestSites(unittest.TestCase):
         self.assertEqual(s2, (2, 5))
         self.assertEqual(s3, (3, 6))
 
+    def test___iter__(self):
+        """
+        """
+        sites = [s for s in self.s]
+        self.assertEqual(len(sites), 3)
+        self.assertEqual(sites[0], (1, 4))
+        self.assertEqual(sites[1], (2, 5))
+        self.assertEqual(sites[2], (3, 6))
+
+    def test_from_points(self):
+        """
+        """
+        p1, p2 = (0, 1), (2, 3, 4)
+        p3, p4 = (5, 6), (7, 8, 9)
+        p3 = space2.Point(*p3)
+        p4 = space3.Point(*p4)
+        s = Sites.from_points([p1, p2, p3, p4])
+        self.assertEqual(type(s), Sites)
+        self.assertListEqual(list(s.xs), [0, 2, 5, 7])
+        self.assertListEqual(list(s.ys), [1, 3, 6, 8])
+
 
 class TestPath(unittest.TestCase):
     """
@@ -48,6 +74,18 @@ class TestPath(unittest.TestCase):
         """
         """
         self.assertEqual(self.p.length, 3)
+
+    def test_from_points(self):
+        """
+        """
+        p1, p2 = (0, 1), (2, 3, 4)
+        p3, p4 = (5, 6), (7, 8, 9)
+        p3 = space2.Point(*p3)
+        p4 = space3.Point(*p4)
+        p = Path.from_points([p1, p2, p3, p4])
+        self.assertEqual(type(p), Path)
+        self.assertListEqual(list(p.xs), [0, 2, 5, 7])
+        self.assertListEqual(list(p.ys), [1, 3, 6, 8])
 
     def test_get_simplified(self):
         """
@@ -116,19 +154,34 @@ class TestSimpleSurface(unittest.TestCase):
         ss = SimpleSurface(0, 0, +1, -1, 0, 1, 45)
         self.assertEqual(ss.strike, 315)
 
-    def test_vectors(self):
+    def test_as_vector(self):
         """
         """
-        ss = SimpleSurface(0, 0, 100, 0, 5, 25, 45)
-
+        ss = SimpleSurface(0, 0, 10, 0, 5, 25, 45)
         asv = ss.as_vector
-        self.assertEqual(asv.x, 100)
+        self.assertEqual(asv.x, 10)
         self.assertEqual(asv.y, 0)
         self.assertEqual(asv.z, 0)
 
+        ss = SimpleSurface(0, 0, 0, -10, 5, 25, 45)
+        asv = ss.as_vector
+        self.assertEqual(asv.x, 0)
+        self.assertEqual(asv.y, -10)
+        self.assertEqual(asv.z, 0)
+
+    def test_ad_vector(self):
+        """
+        """
+        ss = SimpleSurface(0, 0, 10, 0, 5, 25, 45)
         adv = ss.ad_vector
         self.assertEqual(adv.x, 0)
         self.assertEqual(round(adv.y, PRECISION), 20)
+        self.assertEqual(round(adv.z, PRECISION), 20)
+
+        ss = SimpleSurface(0, 0, 0, -10, 5, 25, 45)
+        adv = ss.ad_vector
+        self.assertEqual(round(adv.x, PRECISION), 20)
+        self.assertEqual(adv.y, 0)
         self.assertEqual(round(adv.z, PRECISION), 20)
 
     def test_plane(self):
@@ -224,3 +277,30 @@ class Test(unittest.TestCase):
         """
         self.assertTrue(is_strike(233))
         self.assertFalse(is_strike(-5))
+
+    def test_plot_rectangles(self):
+        """
+        """
+        upper_depth, lower_depth, dip = 0, 10, 45
+
+        p1 = (-5, +10)
+        p2 = (+5, +10)
+        p3 = (+10, +5)
+        p4 = (+10, -5) 
+        p5 = (+5, -10)
+        p6 = (-5, -10)
+        p7 = (-10, -5)
+        p8 = (-10, +5)
+
+        s1 = SimpleSurface(*p1, *p2, upper_depth, lower_depth, dip)
+        s2 = SimpleSurface(*p2, *p3, upper_depth, lower_depth, dip)
+        s3 = SimpleSurface(*p3, *p4, upper_depth, lower_depth, dip)
+        s4 = SimpleSurface(*p4, *p5, upper_depth, lower_depth, dip)
+        s5 = SimpleSurface(*p5, *p6, upper_depth, lower_depth, dip)
+        s6 = SimpleSurface(*p6, *p7, upper_depth, lower_depth, dip)
+        s7 = SimpleSurface(*p7, *p8, upper_depth, lower_depth, dip)
+        s8 = SimpleSurface(*p8, *p1, upper_depth, lower_depth, dip)
+
+        fs = os.path.join(OUTPUT_DIR, 'earth.flat.plot_rectangles.png')
+
+        plot_rectangles([s1, s2, s3, s4, s5, s6, s7, s8], filespec=fs)

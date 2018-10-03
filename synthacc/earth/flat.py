@@ -6,12 +6,13 @@ down (or depth). Earth's surface has z=0. The azimuth is the angle from x
 """
 
 
+import matplotlib.pyplot as plt
 import numpy as np
 from shapely.geometry import (Point as _Point, LineString as _LineString,
     Polygon as _Polygon)
 
-from ..apy import (T, F, Object, is_number, is_non_neg_number, is_integer,
-    is_pos_integer, is_1d_numeric_array)
+from ..apy import (T, F, Object, is_number, is_non_neg_number,
+    is_non_neg_integer, is_pos_integer, is_1d_numeric_array)
 from .. import space2, space3
 
 
@@ -45,7 +46,7 @@ class Sites(Object):
     def __getitem__(self, i):
         """
         """
-        assert(is_integer(i))
+        assert(is_non_neg_integer(i))
 
         x, y = self._points[i]
         x = float(x)
@@ -53,11 +54,26 @@ class Sites(Object):
 
         return x, y
 
-#     def __iter__(self):
-#         """
-#         """
-#         for i in range(len(self)):
-#             yield(self[i])
+    def __iter__(self):
+        """
+        """
+        for i in range(len(self)):
+            yield self[i]
+
+    @classmethod
+    def from_points(cls, points, validate=True):
+        """
+        """
+        if validate is True:
+            assert(type(points) in (cls, list))
+ 
+        xs = np.zeros(len(points))
+        ys = np.zeros(len(points))
+        for i, p in enumerate(points):
+            xs[i] = p[0]
+            ys[i] = p[1]
+
+        return cls(xs, ys)
 
     @property
     def xs(self):
@@ -305,9 +321,11 @@ class SimpleSurface(Object):
     @property
     def ad_vector(self):
         """
-        return: 'space.Vector' instance
+        Vector along dip.
+
+        return: 'space3.Vector' instance
         """
-        rm = space3.RotationMatrix.from_basic_rotations(z=self.strike + 90)
+        rm = space3.RotationMatrix.from_basic_rotations(z=90)
         x, y, _ = self.as_vector.unit.rotate(rm) * self.surface_width
         v = space3.Vector(x, y, self.depth_range)
 
@@ -316,6 +334,8 @@ class SimpleSurface(Object):
     @property
     def as_vector(self):
         """
+        Vector along strike.
+
         return: 'space3.Vector' instance
         """
         return self.urc.vector - self.ulc.vector
@@ -400,8 +420,14 @@ class SimpleSurface(Object):
 
         return: 'earth.flat.DiscretizedSimpleSurface' instance
         """
+        if validate is True:
+            assert(type(shape) is tuple and len(shape) == 2)
+            assert(is_pos_integer(shape[0]))
+            assert(is_pos_integer(shape[1]))
+
         drs = DiscretizedSimpleSurface(self._x1, self._y1, self._x2, self._y2,
-            self.upper_depth, self.lower_depth, self.dip, shape)
+            self.upper_depth, self.lower_depth, self.dip, shape,
+            validate=False)
 
         return drs
 
@@ -436,7 +462,7 @@ class DiscretizedSimpleSurface(SimpleSurface):
             validate=validate)
 
         if validate is True:
-            assert(type(shape) is tuple)
+            assert(type(shape) is tuple and len(shape) == 2)
             assert(is_pos_integer(shape[0]))
             assert(is_pos_integer(shape[1]))
 
@@ -596,38 +622,44 @@ def is_dip(obj):
 #     plt.show()
 
 
-# def plot_rectangles(rectangles, fill=True, colors=None, styles=None, widths=None, size=None, validate=True):
-#     """
-#     """
-#     if validate is True:
-#         pass
+def plot_rectangles(rectangles, colors=None, styles=None, widths=None, fill_colors=None, size=None, filespec=None, validate=True):
+    """
+    """
+    if validate is True:
+        assert(type(rectangles) is list)
 
-#     _, ax = plt.subplots(figsize=size)
+    _, ax = plt.subplots(figsize=size)
 
-#     for i, r in enumerate(rectangles):
-#         ulc, urc, llc, lrc = r.corners
+    for i, r in enumerate(rectangles):
+        ulc, urc, llc, lrc = r.corners
 
-#         kwargs = {}
-#         if colors is not None:
-#             kwargs['color'] = colors[i]
-#         if styles is not None:
-#             kwargs['ls'] = styles[i]
-#         if widths is not None:
-#             kwargs['lw'] = widths[i]
+        kwargs = {}
+        if colors is not None:
+            kwargs['color'] = colors[i]
+        if styles is not None:
+            kwargs['ls'] = styles[i]
+        if widths is not None:
+            kwargs['lw'] = widths[i]
 
-#         ax.plot([ulc.y, urc.y], [ulc.x, urc.x], **kwargs)
+        ax.plot([ulc.y, urc.y], [ulc.x, urc.x], **kwargs)
 
-#         if fill is True:
-#             ax.fill(
-#                 [ulc.y, urc.y, lrc.y, llc.y],
-#                 [ulc.x, urc.x, lrc.x, llc.x],
-#                 color='coral', alpha=0.5,
-#                 )
+        kwargs = {}
+        if fill_colors is not None:
+            kwargs['color'] = fill_colors[i]
 
-#     ax.axis('equal')
+        ax.fill(
+            [ulc.y, urc.y, lrc.y, llc.y],
+            [ulc.x, urc.x, lrc.x, llc.x],
+            alpha=0.5, **kwargs,
+            )
 
-#     x_label, y_label = 'East (m)', 'North (m)'
-#     ax.xaxis.set_label_text(x_label)
-#     ax.yaxis.set_label_text(y_label)
+    ax.axis('scaled')
 
-#     plt.show()
+    x_label, y_label = 'East (m)', 'North (m)'
+    ax.xaxis.set_label_text(x_label)
+    ax.yaxis.set_label_text(y_label)
+
+    if filespec is not None:
+        plt.savefig(filespec)
+    else:
+        plt.show()
