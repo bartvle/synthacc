@@ -39,17 +39,17 @@ class Point(Object):
         self._y = y
         self._z = z
 
-#     def __repr__(self):
-#         """
-#         """
-#         s = '< space3.Point | '
-#         s += 'x={:{}.3f}'.format(self.x, '+' if self.x else '')
-#         s += ', '
-#         s += 'y={:{}.3f}'.format(self.y, '+' if self.y else '')
-#         s += ', '
-#         s += 'z={:{}.3f}'.format(self.z, '+' if self.z else '')
-#         s += ' >'
-#         return s
+    def __repr__(self):
+        """
+        """
+        s = '< space3.Point | '
+        s += 'x={:{}.3f}'.format(self.x, '+' if self.x else '')
+        s += ', '
+        s += 'y={:{}.3f}'.format(self.y, '+' if self.y else '')
+        s += ', '
+        s += 'z={:{}.3f}'.format(self.z, '+' if self.z else '')
+        s += ' >'
+        return s
 
     def __getitem__(self, i):
         """
@@ -270,17 +270,17 @@ class Vector(Object):
         self._y = y
         self._z = z
 
-#     def __repr__(self):
-#         """
-#         """
-#         s = '< space3.Vector | '
-#         s += 'x={:{}.3f}'.format(self.x, '+' if self.x else '')
-#         s += ', '
-#         s += 'y={:{}.3f}'.format(self.y, '+' if self.y else '')
-#         s += ', '
-#         s += 'z={:{}.3f}'.format(self.z, '+' if self.z else '')
-#         s += ' >'
-#         return s
+    def __repr__(self):
+        """
+        """
+        s = '< space3.Vector | '
+        s += 'x={:{}.3f}'.format(self.x, '+' if self.x else '')
+        s += ', '
+        s += 'y={:{}.3f}'.format(self.y, '+' if self.y else '')
+        s += ', '
+        s += 'z={:{}.3f}'.format(self.z, '+' if self.z else '')
+        s += ' >'
+        return s
 
     def __getitem__(self, i):
         """
