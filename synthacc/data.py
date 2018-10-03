@@ -257,6 +257,18 @@ class LogicTreeLevel(Object):
         """
         return len(self.get_branches())
 
+    def get_branch(self, name, validate=True):
+        """
+        """
+        if validate:
+            assert(is_string(name))
+
+        for b in self._branches:
+            if b.name == name:
+                return b
+
+        raise LookupError
+
     def get_branches(self, of=None):
         """
         """
@@ -272,14 +284,20 @@ class LogicTreeLevel(Object):
                 branches.extend(b.next.get_branches(of=of))
         return branches
 
-    def sample(self):
+    def sample(self, sub=None, validate=True):
         """
         """
-        b = random.choice(self._branches)
+        if validate is True:
+            assert(sub is None or type(sub) is dict)
+
+        if sub is not None and self._name in sub:
+            b = self.get_branch(sub[self._name])
+        else:
+            b = random.choice(self._branches)
         path = [(self._name, b.name, b.value)]
         prob = 1 / len(self._branches)
         if b.next is not None:
-            l = b.next.sample()
+            l = b.next.sample(sub)
             path.extend(l.path)
             prob *= l.prob
         return LogicTreeLeaf(path, prob)
@@ -316,7 +334,10 @@ class LogicTree(Object):
                 assert(b._next is None)
                 b._next = LogicTreeLevel(name, branches)
 
-    def sample(self):
+    def sample(self, sub=None, validate=True):
         """
         """
-        return self._structure.sample()
+        if validate is True:
+            assert(sub is None or type(sub) is dict)
+
+        return self._structure.sample(sub, validate=False)

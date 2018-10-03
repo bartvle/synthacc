@@ -77,9 +77,15 @@ class TestLogicTreeLeaf(unittest.TestCase):
 
 class TestLogicTreeBranch(unittest.TestCase):
     """
-    #TODO: implement test
     """
-    pass
+
+    def test_properties(self):
+        """
+        """
+        b = LogicTreeBranch('size', 5)
+        self.assertEqual(b.name, 'size')
+        self.assertEqual(b.value, 5)
+        self.assertEqual(b.next, None)
 
 
 class TestLogicTreeLevel(unittest.TestCase):
