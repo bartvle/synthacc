@@ -1,7 +1,7 @@
 """
-The 'apy' module. Tweaking Python. Arrays are Numpy arrays but 0-dimensional
-arrays are not allowed (they only complicate things). Except voor arrays we use
-only Python native types.
+The 'apy' module. Tweaking Python. Arrays are Numpy arrays and 0-dimensional
+arrays are not allowed (they only complicate things). All other types are the
+Python native ones.
 """
 
 
@@ -16,13 +16,13 @@ PRECISION = 10
 
 class Object(object):
     """
-    An object can only have private attributes. They can be made public with
-    property getters and setters.
+    An object has only private attributes. They can be made public with
+    property getters and setters. The intended behavior is purely achieved with
+    the '__setattr__' method.
     """
 
     def __setattr__(self, attr, val):
         """
-        The intended behavior is purely achieved by this '__setattr__' method.
         """
         if attr.startswith('_'):
             super().__setattr__(attr, val)
