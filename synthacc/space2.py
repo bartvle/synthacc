@@ -1,6 +1,6 @@
 """
-The 'space2' module. 2-dimensional Euclidean space in a right-handed Cartesian
-coordinate system.
+The 'space2' module. 2d Euclidean space in a right-handed Cartesian coordinate
+system.
 """
 
 

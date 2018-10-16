@@ -1,7 +1,7 @@
 """
-The 'apy' module. Tweaking Python. Arrays are Numpy arrays and 0-dimensional
-arrays are not allowed (they only complicate things). All other types are the
-Python native ones.
+The 'apy' module. Tweaking Python. Arrays are Numpy arrays and 0d arrays are
+not allowed (they only complicate things). All other types are the Python
+native ones.
 """
 
 
@@ -121,7 +121,7 @@ def is_fraction(obj):
 
 def _is_array(obj, n):
     """
-    Check if object is an n-dimensional (not 0) array.
+    Check if object is an nd (not 0d) array.
     """
     assert(n != 0)
     if (type(obj) == np.ndarray):
@@ -142,7 +142,7 @@ def is_array(obj):
 
 def _is_numeric_array(obj, n):
     """
-    Check if object is a n-dimensional array of real numbers.
+    Check if object is a nd array of real numbers.
     """
     return (_is_array(obj, n=n) and obj.dtype in (np.int32, np.float64))
 
@@ -177,7 +177,7 @@ def is_3d_numeric_array(obj):
 
 def is_numeric(obj):
     """
-    Check if object is numeric (a real number or n-dimensional array of real
+    Check if object is numeric (a real number or nd array of real
     numbers)
     """
     return is_number(obj) or is_numeric_array(obj)
@@ -203,7 +203,7 @@ def is_complex(obj):
 
 def _is_complex_array(obj, n):
     """
-    Check if object is a n-dimensional numpy array of complex numbers.
+    Check if object is a nd numpy array of complex numbers.
     """
     return (_is_array(obj, n=n) and obj.dtype is np.dtype(np.complex128))
 
