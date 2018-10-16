@@ -9,7 +9,7 @@ import math
 from numba import jit
 import numpy as np
 
-from .apy import PRECISION, Object, is_number, is_integer, is_array, is_numeric
+from .apy import PRECISION, Object, is_integer, is_number, is_array, is_numeric
 from .math import Matrix, SquareMatrix
 
 
