@@ -1,6 +1,6 @@
 """
-The 'space3' module. 3-dimensional Euclidean space in a right-handed Cartesian
-coordinate system.
+The 'space3' module. 3d Euclidean space in a right-handed Cartesian coordinate
+system.
 """
 
 
@@ -49,6 +49,7 @@ class Point(Object):
         s += ', '
         s += 'z={:{}.3f}'.format(self.z, '+' if self.z else '')
         s += ' >'
+
         return s
 
     def __getitem__(self, i, validate=True):
@@ -223,12 +224,12 @@ class Plane(Object):
         """
         return self._d
 
-#     @property
-#     def normal(self):
-#         """
-#         return: 'space3.Vector' instance
-#         """
-#         return Vector(self.a, self.b, self.c, validate=False)
+    @property
+    def normal(self):
+        """
+        return: 'space3.Vector' instance
+        """
+        return Vector(self.a, self.b, self.c, validate=False)
 
     def get_distance(self, p, validate=True):
         """
@@ -688,24 +689,24 @@ def distance(x1, y1, z1, x2, y2, z2, validate=True):
     return distance
 
 
-# def nearest(x, y, z, xs, ys, zs, validate=True):
-#     """
-#     Find nearest point in cloud.
+def nearest(x, y, z, xs, ys, zs, validate=True):
+    """
+    Find nearest point in cloud.
 
-#     x: number, x coordinate of point
-#     y: number, y coordinate of point
-#     z: number, z coordinate of point
-#     xs: nd array, x coordinates of cloud
-#     ys: nd array, y coordinates of cloud
-#     zs: nd array, z coordinates of cloud
+    x: number, x coordinate of point
+    y: number, y coordinate of point
+    z: number, z coordinate of point
+    xs: nd array, x coordinates of cloud
+    ys: nd array, y coordinates of cloud
+    zs: nd array, z coordinates of cloud
 
-#     return: 3-number tuple, (x, y, z) coordinates of nearest point
-#     """
-#     distances = distance(x, y, z, xs, ys, zs)
-#     index = np.unravel_index(distances.argmin(), distances.shape)
+    return: 3-number tuple, (x, y, z) coordinates of nearest point
+    """
+    distances = distance(x, y, z, xs, ys, zs)
+    index = np.unravel_index(distances.argmin(), distances.shape)
 
-#     x = float(xs[index])
-#     y = float(ys[index])
-#     z = float(zs[index])
+    x = float(xs[index])
+    y = float(ys[index])
+    z = float(zs[index])
 
-#     return x, y, z
+    return x, y, z
