@@ -9,11 +9,10 @@ import random
 
 import numpy as np
 
-from synthacc.apy import PRECISION
+from synthacc.apy import PRECISION, is_in_range
 from synthacc.space2 import (Point, RectangularSurface,
-    DiscretizedRectangularSurface, GaussianACF, ExponentialACF, VonKarmanACF,
-    SpatialRandomFieldGenerator, are_coordinates, prepare_coordinates,
-    distance)
+    DiscretizedRectangularSurface, are_coordinates, prepare_coordinates,
+    distance, cartesian2polar, polar2cartesian)
 
 
 class TestPoint(unittest.TestCase):
@@ -54,8 +53,8 @@ class TestRectangularSurface(unittest.TestCase):
     def test_properties(self):
         """
         """
-        w = random.uniform(0.001, +1000)
-        l = random.uniform(0.001, +1000)
+        w = random.uniform(0.001, 1000)
+        l = random.uniform(0.001, 1000)
         s = RectangularSurface(w, l)
         self.assertEqual(s.w, w)
         self.assertEqual(s.l, l)
@@ -64,26 +63,32 @@ class TestRectangularSurface(unittest.TestCase):
     def test_get_random1(self):
         """
         """
-        w = random.uniform(0.001, +1000)
-        l = random.uniform(0.001, +1000)
+        w = random.uniform(0.001, 1000)
+        l = random.uniform(0.001, 1000)
         s = RectangularSurface(w, l)
         p = s.get_random()
-        assert(0 <= p.x < s.w)
-        assert(0 <= p.y < s.l)
+        assert(is_in_range(p.x, 0, w))
+        assert(is_in_range(p.y, 0, l))
 
     def test_get_random2(self):
         """
         """
-        w = random.uniform(0.001, +1000)
-        l = random.uniform(0.001, +1000)
+        w = random.uniform(0.001, 1000)
+        l = random.uniform(0.001, 1000)
         s = RectangularSurface(w, l)
         xmin = random.uniform(0, w)
         ymin = random.uniform(0, l)
-        xmax = random.uniform(xmin, w)
-        ymax = random.uniform(ymin, l)
+        while True:
+            xmax = random.uniform(xmin, w)
+            if xmax != xmin:
+                break
+        while True:
+            ymax = random.uniform(ymin, l)
+            if ymax != ymin:
+                break
         p = s.get_random(xmin, xmax, ymin, ymax)
-        assert(0 <= p.x < s.w)
-        assert(0 <= p.y < s.l)
+        assert(is_in_range(p.x, xmin, xmax))
+        assert(is_in_range(p.y, ymin, ymax))
 
 
 class TestDiscretizedRectangularSurface(unittest.TestCase):
@@ -129,30 +134,6 @@ class TestDiscretizedRectangularSurface(unittest.TestCase):
         self.assertEqual(s.shape, (nw, nl))
 
 
-class TestSpatialRandomFieldGenerator(unittest.TestCase):
-    """
-    """
-
-    def test_properties(self):
-        """
-        """
-        w, l, nw, nl, acf, aw, al = (
-            101, 1001, 101, 1001, GaussianACF(), 50, 500)
-        g = SpatialRandomFieldGenerator(w, l, nw, nl, acf, aw, al)
-        self.assertEqual(g.aw, aw)
-        self.assertEqual(g.al, al)
-        self.assertEqual(g.shape, (nw, nl))
-
-    def test___call__(self):
-        """
-        """
-        w, l, nw, nl, acf, aw, al = (
-            101, 1001, 101, 1001, GaussianACF(), 50, 500)
-        g = SpatialRandomFieldGenerator(w, l, nw, nl, acf, aw, al)
-        f = g()
-        self.assertEqual(f.shape, (nw, nl))
-
-
 class Test(unittest.TestCase):
     """
     """
@@ -183,27 +164,27 @@ class Test(unittest.TestCase):
         d = distance(0, 0, 1, np.array([0, 1]))
         self.assertListEqual(list(d), [1, np.sqrt(2)])
 
-#     def test_cartesian_to_polar(self):
-#         """
-#         """
-#         c = cartesian_to_polar(0, 0)
-#         self.assertEqual(c, (0., 0.))
-#         c = cartesian_to_polar(1, 0)
-#         self.assertEqual(c, (1.,  0.))
-#         c = cartesian_to_polar(0, 1)
-#         self.assertEqual(c, (1., 90.))
-#         c = cartesian_to_polar(1, 1)
-#         self.assertEqual(c, (np.sqrt(2), 45.))
+    def test_cartesian_to_polar(self):
+        """
+        """
+        c = cartesian2polar(0, 0)
+        self.assertEqual(c, (0., 0.))
+        c = cartesian2polar(1, 0)
+        self.assertEqual(c, (1.,  0.))
+        c = cartesian2polar(0, 1)
+        self.assertEqual(c, (1., 90.))
+        c = cartesian2polar(1, 1)
+        self.assertEqual(c, (np.sqrt(2), 45.))
 
-#     def test_polar_to_cartesian(self):
-#         """
-#         """
-#         c = polar_to_cartesian(0, 0)
-#         self.assertEqual(c, (0, 0))
-#         c = polar_to_cartesian(1, 0)
-#         self.assertEqual(c, (1, 0))
-#         c = polar_to_cartesian(1, 90)
-#         self.assertEqual(c, (0, 1))
-#         c = polar_to_cartesian(float(np.sqrt(2)), 45)
-#         self.assertEqual(round(c[0], 10), 1)
-#         self.assertEqual(round(c[1], 10), 1)
+    def test_polar_to_cartesian(self):
+        """
+        """
+        c = polar2cartesian(0, 0)
+        self.assertEqual(c, (0, 0))
+        c = polar2cartesian(1, 0)
+        self.assertEqual(c, (1, 0))
+        c = polar2cartesian(1, 90)
+        self.assertEqual(c, (0, 1))
+        c = polar2cartesian(float(np.sqrt(2)), 45)
+        self.assertEqual(round(c[0], 10), 1)
+        self.assertEqual(round(c[1], 10), 1)

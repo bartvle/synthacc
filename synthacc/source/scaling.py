@@ -201,7 +201,7 @@ class WC1994_m2sl(LogScalingRelationship):
 
 class WC1994_m2l(LogScalingRelationship):
     """
-    Relation between magnitude and surface length.
+    Relation between magnitude and length.
 
     See Wells & Coppersmith (1994) p. 990 (r=0.94, n=167).
     """
@@ -218,7 +218,7 @@ class WC1994_m2l(LogScalingRelationship):
 
 class WC1994_m2l_n(LogScalingRelationship):
     """
-    Relation between magnitude and surface length.
+    Relation between magnitude and length.
 
     See Wells & Coppersmith (1994) p. 990 (r=0.88, n=24).
     """
@@ -313,6 +313,21 @@ class WC1994_ms2m(LinScalingRelationship):
         return 6.69 + 0.74 * np.log10(of)
 
 
+class Johnston1994_m2sl(LogScalingRelationship):
+    """
+    Relation between magnitude and surface length.
+    """
+
+    OF, TO = 'm', 'sl'
+    SD = None
+    FACTOR = 10**3
+
+    def __call__(self, of):
+        """
+        """
+        return (of - 4.67) / 1.36
+
+
 class SommervilleEtAl1999_m2a(LinScalingRelationship):
     """
     Relation between magnitude and area.
@@ -327,7 +342,7 @@ class SommervilleEtAl1999_m2a(LinScalingRelationship):
     def __call__(self, of):
         """
         """
-        return 2.23 * 10**-15 * (10**7 * mw_to_m0(of))**(2/3)
+        return 2.23 * 10**-15 * (10**7 * mw_to_m0(of, precise=False))**(2/3)
 
 
 class SommervilleEtAl1999_m2as(LinScalingRelationship):
@@ -344,7 +359,24 @@ class SommervilleEtAl1999_m2as(LinScalingRelationship):
     def __call__(self, of):
         """
         """
-        return 1.56 * 10**-7 * (10**7 * mw_to_m0(of))**(1/3)
+        return 1.56 * 10**-7 * (10**7 * mw_to_m0(of, precise=False))**(1/3)
+
+
+class SommervilleEtAl2001_m2a(LinScalingRelationship):
+    """
+    Relation between magnitude and area.
+
+    See Sommerville et al. (2001).
+    """
+
+    OF, TO = 'm', 'a'
+    SD = None
+    FACTOR = 10**6
+
+    def __call__(self, of):
+        """
+        """
+        return 8.9 * 10**-16 * (10**7 * mw_to_m0(of, precise=False))**(2/3)
 
 
 class Wesnousky2008_sl2m(LinScalingRelationship):
@@ -365,6 +397,9 @@ class Wesnousky2008_sl2m(LinScalingRelationship):
 
 class Leonard2014_m2a_scr_ds(LogScalingRelationship):
     """
+    Relation between magnitude and length.
+
+    See Leonard (2014) p. 2959.
     """
 
     OF, TO = 'm', 'l'
@@ -374,11 +409,31 @@ class Leonard2014_m2a_scr_ds(LogScalingRelationship):
     def __call__(self, of):
         """
         """
-        return (of - 4.19) / 1.00
+        return (of - 4.19) / 1.0
+
+
+class Leonard2014_m2a_pbr_ds(LogScalingRelationship):
+    """
+    Relation between magnitude and length.
+
+    See Leonard (2014) p. 2959.
+    """
+
+    OF, TO = 'm', 'l'
+    SD = None
+    FACTOR = 10**6
+
+    def __call__(self, of):
+        """
+        """
+        return (of - 4.00) / 1.0
 
 
 class Leonard2014_m2l_scr_ds(LogScalingRelationship):
     """
+    Relation between magnitude and length.
+
+    See Leonard (2014) p. 2959.
     """
 
     OF, TO = 'm', 'l'
@@ -389,6 +444,23 @@ class Leonard2014_m2l_scr_ds(LogScalingRelationship):
         """
         """
         return (of - 4.32) / 1.667
+
+
+class Leonard2014_m2l_pbr_ds(LogScalingRelationship):
+    """
+    Relation between magnitude and length.
+
+    See Leonard (2014) p. 2959.
+    """
+
+    OF, TO = 'm', 'l'
+    SD = None
+    FACTOR = 10**3
+
+    def __call__(self, of):
+        """
+        """
+        return (of - 4.24) / 1.667
 
 
 class ThingbaijamEA2017_m2a_n(LogScalingRelationship):
@@ -408,6 +480,23 @@ class ThingbaijamEA2017_m2a_n(LogScalingRelationship):
         return -2.551 + 0.808 * of
 
 
+class ThingbaijamEA2017_m2a_s(LogScalingRelationship):
+    """
+    Relation between magnitude and area.
+
+    See Thingbaijam et al. (2017) p. 2231 (r=0.94).
+    """
+
+    OF, TO = 'm', 'a'
+    SD = 0.184
+    FACTOR = 10**6
+
+    def __call__(self, of):
+        """
+        """
+        return -3.486 + 0.942 * of
+
+
 class ThingbaijamEA2017_m2l_n(LogScalingRelationship):
     """
     Relation between magnitude and area.
@@ -423,6 +512,23 @@ class ThingbaijamEA2017_m2l_n(LogScalingRelationship):
         """
         """
         return -1.722 + 0.485 * of
+
+
+class ThingbaijamEA2017_m2l_s(LogScalingRelationship):
+    """
+    Relation between magnitude and area.
+
+    See Thingbaijam et al. (2017) p. 2231 (r=0.94).
+    """
+
+    OF, TO = 'm', 'l'
+    SD = 0.151
+    FACTOR = 10**3
+
+    def __call__(self, of):
+        """
+        """
+        return -2.943 + 0.681 * of
 
 
 class ThingbaijamEA2017_m2as_n(LogScalingRelationship):

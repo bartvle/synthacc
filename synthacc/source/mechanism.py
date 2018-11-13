@@ -10,7 +10,7 @@ right of the strike.
 
 import numpy as np
 
-from ..apy import Object, is_number, is_pos_number, is_integer
+from ..apy import Object, is_integer, is_number, is_pos_number
 from .. import space3
 from ..earth.flat import is_strike, is_dip
 from .moment import MomentTensor

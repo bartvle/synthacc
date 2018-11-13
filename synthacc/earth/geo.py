@@ -44,12 +44,18 @@ class Point(Object):
         self._lat = float(lat)
         self._alt = float(alt)
 
-    # def __repr__(self):
-    #     """
-    #     """
-    #     s = '< geo.Point | lon={:.3f}, lat={:.3f}, alt={:.3f} >'.format(
-    #         self.lon, self.lat, self.alt)
-    #     return s
+    def __repr__(self):
+        """
+        """
+        s = '< geo.Point | '
+        s += 'lon={:.3f}'.format(self.lon)
+        s += ', '
+        s += 'lat={:.3f}'.format(self.lat)
+        s += ', '
+        s += 'alt={:.3f}'.format(self.alt)
+        s += ' >'
+
+        return s
 
     def __getitem__(self, i, validate=True):
         """

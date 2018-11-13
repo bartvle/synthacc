@@ -31,15 +31,15 @@ class MomentTensor(Object):
         self._m = SquareMatrix(
             [[xx, xy, zx], [xy, yy, yz], [zx, yz, zz]], validate=validate)
 
-#     def __repr__(self):
-#         """
-#         """
-#         s = '< Moment Tensor |'
-#         for c in self.six:
-#             s += ' {}'.format(c)
-#         s += ' >'
+    def __repr__(self):
+        """
+        """
+        s = '< Moment Tensor |'
+        for c in self.six:
+            s += ' {}'.format(c)
+        s += ' >'
 
-#         return s
+        return s
 
     def __getitem__(self, item, validate=True):
         """
@@ -287,10 +287,10 @@ class MomentFunction(TimeSeries):
 
         return max_time - min_time
 
-    def plot(self, model=None, title=None, size=None, png_filespec=None, validate=True):
+    def plot(self, model=None, title=None, size=None, filespec=None, validate=True):
         """
         """
-        fig, ax = plt.subplots(figsize=size)
+        _, ax = plt.subplots(figsize=size)
 
         ax.plot(self.times, self.moments, c='dimgrey', lw=2)
         ax.fill_between(self.times, self.moments, color='lightgrey')
@@ -311,78 +311,10 @@ class MomentFunction(TimeSeries):
 
         plt.grid()
 
-        if png_filespec is not None:
-            plt.savefig(png_filespec)
+        if filespec is not None:
+            plt.savefig(filespec)
         else:
             plt.show()
-
-
-# class _NormalizedFunction(_Function):
-#     """
-#     """
-
-#     def __init__(self, time_delta, values, start_time=0, validate=True):
-#         """
-#         """
-#         super().__init__(time_delta, values, start_time, validate=validate)
-
-#         if validate is True:
-#             assert(np.abs(values[-1] - 1) <= 10**-PRECISION)
-
-
-# class NormalizedMomentFunction(_NormalizedFunction):
-#     """
-#     Normalized released moment in function of time.
-#     """
-
-#     def __mul__(self, moment):
-#         """
-#         return: 'moment.MomentFunction' instance
-#         """
-#         assert(is_pos_number(moment))
-
-#         mf = MomentFunction(
-#             self.time_delta,
-#             self._values * moment,
-#             self.start_time,
-#             )
-
-#         return mf
-
-#     @property
-#     def moments(self):
-#         """
-#         """
-#         return np.copy(self._values)
-
-#     def plot(self, model=None, title=None, size=None, png_filespec=None, validate=True):
-#         """
-#         """
-#         fig, ax = plt.subplots(figsize=size)
-
-#         ax.plot(self.times, self.moments, c='dimgrey', lw=2)
-#         ax.fill_between(self.times, self.moments, color='lightgrey')
-
-#         if model is not None:
-#             ax.plot(model.times, model.moments, c='red', lw=2)
-
-#         ax.set_xlim(ax.get_xaxis().get_data_interval())
-#         ax.set_ylim((0, None))
-
-#         x_label, y_label = 'Time (s)', 'Normalized moment'
-
-#         ax.xaxis.set_label_text(x_label)
-#         ax.yaxis.set_label_text(y_label)
-
-#         if title is None:
-#             ax.set_title('Normalized moment function')
-
-#         plt.grid()
-
-#         if png_filespec is not None:
-#             plt.savefig(png_filespec)
-#         else:
-#             plt.show()
 
 
 class MomentRateFunction(TimeSeries):
@@ -439,7 +371,7 @@ class MomentRateFunction(TimeSeries):
 
         return mf
 
-    def plot(self, model=None, title=None, size=None, png_filespec=None, validate=True):
+    def plot(self, model=None, title=None, size=None, filespec=None, validate=True):
         """
         """
         _, ax = plt.subplots(figsize=size)
@@ -462,8 +394,8 @@ class MomentRateFunction(TimeSeries):
 
         plt.grid()
 
-        if png_filespec is not None:
-            plt.savefig(png_filespec)
+        if filespec is not None:
+            plt.savefig(filespec)
         else:
             plt.show()
 
@@ -519,7 +451,7 @@ class NormalizedMomentRateFunction(TimeSeries):
 
         return mrf
 
-    def plot(self, model=None, title=None, size=None, png_filespec=None, validate=True):
+    def plot(self, model=None, title=None, size=None, filespec=None, validate=True):
         """
         """
         _, ax = plt.subplots(figsize=size)
@@ -542,72 +474,10 @@ class NormalizedMomentRateFunction(TimeSeries):
 
         plt.grid()
 
-        if png_filespec is not None:
-            plt.savefig(png_filespec)
+        if filespec is not None:
+            plt.savefig(filespec)
         else:
             plt.show()
-
-
-# # class InstantRateGenerator(Object):
-# #     """
-# #     """
-
-# #     def get_nmrf(self, time_delta=10**-PRECISION, validate=True):
-# #         """
-# #         return: 'moment.NormalizedMomentRateFunction' instance
-# #         """
-# #         if validate is True:
-# #             assert(is_pos_number(time_delta))
-
-# #         rates = [0, 1 / time_delta, 0]
-
-# #         return NormalizedMomentRateFunction(time_delta, rates)
-
-
-# # class ConstantRateGenerator(Object):
-# #     """
-# #     """
-
-# #     def get_nmrf(self, time_delta, rise_time, validate=True):
-# #         """
-# #         return: 'moment.NormalizedMomentRateFunction' instance
-# #         """
-# #         if validate is True:
-# #             assert(is_pos_number(time_delta))
-# #             assert(is_pos_number(rise_time))
-
-# #         n = int(round(rise_time / time_delta))
-# #         rates = np.zeros(n+3)
-# #         rates[1:-1] = 1 / ((n+1)*time_delta)
-
-# #         return NormalizedMomentRateFunction(time_delta, rates)
-
-
-# # class TriangularRateGenerator(Object):
-# #     """
-# #     Gives a (normalized) moment rate function with the shape of an isosceles
-# #     triangle. The height of the triangle (i.e. the maximum rate) is equal to
-# #     the inverse of half its base (i.e. the half duration).
-# #     """
-
-# #     def get_nmrf(self, time_delta, half_duration, validate=True):
-# #         """
-# #         return: 'moment.NormalizedMomentRateFunction' instance
-# #         """
-# #         if validate is True:
-# #             assert(is_pos_number(time_delta))
-# #             assert(is_pos_number(half_duration))
-
-# #         n = int(round(half_duration / time_delta))
-# #         assert(abs((n * time_delta) - half_duration) <= 10**-PRECISION)
-
-# #         rates = np.zeros(2*n+1)
-# #         rates[:n+1] = np.linspace(0, 1 / half_duration, n+1)
-# #         rates[n+1:] = rates[:n][::-1]
-
-# #         nmrf = NormalizedMomentRateFunction(time_delta, rates)
-
-# #         return nmrf
 
 
 def calculate(area, slip, rigidity, validate=True):

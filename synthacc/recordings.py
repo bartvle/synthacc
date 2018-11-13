@@ -17,8 +17,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 from obspy import UTCDateTime as _UTCDateTime, Trace as _Trace, read as _read
 
-from .apy import (Object, is_boolean, is_number, is_non_neg_number,
-    is_pos_number, is_pos_integer, is_1d_numeric_array, is_string)
+from .apy import (Object, is_boolean, is_pos_integer, is_number,
+    is_non_neg_number, is_pos_number, is_1d_numeric_array, is_string)
 from .time import Time, is_time
 from .units import MOTION as UNITS, MOTION_SI as SI_UNITS
 from .earth import flat as earth
@@ -521,7 +521,7 @@ class Seismogram(Waveform):
 
         return s
 
-    def plot(self, color=None, style=None, width=None, unit=None, s_time=None, e_time=None, picks=[], title=None, size=None, png_filespec=None, validate=True):
+    def plot(self, color=None, style=None, width=None, unit=None, s_time=None, e_time=None, picks=[], title=None, size=None, filespec=None, validate=True):
         """
         """
         colors, styles, widths = None, None, None
@@ -534,7 +534,7 @@ class Seismogram(Waveform):
 
         plot_seismograms([[self]], colors=colors, styles=styles,
             widths=widths, unit=unit, s_time=s_time, e_time=e_time,
-            picks=picks, title=title, size=size, png_filespec=png_filespec,
+            picks=picks, title=title, size=size, filespec=filespec,
             validate=validate)
 
     def show(self):
@@ -913,11 +913,11 @@ class Recording(Object):
             components[c] = s.convolve(a, validate=False)
         return self.__class__(components, validate=False)
 
-    def plot(self, s_time=None, e_time=None, picks=[], title=None, size=None, png_filespec=None, validate=True):
+    def plot(self, s_time=None, e_time=None, picks=[], title=None, size=None, filespec=None, validate=True):
         """
         """
         p = plot_recordings([self], s_time=s_time, e_time=e_time, picks=picks,
-            title=title, size=size, png_filespec=png_filespec,
+            title=title, size=size, filespec=filespec,
             validate=validate)
 
         return p
@@ -986,7 +986,7 @@ def read(filespec, unit, validate=True):
     return Seismogram.from_trace(t, unit, validate)
 
 
-def plot_seismograms(seismograms, titles=None, labels=None, colors=None, styles=None, widths=None, unit=None, s_time=None, e_time=None, scale=True, picks=[], title=None, size=None, png_filespec=None, validate=True):
+def plot_seismograms(seismograms, titles=None, labels=None, colors=None, styles=None, widths=None, unit=None, s_time=None, e_time=None, scale=True, picks=[], title=None, size=None, filespec=None, validate=True):
     """
     seismograms: list of lists of 'recordings.Seismogram' instances
     titles: list of strings (default: None)
@@ -1145,13 +1145,13 @@ def plot_seismograms(seismograms, titles=None, labels=None, colors=None, styles=
     if title is not None:
         bg.set_title(title)
 
-    if png_filespec is not None:
-        plt.savefig(png_filespec)
+    if filespec is not None:
+        plt.savefig(filespec)
     else:
         plt.show()
 
 
-def plot_recordings(recordings, labels=None, colors=None, styles=None, widths=None, unit=None, s_time=None, e_time=None, picks=[], title=None, size=None, png_filespec=None, validate=True):
+def plot_recordings(recordings, labels=None, colors=None, styles=None, widths=None, unit=None, s_time=None, e_time=None, picks=[], title=None, size=None, filespec=None, validate=True):
     """
     recordings: list of 'recordings.Recording' instances
     colors: list of line colors (default: None)
@@ -1202,10 +1202,10 @@ def plot_recordings(recordings, labels=None, colors=None, styles=None, widths=No
 
     plot_seismograms(seismograms, titles, labels, colors, styles, widths,
         unit=unit, s_time=s_time, e_time=e_time, picks=picks, title=title,
-        size=size, png_filespec=png_filespec, validate=False)
+        size=size, filespec=filespec, validate=False)
 
 
-def husid_plot(accelerograms, labels=None, threshold=None, title=None, size=None, png_filespec=None, validate=True):
+def husid_plot(accelerograms, labels=None, threshold=None, title=None, size=None, filespec=None, validate=True):
     """
     """
     if validate is True:
@@ -1234,7 +1234,7 @@ def husid_plot(accelerograms, labels=None, threshold=None, title=None, size=None
     if title is not None:
         ax.set_title(title)
 
-    if png_filespec is not None:
-        plt.savefig(png_filespec)
+    if filespec is not None:
+        plt.savefig(filespec)
     else:
         plt.show()

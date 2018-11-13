@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 import scipy.interpolate
 
+from ...apy import is_string
 from ... import space2
 
 
@@ -66,9 +67,12 @@ class Distribution(ABC, space2.DiscretizedRectangularSurface):
 
         return i(xs, ys)
 
-    def plot(self, contours=False, cmap=None, size=None, png_filespec=None, validate=True):
+    def plot(self, contours=False, cmap=None, title=None, size=None, png_filespec=None, validate=True):
         """
         """
+        if validate is True:
+            assert(title is None or is_string(title))
+
         fig, ax = plt.subplots(figsize=size)
 
         extent = [0, self.l/1000, self.w/1000, 0]
@@ -87,7 +91,12 @@ class Distribution(ABC, space2.DiscretizedRectangularSurface):
 
         cax = make_axes_locatable(ax).append_axes('right', size='1%', pad=0.25)
         cbar = fig.colorbar(p, cax=cax)
+
+        cbar = fig.colorbar(p)
         cbar.set_label(self.LABEL)
+
+        if title is not None:
+            plt.title(title)
 
         if png_filespec is not None:
             plt.savefig(png_filespec, bbox_inches='tight')

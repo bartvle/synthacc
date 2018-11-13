@@ -12,7 +12,7 @@ from synthacc.apy import PRECISION
 from synthacc import space2, space3
 from synthacc.earth.flat import (Sites, Path, SimpleSurface,
     DiscretizedSimpleSurface, azimuth, is_azimuth, is_strike, is_dip,
-    plot_rectangles)
+    plot_paths, plot_simple_surfaces)
 
 
 OUTPUT_DIR = os.path.join(os.path.dirname(__file__), '..', 'output')
@@ -89,11 +89,9 @@ class TestPath(unittest.TestCase):
 
     def test_get_simplified(self):
         """
-        #TODO: This method does not yet work completely as it should.
+        #TODO: implement test
         """
-        p = Path([0, 0, 0, 0, 0], [0, 1, 2, 3, 4])
-        p1 = p.get_simplified(n=1)
-        self.assertEqual(len(p1), 2)
+        pass
 
 
 class TestSimpleSurface(unittest.TestCase):
@@ -278,7 +276,7 @@ class Test(unittest.TestCase):
         self.assertTrue(is_strike(233))
         self.assertFalse(is_strike(-5))
 
-    def test_plot_rectangles(self):
+    def test_plot_simple_surfaces(self):
         """
         """
         upper_depth, lower_depth, dip = 0, 10, 45
@@ -301,6 +299,6 @@ class Test(unittest.TestCase):
         s7 = SimpleSurface(*p7, *p8, upper_depth, lower_depth, dip)
         s8 = SimpleSurface(*p8, *p1, upper_depth, lower_depth, dip)
 
-        fs = os.path.join(OUTPUT_DIR, 'earth.flat.plot_rectangles.png')
+        fs = os.path.join(OUTPUT_DIR, 'earth.flat.plot_simple_surfaces.png')
 
-        plot_rectangles([s1, s2, s3, s4, s5, s6, s7, s8], filespec=fs)
+        plot_simple_surfaces([s1, s2, s3, s4, s5, s6, s7, s8], filespec=fs)

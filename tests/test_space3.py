@@ -12,7 +12,7 @@ import numpy as np
 from synthacc.apy import PRECISION, is_number
 from synthacc.math import Matrix
 from synthacc.space3 import (Point, Plane, Vector, RotationMatrix,
-    are_coordinates, prepare_coordinates, distance)
+    are_coordinates, prepare_coordinates, distance, nearest)
 
 
 class TestPoint(unittest.TestCase):
@@ -84,11 +84,11 @@ class TestPoint(unittest.TestCase):
     def test_rotate1(self):
         """
         """
-        r1 = RotationMatrix.from_basic_rotations(000., 000., 000.)
-        r2 = RotationMatrix.from_basic_rotations(360., 360., 360.)
-        r3 = RotationMatrix.from_basic_rotations(000., 000., 090.)
-        r4 = RotationMatrix.from_basic_rotations(090., 000., 000.)
-        r5 = RotationMatrix.from_basic_rotations(000., 090., 000.)
+        r1 = RotationMatrix.from_basic_rotations(  0,   0,   0)
+        r2 = RotationMatrix.from_basic_rotations(360, 360, 360)
+        r3 = RotationMatrix.from_basic_rotations(  0,   0,  90)
+        r4 = RotationMatrix.from_basic_rotations( 90,   0,   0)
+        r5 = RotationMatrix.from_basic_rotations(  0,  90,   0)
         p1 = Point(1, 1, 0).rotate(r1)
         p2 = Point(1, 1, 0).rotate(r2)
         p3 = Point(1, 0, 0).rotate(r3)
@@ -126,6 +126,17 @@ class TestPlane(unittest.TestCase):
         self.assertEqual(self.p.c, 3)
         self.assertEqual(self.p.d, 4)
 
+    def test_from_points(self):
+        """
+        """
+        ulc = (693464.651747485, 718457.100946086, 0)
+        urc = (743611.663104304, 696707.115590921, 0)
+        llc = (698059.315075598, 729050.608497159, 20000)
+
+        p = Plane.from_points(ulc, urc, llc)
+
+        self.assertEqual(round(p.d), 1022226448407260)
+
     def test___getitem__(self):
         """
         """
@@ -139,16 +150,13 @@ class TestPlane(unittest.TestCase):
         self.assertEqual(c, 3)
         self.assertEqual(d, 4)
 
-    def test_from_points(self):
+    def test_normal(self):
         """
         """
-        ulc = (693464.651747485, 718457.100946086, 0)
-        urc = (743611.663104304, 696707.115590921, 0)
-        llc = (698059.315075598, 729050.608497159, 20000)
-
-        p = Plane.from_points(ulc, urc, llc)
-
-        self.assertEqual(round(p.d), 1022226448407260)
+        p = Plane.from_points((0, 0, 0), (0, 1, 0), (0, 0, 1))
+        self.assertEqual(p.normal, (1, 0, 0))
+        p = Plane.from_points((0, 0, 0), (1, 0, 0), (0, 1, 0))
+        self.assertEqual(p.normal, (0, 0, 1))
 
     def test_get_distance(self):
         """
@@ -341,11 +349,11 @@ class TestRotationMatrix(unittest.TestCase):
     def test_from_basic_rotations(self):
         """
         """
-        r1 = RotationMatrix.from_basic_rotations(000., 000., 000.)
-        r2 = RotationMatrix.from_basic_rotations(360., 360., 360.)
-        r3 = RotationMatrix.from_basic_rotations(000., 000., 090.)
-        r4 = RotationMatrix.from_basic_rotations(090., 000., 000.)
-        r5 = RotationMatrix.from_basic_rotations(090., 000., 090.)
+        r1 = RotationMatrix.from_basic_rotations(  0,   0,   0)
+        r2 = RotationMatrix.from_basic_rotations(360, 360, 360)
+        r3 = RotationMatrix.from_basic_rotations(  0,   0,  90)
+        r4 = RotationMatrix.from_basic_rotations( 90,   0,   0)
+        r5 = RotationMatrix.from_basic_rotations( 90,   0,  90)
         self.assertTrue((r1._array == np.array(
             [[+1, +0, +0], [+0, +1, +0] ,[+0, +0, +1]])).all())
         self.assertTrue((r2._array == np.array(
@@ -405,3 +413,18 @@ class Test(unittest.TestCase):
         """
         d = distance(0, 0, 0, 1, 1, np.array([0, 1]))
         self.assertListEqual(list(d), [np.sqrt(2), np.sqrt(3)])
+
+    def test_nearest(self):
+        """
+        """
+        shape = (100, 100, 100)
+        xs = np.random.uniform(-1000, 1000, size=shape)
+        ys = np.random.uniform(-1000, 1000, size=shape)
+        zs = np.random.uniform(    0, 1000, size=shape)
+
+        i = random.randint(0, 99)
+        xs[i] = 1
+        ys[i] = 1
+        zs[i] = 1
+
+        self.assertEqual(nearest(0.5, 0.5, 0.5, xs, ys, zs), (1, 1, 1))

@@ -5,8 +5,7 @@ Tests for 'source.faults' module.
 
 import unittest
 
-from synthacc.source.faults import (RIGIDITY, SimpleFault, ComposedFault,
-    FaultGeometryCalculator)
+from synthacc.source.faults import RIGIDITY, SimpleFault, ComposedFault
 
 
 class TestSimpleFault(unittest.TestCase):
@@ -46,23 +45,16 @@ class TestComposedFault(unittest.TestCase):
     p3 = (75000, 50000)
     p4 = (75000, 75000)
 
-    cf = ComposedFault([p1, p2, p3, p4], 0, 25000, 45)
+    cf = ComposedFault([(p1, p2), (p2, p3), (p3, p4)], 0, 25000, 45)
 
     def test_properties(self):
         """
         """
         self.assertEqual(len(self.cf), 3)
         sf1, sf2, sf3 = self.cf
-        self.assertEqual(sf1.ulc[:2], self.p1)
-        self.assertEqual(sf1.urc[:2], self.p2)
-        self.assertEqual(sf2.ulc[:2], self.p2)
-        self.assertEqual(sf2.urc[:2], self.p3)
-        self.assertEqual(sf3.ulc[:2], self.p3)
-        self.assertEqual(sf3.urc[:2], self.p4)
-
-
-class TestFaultGeometryCalculator(unittest.TestCase):
-    """
-    #TODO: implement test
-    """
-    pass
+        self.assertEqual(tuple([*sf1.ulc][:2]), self.p1)
+        self.assertEqual(tuple([*sf1.urc][:2]), self.p2)
+        self.assertEqual(tuple([*sf2.ulc][:2]), self.p2)
+        self.assertEqual(tuple([*sf2.urc][:2]), self.p3)
+        self.assertEqual(tuple([*sf3.ulc][:2]), self.p3)
+        self.assertEqual(tuple([*sf3.urc][:2]), self.p4)

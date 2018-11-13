@@ -10,8 +10,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from synthacc.response import (ResponseSpectrum, NewmarkBetaRC,
-    NigamJenningsRC, SpectralRC, CartwrightLonguetHiggins1956PC, RVTCalculator,
-    frf, plot_response_spectra)
+    NigamJenningsRC, SpectralRC, frf, plot_response_spectra)
 
 
 OUTPUT_DIR = os.path.join(os.path.dirname(__file__), 'output')
@@ -83,7 +82,7 @@ class TestResponseSpectrum(unittest.TestCase):
         """
         """
         fs = os.path.join(OUTPUT_DIR, 'response.response_spectrum.plot.png')
-        self.rs.plot(png_filespec=fs)
+        self.rs.plot(filespec=fs)
 
 
 class Test(unittest.TestCase):
@@ -94,10 +93,10 @@ class Test(unittest.TestCase):
         """
         """
         frequencies = np.logspace(0, 2.4, 200)
-        for i, gmt in enumerate(['dis', 'vel', 'acc']):
+        for gmt in ['dis', 'vel', 'acc']:
             responses = frf(frequencies, 100, 0.05, gmt)
             mgntds, angles = np.abs(responses), np.degrees(np.angle(responses))
-            fig, axes = plt.subplots(2, sharex=True)
+            _, axes = plt.subplots(2, sharex=True)
             axes[0].plot(frequencies, mgntds)
             axes[1].plot(frequencies, angles)
             axes[0].grid()

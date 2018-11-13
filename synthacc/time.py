@@ -13,7 +13,7 @@ from .apy import Object, is_non_neg_number, is_string
 DEFAULT_PRECISION = 6
 
 
-def _get_timedelta_from_seconds(seconds):
+def _time_delta_from_seconds(seconds):
     """
     """
     assert(is_non_neg_number(seconds))
@@ -32,6 +32,10 @@ class Time(Object):
 
     def __init__(self, time, precision=None, validate=True):
         """
+        If time is string it has the format 'yyyy-mm-dd hh:mm:ss' or
+        'yyyy-mm-dd hh:mm:ss.xxxxxx' with 'xxxxxx' the microseconds. Otherwise
+        time is an object with 'year', 'month', 'day', 'hour', 'minute',
+        'second' and 'microsecond' properties.
         """
         if is_string(time):
             assert(len(time) == 19 or 21 <= len(time) <= 26)
@@ -63,7 +67,6 @@ class Time(Object):
         assert(precision in (0, 1, 2, 3, 4, 5, 6))
 
         self._precision = precision
-
 
     def __str__(self):
         """
@@ -127,7 +130,7 @@ class Time(Object):
         """
         value: non neg number (in seconds)
         """
-        dt = self._time + _get_timedelta_from_seconds(value)
+        dt = self._time + _time_delta_from_seconds(value)
 
         return self.__class__(dt, precision=self.precision)
 
@@ -139,7 +142,7 @@ class Time(Object):
             assert(other < self)
             return (self._time - other._time).total_seconds()
         else:
-            dt = self._time - _get_timedelta_from_seconds(other)
+            dt = self._time - _time_delta_from_seconds(other)
             return self.__class__(dt, precision=self.precision)
 
     @property

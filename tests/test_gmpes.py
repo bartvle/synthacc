@@ -75,18 +75,18 @@ class TestGMPE(unittest.TestCase):
         distances = np.linspace(1000, 200000, 100)
 
         parameters = {'mag': 7.5, 'rake': 0, 'vs30': 750}
-        png_filespec=os.path.join(OUTPUT_DIR,
+        filespec=os.path.join(OUTPUT_DIR,
             'methods.gmpes.gmpe.plot_gmpes_distance1.png')
         plot_gmpes_distance([self.gmpe], 'pga', distances, parameters, None,
             unit='g', space='loglog', min_dis=1000, max_dis=200000,
-            min_val=0.0001, max_val=2, png_filespec=png_filespec)
+            min_val=0.0001, max_val=2, filespec=filespec)
 
         parameters = {'mag': 4.5, 'rake': 0, 'vs30': 750}
-        png_filespec=os.path.join(OUTPUT_DIR,
+        filespec=os.path.join(OUTPUT_DIR,
             'methods.gmpes.gmpe.plot_gmpes_distance2.png')
         plot_gmpes_distance([self.gmpe], 'pga', distances, parameters, None,
             unit='g', space='loglog', min_dis=1000, max_dis=200000,
-            min_val=0.0001, max_val=2, png_filespec=png_filespec)
+            min_val=0.0001, max_val=2, filespec=filespec)
 
     def test_plot_magnitude(self):
         """
@@ -94,18 +94,18 @@ class TestGMPE(unittest.TestCase):
         magnitudes = np.linspace(3, 8, 50)
 
         parameters = {'rake': 0, self.gmpe.distance_metric: 10000, 'vs30': 750}
-        png_filespec=os.path.join(OUTPUT_DIR, 'methods.gmpes.gmpe.plot_gmpes_magnitude.png')
+        filespec=os.path.join(OUTPUT_DIR, 'methods.gmpes.gmpe.plot_gmpes_magnitude.png')
         plot_gmpes_magnitude([self.gmpe], 'pga', magnitudes, parameters, None,
-            unit='g', png_filespec=png_filespec)
+            unit='g', filespec=filespec)
 
 
     def test_plot_spectrum(self):
         """
         """
-        png_filespec=os.path.join(OUTPUT_DIR,
+        filespec=os.path.join(OUTPUT_DIR,
             'methods.gmpes.gmpe.plot_gmpes_spectrum.png')
         plot_gmpes_spectrum([self.gmpe], self.parameters, labels=None,
-            unit='g', png_filespec=png_filespec)
+            unit='g', filespec=filespec)
 
 
 class Test(unittest.TestCase):
