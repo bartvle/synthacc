@@ -1,8 +1,6 @@
 """
-The 'gmpes' module.
-
-For using Ground Motion Prediction Equations (GMPEs). For our implementation we
-use the OpenQuake Engine (Pagani et al., 2014).
+The 'gmpes' module. For using Ground Motion Prediction Equations (GMPEs). For
+our implementation we use the OpenQuake Engine (Pagani et al., 2014).
 """
 
 
@@ -368,7 +366,7 @@ def find_gmpes(tectonic_region=None, sa=None, pga=None, pgv=None, pgd=None, dist
 AVAILABLE_GMPES = find_gmpes()
 
 
-def plot_gmpes_distance(gmpes, gmp, distances, parameters, labels=True, unit=None, space='linlog', min_dis=None, max_dis=None, min_val=None, max_val=None, size=None, png_filespec=None, validate=True):
+def plot_gmpes_distance(gmpes, gmp, distances, parameters, labels=True, unit=None, space='linlog', min_dis=None, max_dis=None, min_val=None, max_val=None, size=None, filespec=None, validate=True):
     """
     Plot GMPEs for set of parameters in function of distance.
 
@@ -431,14 +429,14 @@ def plot_gmpes_distance(gmpes, gmp, distances, parameters, labels=True, unit=Non
     ax.set_xlabel('Distance (m)')
     ax.set_ylabel('%s (%s)' % (gmp, unit))
 
-    if png_filespec is not None:
-        plt.savefig(png_filespec)
+    if filespec is not None:
+        plt.savefig(filespec)
     else:
         plt.show()
     plt.close(fig)
 
 
-def plot_gmpes_magnitude(gmpes, gmp, magnitudes, parameters, labels=True, unit=None, space='linlin', min_mag=None, max_mag=None, min_val=None, max_val=None, size=None, png_filespec=None, validate=True):
+def plot_gmpes_magnitude(gmpes, gmp, magnitudes, parameters, labels=True, unit=None, space='linlin', min_mag=None, max_mag=None, min_val=None, max_val=None, size=None, filespec=None, validate=True):
     """
     Plot GMPEs for set of parameters in function of magnitude.
 
@@ -500,14 +498,14 @@ def plot_gmpes_magnitude(gmpes, gmp, magnitudes, parameters, labels=True, unit=N
     ax.set_xlabel('Magnitude')
     ax.set_ylabel('%s (%s)' % (gmp, unit))
 
-    if png_filespec is not None:
-        plt.savefig(png_filespec)
+    if filespec is not None:
+        plt.savefig(filespec)
     else:
         plt.show()
     plt.close(fig)
 
 
-def plot_gmpes_spectrum(gmpes, parameters, damping=0.05, labels=True, unit=None, space='linlog', min_period=None, max_period=None, size=None, png_filespec=None, validate=True):
+def plot_gmpes_spectrum(gmpes, parameters, damping=0.05, labels=True, unit=None, space='linlog', min_period=None, max_period=None, size=None, filespec=None, validate=True):
     """
     Plot GMPEs for set of parameters in function of spectral period.
     """
@@ -534,4 +532,4 @@ def plot_gmpes_spectrum(gmpes, parameters, damping=0.05, labels=True, unit=None,
         colors.extend([default_colors[i]] * 3)
         styles.extend(['-', '--', '--'])
 
-    _plot_response_spectra(rss, labels, colors, styles, widths, unit, space, min_period=min_period, max_period=max_period, size=size, png_filespec=png_filespec)
+    _plot_response_spectra(rss, labels, colors, styles, widths, unit, space, min_period=min_period, max_period=max_period, size=size, filespec=filespec)

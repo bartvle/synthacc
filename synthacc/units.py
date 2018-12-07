@@ -5,8 +5,8 @@ The 'units' module.
 
 import numpy as np
 
-from .apy import (PRECISION, Object, is_number, is_pos_number, is_pos_integer,
-    is_non_pos_integer, is_string)
+from .apy import (PRECISION, Object, is_non_pos_integer, is_pos_integer,
+    is_number, is_pos_number, is_string)
 
 
 SI_PREFIXES = [

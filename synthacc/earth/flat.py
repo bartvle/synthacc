@@ -11,8 +11,8 @@ import numpy as np
 from shapely.geometry import (Point as _Point, LineString as _LineString,
     Polygon as _Polygon)
 
-from ..apy import (T, F, Object, is_number, is_non_neg_number,
-    is_integer, is_pos_integer, is_1d_numeric_array)
+from ..apy import (T, F, Object, is_integer, is_pos_integer, is_number,
+    is_non_neg_number, is_1d_numeric_array)
 from .. import space2, space3
 
 
@@ -91,88 +91,6 @@ class Sites(Object):
         return self._points[:,1]
 
 
-# class Grid(Object):
-#     """
-#     Regular spaced points on the Earth's surface.
-#     """
-
-#     def __init__(self, outline, spacing, validate=True):
-#         """
-#         outline: (number, number, number, number) tuple
-#         spacing: pos number, spacing (in m)
-#         """
-#         if validate is True:
-#             assert(type(outline) is tuple)
-#             assert(len(outline) == 4)
-#             assert(is_number(outline[0]))
-#             assert(is_number(outline[1]))
-#             assert(is_number(outline[2]))
-#             assert(is_number(outline[3]))
-#             assert(is_pos_number(spacing))
-
-#         xs = np.arange(outline[0], outline[1] + spacing, spacing)
-#         ys = np.arange(outline[2], outline[3] + spacing, spacing)
-
-#         self._outline = outline
-#         self._spacing = spacing
-#         self._grid = np.dstack(np.meshgrid(xs, ys))
-
-#     def __len__(self):
-#         """
-#         """
-#         return np.prod(self.shape)
-
-#     def __getitem__(self, i):
-#         """
-#         """
-#         assert(type(i) is tuple and len(i) == 2)
-
-#         x, y = self._grid[i]
-#         x = float(x)
-#         y = float(y)
-
-#         return x, y
-
-#     def __iter__(self):
-#         """
-#         """
-#         for i in np.ndindex(self.shape):
-#             yield self[i]
-
-#     @property
-#     def outline(self):
-#         """
-#         """
-#         return self._outline
-
-#     @property
-#     def spacing(self):
-#         """
-#         """
-#         return self._spacing
-
-#     @property
-#     def xs(self):
-#         """
-#         return: 2d numerical array, xs
-#         """
-#         return self._grid[:,:,0]
-
-#     @property
-#     def ys(self):
-#         """
-#         return: 2d numerical array, ys
-#         """
-#         return self._grid[:,:,1]
-
-#     @property
-#     def shape(self):
-#         """
-#         return: (pos int, pos int) tuple, shape of grid
-#         """
-#         return self._grid.shape[:2]
-
-
 class Path(Sites):
     """
     Points that form a path on the Earth's surface.
@@ -193,9 +111,11 @@ class Path(Sites):
 
     def get_simplified(self, n, validate=True):
         """
-        n: positive integer, number of pieces of path (n+1 points)
+        Simplification of path by iterative increasing of tolerance with one.
+        It is possible that the output of this algorithm gives a number of
+        pieces that is lower than the desired number.
 
-        #TODO: This method does not yet work completely as it should.
+        n: positive integer, number of pieces of path (n+1 points)
         """
         if validate is True:
             assert(is_pos_integer(n))
@@ -213,10 +133,10 @@ class Path(Sites):
 
         return self.__class__(list(xs), list(ys))
 
-#     def plot(self, points=False, selection=[], size=None, validate=True):
-#         """
-#         """
-#         plot_paths([self], points, selection, size, validate=validate)
+    def plot(self, points=False, size=None, filespec=None, validate=True):
+        """
+        """
+        plot_paths([self], points, size, filespec, validate=validate)
 
 
 class SimpleSurface(Object):
@@ -376,30 +296,12 @@ class SimpleSurface(Object):
         """
         return self.lower_depth - self.upper_depth
 
-#     @property
-#     def dip_azimuth(self):
-#         """
-#         return: non neg number
-#         """
-#         a = self.strike + 90
-#         if a >= 360:
-#             return a - 360
-#         else:
-#             return a
-
     @property
     def area(self):
         """
         return: pos number, area (in m²)
         """
         return self.length * self.width
-
-#     @property
-#     def center(self):
-#         """
-#         return: 'space3.Point' instance
-#         """
-#         return self.ulc.translate((self.as_vector + self.ad_vector) / 2)
 
     @property
     def plane(self):
@@ -431,23 +333,6 @@ class SimpleSurface(Object):
             validate=False)
 
         return drs
-
-#     def get_random(self):
-#         """
-#         Get a random point on the surface.
-
-#         return: 'space3.Point' instance
-#         """
-#         l_vector = self.as_vector * np.random.uniform(0, 1)
-#         w_vector = self.ad_vector * np.random.uniform(0, 1)
-#         x, y, z = self.ulc.translate(l_vector + w_vector)
-
-#         return space3.Point(x, y, z)
-
-#     def plot(self, fill=True, validate=True):
-#         """
-#         """
-#         plot_rectangles([self], fill=fill, validate=validate)
 
 
 class DiscretizedSimpleSurface(SimpleSurface):
@@ -541,28 +426,6 @@ class DiscretizedSimpleSurface(SimpleSurface):
 
         return corners, centers
 
-#     def get_front_projected_corners(self):
-#         """
-#         """
-#         l, w = self.length, self.width
-#         nw, nl = self.shape
-#         xs = np.linspace(0, l, nl+1)
-#         ys = np.linspace(0, w, nw+1)
-#         xs, ys = np.meshgrid(xs, ys)
-#         return xs, ys
-
-#     def get_front_projected_centers(self):
-#         """
-#         """
-#         l, w = self.length, self.width
-#         nw, nl = self.shape
-#         cl = (l / nl) / 2
-#         cw = (w / nw) / 2
-#         xs = np.linspace(cl, l-cl, nl)
-#         ys = np.linspace(cw, w-cw, nw)
-#         xs, ys = np.meshgrid(xs, ys)
-#         return xs, ys
-
 
 def azimuth(x1, y1, x2, y2, validate=True):
     """
@@ -597,41 +460,41 @@ def is_dip(obj):
     return is_number(obj) and (0 < obj <= 90)
 
 
-# def plot_paths(paths, points=False, selection=[], size=None, validate=True):
-#     """
-#     """
-#     if validate is True:
-#         pass
-
-#     _, ax = plt.subplots(figsize=size)
-
-#     for p in paths:
-#         ax.plot(p.ys, p.xs, c='k', lw=2)
-
-#         if points is True:
-#             ax.scatter(p.ys, p.xs, c='k')
-
-#     for p in selection:
-#         ax.scatter(p[1], p[0], c='r')
-
-#     plt.axis('equal')
-
-#     x_label, y_label = 'East (m)', 'North (m)'
-#     ax.xaxis.set_label_text(x_label)
-#     ax.yaxis.set_label_text(y_label)
-
-#     plt.show()
-
-
-def plot_rectangles(rectangles, colors=None, styles=None, widths=None, fill_colors=None, size=None, filespec=None, validate=True):
+def plot_paths(paths, points=False, size=None, filespec=None, validate=True):
     """
     """
     if validate is True:
-        assert(type(rectangles) is list)
+        assert(type(paths) is list)
 
     _, ax = plt.subplots(figsize=size)
 
-    for i, r in enumerate(rectangles):
+    for p in paths:
+        ax.plot(p.ys, p.xs, c='k', lw=2)
+
+        if points is True:
+            ax.scatter(p.ys, p.xs, c='k')
+
+    plt.axis('equal')
+
+    x_label, y_label = 'East (m)', 'North (m)'
+    ax.xaxis.set_label_text(x_label)
+    ax.yaxis.set_label_text(y_label)
+
+    if filespec is not None:
+        plt.savefig(filespec)
+    else:
+        plt.show()
+
+
+def plot_simple_surfaces(simple_surfaces, colors=None, styles=None, widths=None, fill_colors=None, size=None, filespec=None, validate=True):
+    """
+    """
+    if validate is True:
+        assert(type(simple_surfaces) is list)
+
+    _, ax = plt.subplots(figsize=size)
+
+    for i, r in enumerate(simple_surfaces):
         ulc, urc, llc, lrc = r.corners
 
         kwargs = {}

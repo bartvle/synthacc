@@ -1,9 +1,7 @@
 """
-The 'io.scardec' module.
-
-Module for reading files from the SCARDEC database (Vallée and Douet, 2016), a
-database of source time functions obtained by the SCARDEC method (Vallée et al.
-2011).
+The 'io.scardec' module. Module for reading files from the SCARDEC database
+(Vallée and Douet, 2016), a database of source time functions obtained by the
+SCARDEC method (Vallée et al. 2011).
 
 http://scardec.projects.sismo.ipgp.fr/ (last accessed on 10/10/2017)
 """

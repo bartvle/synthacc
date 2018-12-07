@@ -39,6 +39,22 @@ class DFT(Object):
         """
         return len(self._frequencies)
 
+    @classmethod
+    def from_fas_and_fps(cls, fas, fps, validate=True):
+        """
+        """
+        if validate is True:
+            assert(type(fas) == FAS)
+            assert(type(fps) == FPS)
+            assert(np.array_equal(fas.frequencies, fps.frequencies))
+
+        frequencies, unit = fas.frequencies, fas.unit
+        real = np.cos(fps.amplitudes) * fas.amplitudes
+        imag = np.sin(fps.amplitudes) * fas.amplitudes
+        amplitudes = (real + 1j * imag)
+
+        return cls(frequencies, amplitudes, unit, validate=False)
+
     @property
     def frequencies(self):
         """
@@ -133,6 +149,15 @@ class DFT(Object):
         """
         return ifft(self._frequencies, self._amplitudes, time_delta, validate)
 
+    def get_seismogram(self, time_delta, validate=True):
+        """
+        """
+        from .recordings import Seismogram
+
+        amplitudes = self.inverse(time_delta, validate=validate)
+
+        return Seismogram(time_delta, amplitudes, unit=self._unit)
+
 
 class AccDFT(DFT):
     """
@@ -206,7 +231,9 @@ class FAS(Object):
         """
         """
         if validate is True:
-            assert(is_number(value))
+            assert(is_number(value) or (
+                is_1d_numeric_array(value) and len(value) == len(self)
+            ))
 
         fas = self.__class__(
             self.frequencies, self._amplitudes * value, self.unit)
@@ -252,7 +279,7 @@ class FAS(Object):
         else:
             return self.amplitudes * (UNITS[self._unit] / UNITS[unit])
 
-    def plot(self, color=None, style=None, width=None, unit=None, space='loglog', min_frequency=None, max_frequency=None, min_amplitude=None, max_amplitude=None, title=None, size=None, png_filespec=None):
+    def plot(self, color=None, style=None, width=None, unit=None, space='loglog', min_frequency=None, max_frequency=None, min_amplitude=None, max_amplitude=None, title=None, size=None, filespec=None):
         """
         """
         labels, colors, styles, widths = None, None, None, None
@@ -265,7 +292,7 @@ class FAS(Object):
 
         plot_fass([self], labels, colors, styles, widths, unit, space,
             min_frequency, max_frequency, min_amplitude, max_amplitude, title,
-            size, png_filespec)
+            size, filespec)
 
 
 class FPS(Object):
@@ -329,7 +356,7 @@ def ifft(frequencies, amplitudes, time_delta, validate=True):
     return amplitudes
 
 
-def plot_fass(fass, labels=None, colors=None, styles=None, widths=None, unit=None, space='loglog', min_frequency=None, max_frequency=None, min_amplitude=None, max_amplitude=None, title=None, size=None, png_filespec=None):
+def plot_fass(fass, labels=None, colors=None, styles=None, widths=None, unit=None, space='loglog', min_frequency=None, max_frequency=None, min_amplitude=None, max_amplitude=None, title=None, size=None, filespec=None):
     """
     """
     if unit is None:
@@ -370,7 +397,7 @@ def plot_fass(fass, labels=None, colors=None, styles=None, widths=None, unit=Non
     if title is not None:
         ax.set_title(title)
 
-    if png_filespec is not None:
-        plt.savefig(png_filespec)
+    if filespec is not None:
+        plt.savefig(filespec)
     else:
         plt.show()

@@ -1,13 +1,12 @@
 """
-The 'io.axisem' module.
-
-I/O for the AxiSEM program. See Nissen-Meyer et al. (2014).
+The 'io.axisem' module. I/O for the AxiSEM program. See Nissen-Meyer et al.
+(2014).
 """
 
 
 import numpy as np
 
-from ..apy import is_string, is_pos_number
+from ..apy import is_pos_number, is_string
 from ..ground_models import ContinuousModel, qk_qm_to_qp_qs
 
 

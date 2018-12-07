@@ -181,8 +181,12 @@ class Plane(Object):
     @classmethod
     def from_points(cls, p1, p2, p3, validate=True):
         """
-        #TODO: add assert that points are not on one line
+        
         """
+        if validate is True:
+            #TODO: add assert that points are not on one line
+            pass
+
         p1 = Point(*p1, validate=validate)
         p2 = Point(*p2, validate=validate)
         p3 = Point(*p3, validate=validate)

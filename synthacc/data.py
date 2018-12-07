@@ -6,10 +6,6 @@ The 'data' module.
 from abc import ABC
 import random
 
-# import matplotlib.pyplot as plt
-# import numpy as np
-# import scipy.stats
-
 from .apy import (Object, is_pos_integer, is_string)
 
 
@@ -83,74 +79,6 @@ class DataBase(ABC, Object):
                 return r
 
         raise LookupError('No record with key %i' % key)
-
-
-# class Histogram(Object):
-#     """
-#     """
-
-#     def __init__(self, values, positive=False, validate=True):
-#         """
-#         """
-#         if validate is True:
-#             assert(is_1d_numeric_array(values))
-#             assert(is_boolean(positive))
-
-#         self._values = values
-#         self._positive = positive
-
-#     @property
-#     def avg(self):
-#         """
-#         """
-#         return self._values.mean()
-
-#     @property
-#     def min(self):
-#         """
-#         """
-#         return self._values.min()
-
-#     @property
-#     def max(self):
-#         """
-#         """
-#         return self._values.max()
-
-#     @property
-#     def std(self):
-#         """
-#         """
-#         return self._values.std()
-
-#     def plot(self, bins=None, d=None, size=None, png_filespec=None, validate=True):
-#         """
-#         """
-#         _, ax = plt.subplots(figsize=size)
-
-#         if self._positive is True:
-#             values = self._values[self._values > 0]
-#         else:
-#             values = self._values
-
-#         ax.hist(values, bins=bins, density=True)
-    
-#         if d is not None:
-#             d = getattr(scipy.stats, d)
-#             x = np.linspace(self.min, self.max, 100)
-#             plt.plot(x, d.pdf(x, self.avg, self.std), c='r')
-
-#         ax.grid()
-
-#         if self._positive is True:
-#             ax.set_xlim(0, None)
-
-#         plt.tight_layout()
-
-#         if png_filespec is not None:
-#             plt.savefig(png_filespec)
-#         else:
-#             plt.show()
 
 
 class LogicTreeLeaf(Object):
@@ -304,6 +232,8 @@ class LogicTreeLevel(Object):
 
 
 class LogicTree(Object):
+    """
+    """
 
     def __init__(self):
         """

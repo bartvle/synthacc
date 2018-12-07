@@ -10,6 +10,7 @@ from .apy import Object, is_pos_integer, is_number, is_2d_numeric_array
 
 class Matrix(Object):
     """
+    A matrix defined by a 2d numeric array.
     """
 
     def __init__(self, array, validate=True):
@@ -117,7 +118,7 @@ class Matrix(Object):
 
 class SquareMatrix(Matrix):
     """
-    Square matrix.
+    A Square matrix.
     """
 
     def __init__(self, array, validate=True):

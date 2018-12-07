@@ -12,7 +12,7 @@ from scipy.integrate import quad
 
 from .apy import Object, is_pos_number, is_fraction, is_1d_numeric_array
 from .units import MOTION as UNITS, MOTION_SI as SI_UNITS
-from .spectral import fft, ifft
+from .spectral import FAS, fft, ifft
 from .plot import set_space
 
 
@@ -122,7 +122,7 @@ class ResponseSpectrum(Object):
         """
         return float(self.get_responses(unit=unit).max())
 
-    def plot(self, color=None, style=None, width=None, unit=None, space='linlog', pgm_period=0.01, min_period=None, max_period=None, max_response=None, title=None, size=None, png_filespec=None):
+    def plot(self, color=None, style=None, width=None, unit=None, space='linlog', pgm_period=0.01, min_period=None, max_period=None, max_response=None, title=None, size=None, filespec=None):
         """
         """
         labels, colors, styles, widths = None, None, None, None
@@ -135,7 +135,7 @@ class ResponseSpectrum(Object):
 
         plot_response_spectra([self], labels, colors, styles, widths, unit,
             space, pgm_period, min_period, max_period, max_response, title,
-            size, png_filespec)
+            size, filespec)
 
 
 class ResponseCalculator(ABC, Object):
@@ -333,6 +333,7 @@ class PeakCalculator(ABC, Object):
     def __call__(self):
         """
         """
+        pass
 
 
 class CartwrightLonguetHiggins1956PC(PeakCalculator):
@@ -380,29 +381,53 @@ class RVTCalculator(Object):
         for o in orders:
             sm = 2 * np.trapz(a_squared * np.power(two_pi_f, o), frequencies)
             spectral_moments.append(sm)
+
         return spectral_moments
 
-    def __call__(self, fas, frequencies, damping, duration, rms_duration_fnc=None, gmt='dis'):
+    def __call__(self, fas, frequencies, duration, damping, rms_duration_fnc=None, validate=True):
         """
-        Responses are dis.
+        Responses are absolute accelerations.
         """
-        responses = []
-        for f in frequencies:
+        if validate is True:
+            assert(fas.gmt[:3] == 'acc')
+
+        amplitudes = fas.get_amplitudes(unit='m/s2')
+
+        responses = np.zeros_like(frequencies)
+        for i, f in enumerate(frequencies):
             if rms_duration_fnc is None: ## no correction
                 rms_duration = duration
             else:
                 rms_duration = rms_duration_fnc(f)
 
-            response_amplitudes = fas.amplitudes * np.abs(frf(fas.frequencies, float(f), damping, gmt=gmt))# * (2 * np.pi * f)**2
-            m0, m1, m2, m4 = self._calc_spectral_moments([0, 1, 2, 4], fas.frequencies, response_amplitudes)
+            response_amplitudes = amplitudes * np.abs(frf(fas.frequencies,
+                float(f), damping, gmt='dis')) * (2 * np.pi * f)**2
+            m0, m2, m4 = self._calc_spectral_moments(
+                [0, 2, 4], fas.frequencies, response_amplitudes)
             y_rms = np.sqrt(m0/rms_duration)
             pf = self._pc(m0, m2, m4, duration)
             response = y_rms * pf
-            responses.append(response)
+            responses[i] = response
 
-        unit = SI_UNITS[gmt]
+        return responses
 
-        return ResponseSpectrum(1/frequencies, np.array(responses), unit, damping)
+    def get_response_spectrum(self, fas, periods, duration, damping=0.05, pgm_frequency=100, rms_duration_fnc=None, validate=True):
+        """
+        """
+        if validate is True:
+            assert(type(fas) == FAS)
+            assert(is_1d_numeric_array(periods) and
+                np.all(np.diff(periods) > 0))
+
+        if periods[0] == 0:
+            periods = np.copy(periods)
+            periods[0] = 1 / pgm_frequency
+
+        responses = self.__call__(fas, 1/periods, duration, damping, rms_duration_fnc, validate=validate)
+
+        rs = ResponseSpectrum(periods, responses, 'm/s2', damping)
+
+        return rs
 
 
 def frf(dft_frequencies, sdofo_frequency, damping, gmt, validate=True):
@@ -426,7 +451,7 @@ def frf(dft_frequencies, sdofo_frequency, damping, gmt, validate=True):
     return frf
 
 
-def plot_response_spectra(response_spectra, labels=None, colors=None, styles=None, widths=None, unit=None, space='linlog', pgm_period=0.01, min_period=None, max_period=None, max_response=None, title=None, size=None, png_filespec=None):
+def plot_response_spectra(response_spectra, labels=None, colors=None, styles=None, widths=None, unit=None, space='linlog', pgm_period=0.01, min_period=None, max_period=None, max_response=None, title=None, size=None, filespec=None):
     """
     """
     if unit is None:
@@ -486,8 +511,8 @@ def plot_response_spectra(response_spectra, labels=None, colors=None, styles=Non
     if title is not None:
         ax.set_title(title)
 
-    if png_filespec is not None:
-        plt.savefig(png_filespec)
+    if filespec is not None:
+        plt.savefig(filespec)
     else:
         plt.show()
     plt.close(fig)

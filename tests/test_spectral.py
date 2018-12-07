@@ -71,7 +71,7 @@ class TestFAS(unittest.TestCase):
         """
         """
         fs = os.path.join(OUTPUT_DIR, 'spectral.plot.png')
-        self.fas.plot(png_filespec=fs)
+        self.fas.plot(filespec=fs)
 
 
 class TestFPS(unittest.TestCase):

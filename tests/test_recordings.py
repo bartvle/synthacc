@@ -80,7 +80,7 @@ class TestSeismogram(unittest.TestCase):
         tgt_fas = read_fas(os.path.join(DATA_DIR, '004676xa.fas'))
         fs = os.path.join(OUTPUT_DIR, 'recordings.seismogram.dft.png')
         plot_fass([tgt_fas, cal_fas], labels=['tgt', 'cal'], colors=['r', 'b'],
-            widths=[3, 1], title='dft calculation', png_filespec=fs)
+            widths=[3, 1], title='dft calculation', filespec=fs)
 
     def test_differentiate(self):
         """
@@ -91,7 +91,7 @@ class TestSeismogram(unittest.TestCase):
             OUTPUT_DIR, 'recordings.seismogram.differentiate.png')
         plot_seismograms([[tgt, cal]], labels=[['tgt', 'cal']],
             colors=[['r', 'b']], widths=[[3, 1]], title='differentiate',
-            size=(15, 10), png_filespec=fs)
+            size=(15, 10), filespec=fs)
 
     def test_integrate(self):
         """
@@ -102,7 +102,7 @@ class TestSeismogram(unittest.TestCase):
             OUTPUT_DIR, 'recordings.seismogram.integrate.png')
         plot_seismograms([[tgt, cal]], labels=[['tgt', 'cal']],
             colors=[['r', 'b']], widths=[[3, 1]], title='integrate',
-            size=(15, 10), png_filespec=fs)
+            size=(15, 10), filespec=fs)
 
 
 class TestAccelerogram(unittest.TestCase):
@@ -146,7 +146,7 @@ class TestAccelerogram(unittest.TestCase):
         tgt_fas = read_fas(os.path.join(DATA_DIR, '004676xa.fas'))
         fs = os.path.join(OUTPUT_DIR, 'recordings.accelerogram.dft.png')
         plot_fass([tgt_fas, cal_fas], labels=['tgt', 'cal'], colors=['r', 'b'],
-            widths=[2, 0.5], title='dft calculation', png_filespec=fs)
+            widths=[2, 0.5], title='dft calculation', filespec=fs)
 
     def test_get_response_spectrum_1(self):
         """
@@ -174,13 +174,13 @@ class TestAccelerogram(unittest.TestCase):
         fs4 = os.path.join(OUTPUT_DIR,
             'recordings.accelerogram.get_response_spectrum.1.pvel.png')
         plot_response_spectra([tgt_rdis_rs, cal_rdis_rs],
-            labels=labels, colors=colors, widths=widths, png_filespec=fs1)
+            labels=labels, colors=colors, widths=widths, filespec=fs1)
         plot_response_spectra([tgt_rvel_rs, cal_rvel_rs],
-            labels=labels, colors=colors, widths=widths, png_filespec=fs2)
+            labels=labels, colors=colors, widths=widths, filespec=fs2)
         plot_response_spectra([tgt_aacc_rs, cal_aacc_rs],
-            labels=labels, colors=colors, widths=widths, png_filespec=fs3)
+            labels=labels, colors=colors, widths=widths, filespec=fs3)
         plot_response_spectra([tgt_pvel_rs, cal_pvel_rs],
-            labels=labels, colors=colors, widths=widths, png_filespec=fs4)
+            labels=labels, colors=colors, widths=widths, filespec=fs4)
 
     def test_get_response_spectrum_2(self):
         """
@@ -205,11 +205,11 @@ class TestAccelerogram(unittest.TestCase):
         fs3 = os.path.join(OUTPUT_DIR,
             'recordings.accelerogram.get_response_spectrum.2.30.png')
         plot_response_spectra([tgt_02_rs, cal_02_rs], labels=labels,
-            colors=colors, widths=widths, unit='m/s2', png_filespec=fs1)
+            colors=colors, widths=widths, unit='m/s2', filespec=fs1)
         plot_response_spectra([tgt_05_rs, cal_05_rs], labels=labels,
-            colors=colors, widths=widths, unit='m/s2', png_filespec=fs2)
+            colors=colors, widths=widths, unit='m/s2', filespec=fs2)
         plot_response_spectra([tgt_30_rs, cal_30_rs], labels=labels,
-            colors=colors, widths=widths, unit='m/s2', png_filespec=fs3)
+            colors=colors, widths=widths, unit='m/s2', filespec=fs3)
 
     def test_get_strong_motion_duration(self):
         """
@@ -257,7 +257,7 @@ class TestRecording(unittest.TestCase):
         fs = os.path.join(
             OUTPUT_DIR, 'recordings.recording.differentiate.png')
         plot_recordings([tgt, cal], labels=['tgt', 'cal'], colors=['r', 'b'],
-            widths=[3, 1], title='differentiate', png_filespec=fs)
+            widths=[3, 1], title='differentiate', filespec=fs)
 
     def test_integrate(self):
         """
@@ -271,13 +271,13 @@ class TestRecording(unittest.TestCase):
         fs = os.path.join(
             OUTPUT_DIR, 'recordings.recording.integrate.png')
         plot_recordings([tgt, cal], labels=['tgt', 'cal'], colors=['r', 'b'],
-            widths=[3, 1], title='differentiate', png_filespec=fs)
+            widths=[3, 1], title='differentiate', filespec=fs)
 
     def test_plot(self):
         """
         """
         fs = os.path.join(OUTPUT_DIR, 'recordings.recording.plot.png')
-        self.r.plot(png_filespec=fs)
+        self.r.plot(filespec=fs)
 
 
 class Test(unittest.TestCase):
@@ -290,16 +290,16 @@ class Test(unittest.TestCase):
         n = np.ones(1)*2
         e = np.ones(1)*3
 
-        r,t = ne_to_rt(n, e, 000.)
+        r,t = ne_to_rt(n, e,   0)
         np.testing.assert_allclose(r, -n, rtol=10**-PRECISION)
         np.testing.assert_allclose(t, -e, rtol=10**-PRECISION)
-        r,t = ne_to_rt(n, e, 090.)
+        r,t = ne_to_rt(n, e,  90)
         np.testing.assert_allclose(r, -e, rtol=10**-PRECISION)
         np.testing.assert_allclose(t, +n, rtol=10**-PRECISION)
-        r,t = ne_to_rt(n, e, 180.)
+        r,t = ne_to_rt(n, e, 180)
         np.testing.assert_allclose(r, +n, rtol=10**-PRECISION)
         np.testing.assert_allclose(t, +e, rtol=10**-PRECISION)
-        r,t = ne_to_rt(n, e, 270.)
+        r,t = ne_to_rt(n, e, 270)
         np.testing.assert_allclose(r, +e, rtol=10**-PRECISION)
         np.testing.assert_allclose(t, -n, rtol=10**-PRECISION)
 
@@ -309,15 +309,15 @@ class Test(unittest.TestCase):
         r = np.ones(1)*2
         t = np.ones(1)*3
 
-        n,e = rt_to_ne(r, t, 000.)
+        n,e = rt_to_ne(r, t,   0)
         np.testing.assert_allclose(n, -r, rtol=10**-PRECISION)
         np.testing.assert_allclose(e, -t, rtol=10**-PRECISION)
-        n,e = rt_to_ne(r, t, 090.)
+        n,e = rt_to_ne(r, t,  90)
         np.testing.assert_allclose(n, +t, rtol=10**-PRECISION)
         np.testing.assert_allclose(e, -r, rtol=10**-PRECISION)
-        n,e = rt_to_ne(r, t, 180.)
+        n,e = rt_to_ne(r, t, 180)
         np.testing.assert_allclose(n, +r, rtol=10**-PRECISION)
         np.testing.assert_allclose(e, +t, rtol=10**-PRECISION)
-        n,e = rt_to_ne(r, t, 270.)
+        n,e = rt_to_ne(r, t, 270)
         np.testing.assert_allclose(n, -t, rtol=10**-PRECISION)
         np.testing.assert_allclose(e, +r, rtol=10**-PRECISION)
