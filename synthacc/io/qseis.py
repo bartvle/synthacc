@@ -1,12 +1,12 @@
 """
 The 'io.qseis' module.
 
-I/O for the Qseis program. It is a Fortran code written by Rongjiang Wang
-after Wang (1999).
+# I/O for the Qseis program. It is a Fortran code written by Rongjiang Wang
+# after Wang (1999).
 
-- Moment tensors are given in NED coordinates and Nm
-- Green's functions and recordings are given in ZRT with Z down, R radial and T
-  transverse
+# - Moment tensors are given in NED coordinates and Nm
+# - Green's functions and recordings are given in ZRT with Z down, R radial and T
+#   transverse
 """
 
 
@@ -112,7 +112,8 @@ class Wrapper(Object):
 
         self._run()
 
-        [gf] = read_greens_functions(self.folder, src_depth, distance, rcv_depth)
+        [gf] = read_greens_functions(
+            self.folder, src_depth, distance, rcv_depth)
 
         return gf
 
@@ -243,10 +244,10 @@ def write_input(filespec, params, ground_model, src_depth, distances, rcv_depth,
             f.write('0')
         f.write('\n')
 
-        ## Back-azimuth or azimuth of receiver (it is not clear if this is used for Green's
-        ## function calculation, therefore we assert if back-azimuth is 0 when
-        ## no moment tensor is given)
-        if azimuths is None: ## use 0 or 180 for Green's function?
+        ## Back-azimuth or azimuth of receiver (it is not clear if this is used
+        ## for Green's function calculation, therefore we assert if
+        ## back-azimuth is 0 when no moment tensor is given)
+        if azimuths is None:
             f.write('0')
             f.write('\n')
             f.write('0')
@@ -341,7 +342,7 @@ def read_greens_functions(folder, src_depth=None, distance=None, rcv_depth=None,
         components = []
         components.append(stack[i,:,0] * -1) ## ZSS
         components.append(stack[i,:,1])      ## RSS
-        components.append(stack[i,:,2] * -1) ## TSS
+        components.append(stack[i,:,2] * -1) ## TSS (azimuth factor!)
         components.append(stack[i,:,3] * -1) ## ZDS
         components.append(stack[i,:,4])      ## RDS
         components.append(stack[i,:,5])      ## TDS (azimuth factor!)

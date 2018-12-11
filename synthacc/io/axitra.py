@@ -1,11 +1,11 @@
 """
 The 'io.axitra' module.
 
-I/O for the Axitra program (v20.08.2008). It is a Fortran code written by
-Olivier Courant after Cotton & Coutant (1997).
+# I/O for the Axitra program (v20.08.2008). It is a Fortran code written by
+# Olivier Courant after Cotton & Coutant (1997).
 
-- Moment is given in Nm
-- Recordings are given in XYZ with X north, Y east and Z up
+# - Moment is given in Nm
+# - Recordings are given in XYZ with X north, Y east and Z up
 """
 
 
@@ -13,9 +13,8 @@ import os
 from subprocess import Popen, PIPE
 
 import numpy as np
-
-from ..apy import (PRECISION, Object, is_number, is_non_neg_number,
-    is_pos_number, is_pos_integer, is_string)
+from ..apy import (PRECISION, Object, is_pos_integer, is_number,
+    is_non_neg_number, is_pos_number, is_string)
 from .. import space3
 from ..units import MOTION_SI as SI_UNITS
 from ..source.mechanism import FocalMechanism
@@ -355,38 +354,6 @@ def _get_time_delta(frequencies, validate=True):
     return time_delta
 
 
-# def read_greens_functions(folder, n=1):
-    # """
-    # Read multiple Green's functions.
-
-    # n: number of Green's functions (default: 1)
-    # """
-
-
-    # gfs = []
-    # for i in range(n):
-        # components = n_components[i]
-        # ## Axitra gives Green's functions components with a back-azimuth of 0,
-        # ## but in ZNE (x=N and y=E) with Z postive upwards, so x and y are
-        # ## multiplied by -1 to obtain R and T.
-        # gf_components = []
-        # gf_components.append(+1 * +(components[5]['z'] - components[4]['z']))    ## ZSS
-        # gf_components.append(-1 * +(components[5]['x'] - components[4]['x']))    ## RSS
-        # gf_components.append(-1 * -(components[1]['y']))                         ## TSS
-        # gf_components.append(+1 * +(components[2]['z']))                         ## ZDS
-        # gf_components.append(-1 * +(components[2]['x']))                         ## RDS
-        # gf_components.append(-1 * +(components[3]['y']))                         ## TDS
-        # gf_components.append(+1 * +(components[5]['z'] + components[4]['z']))    ## ZDD
-        # gf_components.append(-1 * +(components[5]['x'] + components[4]['x']))    ## RDD
-        # gf_components.append(+1 * +(components[6]['z']))                         ## ZEP
-        # gf_components.append(-1 * +(components[6]['x']))                         ## REP
-
-        # gf = GreensFunction(time_delta, gf_components, gmt='dis')
-        # gfs.append(gf)
-
-    # return gfs
-
-
 def read_greens_functions(folder, n_srcs, n_rcvs, validate=True):
     """
     return: list of 'greens_functions.GenericGreensFunction' instances
@@ -448,7 +415,8 @@ def read_seismogram(filespec, gmt='dis', validate=True):
         data.extend(line.split())
     data = np.array(data, dtype=float)
 
-    s = Seismogram(time_delta, data, unit=SI_UNITS[gmt]) ## According to Convm.exe the output is in SI units.
+    ## According to Convm.exe the output is in SI units.
+    s = Seismogram(time_delta, data, unit=SI_UNITS[gmt])
 
     return s
 

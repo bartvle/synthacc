@@ -480,6 +480,38 @@ class NormalizedMomentRateFunction(TimeSeries):
             plt.show()
 
 
+class TriangularRateGenerator(Object):
+    """
+    Gives a (normalized) moment rate function with the shape of an isosceles
+    triangle. The height of the triangle (i.e. the maximum rate) is equal to
+    the inverse of half its base (i.e. the half duration).
+    """
+
+    def get_nmrf(self, time_delta, half_duration, offset=None, validate=True):
+        """
+        return: 'moment.NormalizedMomentRateFunction' instance
+        """
+        if validate is True:
+            assert(is_pos_number(time_delta))
+            assert(is_pos_number(half_duration))
+            assert(offset is None or is_pos_number(offset))
+
+        n = int(round(half_duration / time_delta))
+        assert(abs((n * time_delta) - half_duration) <= 10**-PRECISION)
+
+        rates = np.zeros(2*n+1)
+        rates[:n+1] = np.linspace(0, 1 / half_duration, n+1)
+        rates[n+1:] = rates[:n][::-1]
+
+        if offset is not None:
+            rates = np.concatenate(
+                (np.zeros(int(round(offset / time_delta))), rates))
+
+        nmrf = NormalizedMomentRateFunction(time_delta, rates)
+
+        return nmrf
+
+
 def calculate(area, slip, rigidity, validate=True):
     """
     area: (in m²)

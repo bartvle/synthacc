@@ -278,17 +278,25 @@ def plot_geometrical_spreading_models(gsms, distances, labels=None, max_distance
     plt.close(fig)
 
 
-def plot_q_models(q_models, frequencies, min_q=None, max_q=None, title=None, size=None, filespec=None):
+def plot_q_models(q_models, frequencies, labels=None, min_q=None, max_q=None, title=None, size=None, filespec=None):
     """
     """
     fig, ax = plt.subplots(figsize=size)
 
-    for q_model in q_models:
-        ax.loglog(frequencies, q_model(frequencies))
+    for i, q_model in enumerate(q_models):
+
+        kwargs = {}
+        if labels is not None:
+            kwargs['label'] = labels[i]
+
+        ax.loglog(frequencies, q_model(frequencies), **kwargs)
 
     ax.set_ylim([min_q, max_q])
 
     ax.grid()
+
+    if labels is not None:
+        ax.legend()
 
     x_label, y_label = 'Frequencies (1/s)', 'Q'
     ax.xaxis.set_label_text(x_label)
@@ -304,7 +312,7 @@ def plot_q_models(q_models, frequencies, min_q=None, max_q=None, title=None, siz
     plt.close(fig)
 
 
-def plot_attenuation_models(ams, distances, frequencies, title=None, size=None, filespec=None, validate=True):
+def plot_attenuation_models(ams, distances, frequencies, labels=None, title=None, size=None, filespec=None, validate=True):
     """
     """
     if validate is True:
@@ -313,10 +321,18 @@ def plot_attenuation_models(ams, distances, frequencies, title=None, size=None, 
     fig, ax = plt.subplots(figsize=size)
 
     for f in frequencies:
-        for am in ams:
-            ax.plot(distances, [am(float(d), np.array([f])) for d in distances])
+        for i, am in enumerate(ams):
+
+            kwargs = {}
+            if labels is not None:
+                kwargs['label'] = str(labels[i]) + ' (%s Hz)' % f
+
+            ax.plot(distances, [am(float(d), np.array([f])) for d in distances], **kwargs)
 
     ax.grid()
+
+    if labels is not None:
+        ax.legend()
 
     if title is not None:
         ax.set_title(title)
