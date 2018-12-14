@@ -11,9 +11,8 @@ from synthacc.earth.flat import DiscretizedSimpleSurface
 from synthacc.source.mechanism import FocalMechanism
 from synthacc.source.moment import MomentRateFunction
 
-from synthacc.source.rupture.models import (PointRupture, FiniteRupture,
-    KinematicRuptureCalculator, KinematicRuptureGenerator,
-    KinematicRuptureCalculatorLogicTree)
+from synthacc.source.rupture.models import (PointRupture, SimpleRupture,
+    SimpleFiniteRupture, ComposedFiniteRupture)
 
 
 class TestPointRupture(unittest.TestCase):
@@ -27,7 +26,14 @@ class TestPointRupture(unittest.TestCase):
         self.assertEqual(r.nmrf, None)
 
 
-class TestFiniteRupture(unittest.TestCase):
+class TestSimpleRupture(unittest.TestCase):
+    """
+    #TODO: implement test
+    """
+    pass
+
+
+class TestSimpleFiniteRupture(unittest.TestCase):
     """
     """
 
@@ -39,26 +45,5 @@ class TestFiniteRupture(unittest.TestCase):
         rake = np.zeros(surface.shape)
         slip_rates = np.zeros(surface.shape+(3,))
         slip_rates[:,:,1] = np.ones(surface.shape)
-        r = FiniteRupture(surface, (0, 0, 5000), rake, 1, slip_rates)
+        r = SimpleFiniteRupture(surface, (0, 0, 5000), rake, 1, slip_rates)
         self.assertEqual(type(r.mrf), MomentRateFunction)
-
-
-class TestKinematicRuptureCalculator(unittest.TestCase):
-    """
-    #TODO: implement test
-    """
-    pass
-
-
-class TestKinematicRuptureGenerator(unittest.TestCase):
-    """
-    #TODO: implement test
-    """
-    pass
-
-
-class TestKinematicRuptureCalculatorLogicTree(unittest.TestCase):
-    """
-    #TODO: implement test
-    """
-    pass

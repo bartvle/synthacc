@@ -3,11 +3,11 @@ The 'source.rupture.geometry' module.
 """
 
 
-import numpy as np
+import math
+import random
 
 from ...apy import Object, is_number, is_pos_number
-from ...earth import flat as earth
-from ..faults import SimpleFault
+from ..faults import ComposedFault
 from ..scaling import ScalingRelationship
 
 
@@ -41,17 +41,71 @@ class FaultSegmentCalculator(Object):
 
     def __call__(self, fault, magnitude, validate=True):
         """
-        return: 'earth.flat.Rectangle' instance
+        return: 'source.faults.ComposedFault' instance
         """
         if validate is True:
-            pass
+            assert(type(fault) is ComposedFault)
 
+        w, l = self._get_dimensions(fault, magnitude)
+
+        if w == fault.width and l == fault.length:
+            return fault
+
+        surface = fault.surface
+
+        ## 2d ulc of rupture
+        x = random.uniform(0, 1) * (surface.w - w)
+        y = random.uniform(0, 1) * (surface.l - l)
+
+        rsp, rep = y, y + l
+        f_length, parts = 0, []
+        for s in fault:
+            ssp, sep = f_length, f_length + s.length
+
+            advu = s.ad_vector.unit
+            asvu = s.as_vector.unit
+            adv = advu * x
+
+            if not (sep <= rsp or ssp >= rep):
+
+                if ssp <= rsp < sep:
+                    ulc = s.ulc.translate(adv + asvu * (rsp - f_length))
+                else:
+                    ulc = s.ulc.translate(adv)
+                if ssp < rep <= sep:
+                    urc = s.ulc.translate(adv + asvu * (rep - f_length))
+                else:
+                    urc = s.urc.translate(adv)
+
+                parts.append([(ulc.x, ulc.y), (urc.x, urc.y)])
+
+            f_length += s.length
+
+        llc = ulc.translate(advu * w)
+
+        upper_depth = ulc.z
+        lower_depth = llc.z
+
+        upper_sd = max([upper_depth, fault.upper_sd])
+        lower_sd = min([lower_depth, fault.lower_sd])
+
+        f = ComposedFault(parts, upper_depth, lower_depth, fault.dip,
+            fault.rigidity, upper_sd, lower_sd)
+
+        return f
+
+    def _get_dimensions(self, fault, magnitude):
+        """
+        Calculate width and length based on aspect ratio and magnitude scaling
+        relationship.
+        """
         if type(self._ar) is tuple:
             ar = self._ar[0] + (
-                np.random.uniform(0, 1) * (self._ar[1] - self._ar[0]))
+                random.uniform(0, 1) * (self._ar[1] - self._ar[0]))
         else:
             ar = self._ar
-
+        
+        ## Magnitude to length scaling relationship
         if self._sr.TO in ('sl', 'l'):
             l = self._sr.sample(magnitude, n=self._sd)
 
@@ -60,7 +114,8 @@ class FaultSegmentCalculator(Object):
 
             w = min([fault.width, l / ar])
 
-        elif self._sr.TO in ('w'):
+        ## Magnitude to width scaling relationship
+        elif self._sr.TO == 'w':
             w = self._sr.sample(magnitude, n=self._sd)
 
             if w >= fault.width:
@@ -68,35 +123,18 @@ class FaultSegmentCalculator(Object):
 
             l = min([fault.length, w * ar])
 
+        ## Magnitude to area scaling relationship
         else:
+            assert(self._sr.TO == 'a')
+    
             a = self._sr.sample(magnitude, n=self._sd)
 
             if a >= fault.area:
-                return fault
+                return fault.width, fault.length
 
-            w = min(np.sqrt(a / ar), fault.width)
+            w = min(math.sqrt(a / ar), fault.width)
             l = a / w
 
-        w = float(w)
-        l = float(l)
+        assert(l >= w) #TODO: remove
 
-        assert(l >= w)
-
-        surface = fault.surface
-        advu = fault.ad_vector.unit
-        asvu = fault.as_vector.unit
-        wtv = advu * float(np.random.uniform(0, 1) * (surface.w - w))
-        ltv = asvu * float(np.random.uniform(0, 1) * (surface.l - l))
-        ulc = fault.ulc.translate(wtv + ltv)
-        llc = ulc.translate(advu * w)
-        urc = ulc.translate(asvu * l)
-
-        upper_depth = ulc.z
-        lower_depth = llc.z
-        upper_sd = max([upper_depth, fault.upper_sd])
-        lower_sd = min([lower_depth, fault.lower_sd])
-
-        s = SimpleFault(ulc.x, ulc.y, urc.x, urc.y, upper_depth, lower_depth,
-            fault.dip, fault.rigidity, upper_sd, lower_sd)
-
-        return s
+        return w, l

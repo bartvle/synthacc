@@ -8,13 +8,12 @@ import os
 import h5py
 import numpy as np
 
-from .apy import (Object, is_non_neg_number, is_pos_number, is_non_neg_integer,
-    is_pos_integer, is_2d_numeric_array, is_string)
+from .apy import (Object, is_non_neg_integer, is_pos_integer,
+    is_non_neg_number, is_pos_number, is_2d_numeric_array, is_string)
 from .units import MOTION_SI as SI_UNITS
 from .earth import flat as earth
 from .source.moment import MomentTensor
-from .recordings import (Seismogram, Recording, rt_to_ne,
-    plot_seismograms)
+from .recordings import Seismogram, Recording, rt_to_ne, plot_seismograms
 
 
 class GenericGreensFunction(Object):
@@ -46,7 +45,6 @@ class GenericGreensFunction(Object):
     def __init__(self, time_delta, components, gmt, src_depth=None, distance=None, rcv_depth=None, model=None, validate=True):
         """
         """
-        super().__init__(time_delta, validate=validate)
 
         components = np.asarray(components, dtype=float)
 
@@ -126,11 +124,12 @@ class GenericGreensFunction(Object):
 
         return np.copy(self._components[self.COMPONENTS.index(component)])
 
-    def get_component(self, component):
+    def get_component(self, component,  validate=True):
         """
         """
-        s = Seismogram(
-            self.time_delta, self._get_component(component), unit=self.unit)
+        s = Seismogram(self.time_delta, self._get_component(component),
+            unit=self.unit, validate=validate)
+
         return s
 
     def get_recording(self, azimuth, moment_tensor, components='ZRT', validate=True):
@@ -146,7 +145,7 @@ class GenericGreensFunction(Object):
             assert(type(moment_tensor) is MomentTensor)
             assert(components in ('ZRT', 'ZNE'))
 
-        azimuth = np.radians(azimuth)
+        azimuth_rad = np.radians(azimuth)
 
         (ZSS, RSS, TSS, ZDS, RDS, TDS, ZDD, RDD, ZEP, REP) = self._components
 
@@ -156,28 +155,28 @@ class GenericGreensFunction(Object):
         r = np.zeros(len(self))
         t = np.zeros(len(self))
 
-        z += xx * (+1*(ZSS/2)*np.cos(2*azimuth)-ZDD/6+ZEP/3)
-        r += xx * (+1*(RSS/2)*np.cos(2*azimuth)-RDD/6+REP/3)
-        t += xx * (+1*(TSS/2)*np.sin(2*azimuth))
+        z += xx * (+1*(ZSS/2)*np.cos(2*azimuth_rad)-ZDD/6+ZEP/3)
+        r += xx * (+1*(RSS/2)*np.cos(2*azimuth_rad)-RDD/6+REP/3)
+        t += xx * (+1*(TSS/2)*np.sin(2*azimuth_rad))
 
-        z += yy * (-1*(ZSS/2)*np.cos(2*azimuth)-ZDD/6+ZEP/3)
-        r += yy * (-1*(RSS/2)*np.cos(2*azimuth)-RDD/6+REP/3)
-        t += yy * (-1*(TSS/2)*np.sin(2*azimuth))
+        z += yy * (-1*(ZSS/2)*np.cos(2*azimuth_rad)-ZDD/6+ZEP/3)
+        r += yy * (-1*(RSS/2)*np.cos(2*azimuth_rad)-RDD/6+REP/3)
+        t += yy * (-1*(TSS/2)*np.sin(2*azimuth_rad))
 
         z += zz * (ZDD/3 + ZEP/3)
         r += zz * (RDD/3 + REP/3)
 
-        z += xy * +(ZSS * np.sin(2*azimuth))
-        r += xy * +(RSS * np.sin(2*azimuth))
-        t += xy * -(TSS * np.cos(2*azimuth))
+        z += xy * +(ZSS * np.sin(2*azimuth_rad))
+        r += xy * +(RSS * np.sin(2*azimuth_rad))
+        t += xy * -(TSS * np.cos(2*azimuth_rad))
 
-        z += yz * +(ZDS * np.sin(azimuth))
-        r += yz * +(RDS * np.sin(azimuth))
-        t += yz * -(TDS * np.cos(azimuth))
+        z += yz * +(ZDS * np.sin(azimuth_rad))
+        r += yz * +(RDS * np.sin(azimuth_rad))
+        t += yz * -(TDS * np.cos(azimuth_rad))
 
-        z += zx * +(ZDS * np.cos(azimuth))
-        r += zx * +(RDS * np.cos(azimuth))
-        t += zx * +(TDS * np.sin(azimuth))
+        z += zx * +(ZDS * np.cos(azimuth_rad))
+        r += zx * +(RDS * np.cos(azimuth_rad))
+        t += zx * +(TDS * np.sin(azimuth_rad))
 
         z = Seismogram(self._time_delta, z, unit=self.unit)
 
@@ -186,7 +185,7 @@ class GenericGreensFunction(Object):
             t = Seismogram(self._time_delta, t, unit=self.unit)
             components = {'Z': z, 'R': r, 'T': t}
         else:
-            n, e = rt_to_ne(r, t, back_azimuth)
+            n, e = rt_to_ne(r, t, azimuth)
             n = Seismogram(self._time_delta, n, unit=self.unit)
             e = Seismogram(self._time_delta, e, unit=self.unit)
             components = {'Z': z, 'N': n, 'E': e}
@@ -196,9 +195,8 @@ class GenericGreensFunction(Object):
     def plot(self, duration=None, size=None, validate=True):
         """
         """
-        p = plot_generic_greens_functions([self], duration=duration, size=size, validate=validate)
-
-        return p
+        plot_generic_greens_functions([self], duration=duration, size=size,
+            validate=validate)
 
 
 class GGFD(Object):
@@ -208,23 +206,30 @@ class GGFD(Object):
     The keys are integer for src depth, distance and rcv depth (all in m).
     """
 
-    def __init__(self, filespec, gmt, time_delta, duration, validate=True):
+    def __init__(self, filespec, gmt=None, time_delta=None, duration=None, validate=True):
         """
         """
         if validate is True:
-            assert(gmt[:3] in SI_UNITS)
+            assert(is_string(filespec))
 
         exists = os.path.exists(filespec)
         self._f = h5py.File(filespec)
 
         if not exists:
+            if validate is True:
+                assert(gmt[:3] in SI_UNITS)
+                assert(is_pos_number(time_delta))
+                assert(is_pos_number(duration))
+    
             self._f.attrs['gmt'] = gmt
             self._f.attrs['time_delta'] = time_delta
             self._f.attrs['duration'] = duration
+
         else:
-            assert(self._f.attrs['gmt'] == gmt)
-            assert(self._f.attrs['time_delta'] == time_delta)
-            assert(self._f.attrs['duration'] == duration)
+            if validate is True:
+                assert(gmt is None)
+                assert(time_delta is None)
+                assert(duration is None)
 
     def __len__(self):
         """
@@ -323,7 +328,4 @@ def plot_generic_greens_functions(ggfs, duration=None, scale=True, size=None, va
     for c in components:
         seismograms.append([ggf.get_component(c) for ggf in ggfs])
 
-    p = plot_seismograms(seismograms, titles=components, duration=duration,
-        scale=scale, size=size)
-
-    return p
+    plot_seismograms(seismograms, titles=components, e_time=duration, scale=scale, size=size)

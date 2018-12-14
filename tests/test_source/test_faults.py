@@ -5,7 +5,8 @@ Tests for 'source.faults' module.
 
 import unittest
 
-from synthacc.source.faults import RIGIDITY, SimpleFault, ComposedFault
+from synthacc.source.faults import (RIGIDITY, SimpleFault, ComposedFault,
+    FaultGeometryCalculator)
 
 
 class TestSimpleFault(unittest.TestCase):

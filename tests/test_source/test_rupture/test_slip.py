@@ -10,7 +10,8 @@ import numpy as np
 from synthacc.source.rupture.slip import (SlipDistribution, RandomFieldSD,
     RandomFieldSDC, MaiBeroza2002RFSDC, RandomFieldSDG, CompositeSourceSD,
     CompositeSourceSDC, CompositeSourceSDG, LiuEtAl2006NSRC,
-    LiuArchuleta2004NSRC, RiseTimeCalculator, SlipRateCalculator)
+    LiuArchuleta2004NSRC, SchmedesEtAl2010NSRC, RiseTimeCalculator,
+    SlipRateCalculator)
 
 
 class TestSlipDistribution(unittest.TestCase):
@@ -90,7 +91,14 @@ class TestLiuEtAl2006NSRC(unittest.TestCase):
     pass
 
 
-class TesTLiuArchuleta2004NSRC(unittest.TestCase):
+class TestLiuArchuleta2004NSRC(unittest.TestCase):
+    """
+    #TODO: implement test
+    """
+    pass
+
+
+class TestSchmedesEtAl2010NSRC(unittest.TestCase):
     """
     #TODO: implement test
     """

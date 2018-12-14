@@ -234,6 +234,57 @@ class ComposedFault(Object):
         return depths
 
 
+class FaultGeometryCalculator(Object):
+    """
+    #TODO: implement roughness
+    """
+
+    def __init__(self, n, mrd, dip, usd, lsd, rigidity=RIGIDITY, validate=True):
+        """
+        """
+        if validate is True:
+            assert(is_pos_integer(n))
+
+        self._n = n
+        self._mrd = mrd
+        self._dip = dip
+        self._usd = usd
+        self._lsd = lsd
+        self._rigidity = rigidity
+
+    def __call__(self, fault_data, validate=True):
+        """
+        """
+        if validate is True:
+            for k in fault_data:
+                assert(k in ('trace', 'dip'))
+
+        trace = fault_data['trace'].get_simplified(n=self._n)
+
+        parts = [(trace[i], trace[i+1]) for i in range(len(trace)-1)]
+
+        mrd = fault_data.get('mrd', self._mrd)
+        dip = fault_data.get('dip', self._dip)
+        usd = fault_data.get('usd', self._usd)
+        lsd = fault_data.get('lsd', self._lsd)
+        rigidity = fault_data.get('rigidity', self._rigidity)
+
+        if type(mrd) is tuple:
+            mrd = random.uniform(*mrd)
+        if type(dip) is tuple:
+            dip = random.uniform(*dip)
+        if type(usd) is tuple:
+            usd = random.uniform(*usd)
+        if type(lsd) is tuple:
+            lsd = random.uniform(*lsd)
+        if type(rigidity) is tuple:
+            rigidity = random.uniform(*rigidity)
+
+        fault = ComposedFault(parts, 0, mrd, dip, rigidity, usd, lsd)
+
+        return fault
+
+
 def plot_faults(faults, colors=None, styles=None, widths=None, fill_colors=None, size=None, filespec=None, validate=True):
     """
     """

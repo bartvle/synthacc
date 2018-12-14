@@ -10,11 +10,10 @@ from numba import jit
 import numpy as np
 import scipy.stats
 
-from ...apy import (Object, is_number, is_pos_number, is_pos_integer,
+from ...apy import (Object, is_pos_integer, is_number, is_pos_number,
     is_2d_numeric_array)
 from ... import space2
-# from ...data import Histogram
-from ...earth import flat as earth
+from ... import stats
 from ..faults import RIGIDITY
 from ..moment import mw_to_m0
 from .surface import Distribution
@@ -39,113 +38,6 @@ class SlipDistribution(Distribution):
         super().__init__(w, l, *slip.shape, validate=False)
 
         self._values = slip
-
-
-    # @property
-    # def histogram(self):
-    #     """
-    #     """
-    #     return Histogram(self._values.flatten(), positive=True)
-
-    # @property
-    # def top(self):
-    #     """
-    #     """
-    #     return SlipSection(self.l, self._values[0])
-
-    # def get_stress_drop(self, rigidity=RIGIDITY, validate=False):
-    #     """
-    #     """
-    #     s = self.surface
-
-    #     k = np.sqrt(np.add.outer(
-    #         (np.fft.fftfreq(s.nw, s.dw))**2,
-    #         (np.fft.fftfreq(s.nl, s.dl))**2,
-    #     ))
-
-    #     dft = np.fft.rfft2(self._values)
-        
-    #     dft = dft * -0.5 * rigidity * k[:,:dft.shape[1]]
-
-    #     sdd = StressDropDistribition(self._w, self._l, np.fft.irfft2(dft))
-
-    #     return sdd
-
-
-# class StressDropDistribition(Distribution):
-#     """
-#     """
-
-#     LABEL = 'Stress drop (Pa)'
-
-#     def __init__(self, w, l, stress_drop, validate=True):
-#         """
-#         """
-#         if validate is True:
-#             assert(is_pos_number(w))
-#             assert(is_pos_number(l))
-#             assert(is_2d_numeric_array(stress_drop))
-
-#         self._values = stress_drop
-
-#         super().__init__(w, l, *stress_drop.shape, validate=False)
-
-#     @property
-#     def histogram(self):
-#         """
-#         """
-#         return Histogram(self._values.flatten())
-
-
-# class SlipSection(Object):
-#     """
-#     """
-
-#     def __init__(self, length, values, validate=True):
-#         """
-#         """
-#         if validate is True:
-#             pass
-
-#         self._length = length
-#         self._values = values
-
-#     @property
-#     def length(self):
-#         """
-#         """
-#         return self._length
-
-#     @property
-#     def distances(self):
-#         """
-#         """
-#         return np.linspace(0, self.length, len(self._values))
-
-#     @property
-#     def values(self):
-#         """
-#         """
-#         return self._values.copy()
-
-#     def plot(self, size=None, png_filespec=None, validate=True):
-#         """
-#         """
-#         _, ax = plt.subplots(figsize=size)
-
-#         ax.plot(self.distances / 1000, self._values)
-
-#         ax.grid()
-#         xlabel, ylabel = 'Length (km)', 'Slip (m)'
-#         ax.set_xlabel(xlabel)
-#         ax.set_ylabel(ylabel)
-
-#         plt.tight_layout()
-
-#         if png_filespec is not None:
-#             plt.savefig(png_filespec)
-#         else:
-#             plt.show()
 
 
 class RandomFieldSD(SlipDistribution):
@@ -299,7 +191,7 @@ class MaiBeroza2002RFSDC(RandomFieldSDC):
 
         h = float(scipy.stats.truncnorm.rvs(a, b, mean, sd))
 
-        return space2.VonKarmanACF(h=h)
+        return stats.VonKarmanACF(h=h)
 
     def get_aw(self, w):
         """
@@ -354,7 +246,7 @@ class RandomFieldSDG(SlipDistributionGenerator):
         aw = self._calculator.get_aw(self._surface.w) ## Scipy uses np seed
         al = self._calculator.get_al(self._surface.l) ## Scipy uses np seed
 
-        srfg = space2.SpatialRandomFieldGenerator(
+        srfg = stats.SpatialRandomFieldGenerator(
             self._surface.w, self._surface.l,
             self._surface.nw, self._surface.nl, acf, aw, al, validate=validate)
 
@@ -661,8 +553,6 @@ class LiuArchuleta2004NSRC(NormalizedSlipRateCalculator):
         times = time_delta * np.arange(
             np.round(rise_time / time_delta) +1)
 
-        # p = 1 means Tp = Tr/5
-
         t = times/rise_time
         nsrs = t * (1-t)**4
 
@@ -675,42 +565,42 @@ class LiuArchuleta2004NSRC(NormalizedSlipRateCalculator):
         return nsrs
 
 
-# class SchmedesEtAl2010NSRC(NormalizedSlipRateCalculator):
-#     """
-#     Normalized slip rate calculator of Schmedes et al. (2010).
-#     """
+class SchmedesEtAl2010NSRC(NormalizedSlipRateCalculator):
+    """
+    Normalized slip rate calculator of Schmedes et al. (2010).
+    """
 
-#     def __call__(self, time_delta, rise_time, validate=True):
-#         """
-#         See Schmedes et al. (2010) p. 4 eq. 2.
-#         """
-#         if validate is True:
-#             assert(is_pos_number(rise_time))
+    def __call__(self, time_delta, rise_time, validate=True):
+        """
+        See Schmedes et al. (2010) p. 4 eq. 2.
+        """
+        if validate is True:
+            assert(is_pos_number(rise_time))
 
-#         peak_time = rise_time / 5
-#         tail_time = rise_time - peak_time
+        peak_time = rise_time / 5
+        tail_time = rise_time - peak_time
 
-#         if peak_time < (2*time_delta):
-#             return LiuArchuleta2004NSRC()(time_delta, rise_time)
+        if peak_time < (2*time_delta):
+            return LiuArchuleta2004NSRC()(time_delta, rise_time)
 
-#         times1 = time_delta * np.arange(np.round(tail_time / time_delta) +1)
-#         times2 = time_delta * np.arange(np.round(peak_time / time_delta) +1)
+        times1 = time_delta * np.arange(np.round(tail_time / time_delta) +1)
+        times2 = time_delta * np.arange(np.round(peak_time / time_delta) +1)
 
-#         p1 = np.zeros_like(times1)
-#         p2 = np.zeros_like(times2)
+        p1 = np.zeros_like(times1)
+        p2 = np.zeros_like(times2)
 
-#         p1[1:-1] = np.sqrt(tail_time - times1[1:-1]) / np.sqrt(times1[1:-1])
-#         p2 = np.sin(np.pi*times2 / peak_time)
+        p1[1:-1] = np.sqrt(tail_time - times1[1:-1]) / np.sqrt(times1[1:-1])
+        p2 = np.sin(np.pi*times2 / peak_time)
 
-#         nsrs = np.convolve(p1, p2, mode='full')
+        nsrs = np.convolve(p1, p2, mode='full')
 
-#         try:
-#             nsrs /= np.sum(nsrs*time_delta)
-#         except Exception as e:
-#             print('nsrs', time_delta, rise_time, np.sum(nsrs*time_delta))
-#             raise e
+        try:
+            nsrs /= np.sum(nsrs*time_delta)
+        except Exception as e:
+            print('nsrs', time_delta, rise_time, np.sum(nsrs*time_delta))
+            raise e
 
-#         return nsrs
+        return nsrs
 
 
 class RiseTimeCalculator(Object):
@@ -721,8 +611,7 @@ class RiseTimeCalculator(Object):
     def __call__(self, segment, magnitude, sd, validate=True):
         """
         """
-        segment = segment.get_discretized(shape=sd.shape)
-        depths = np.rollaxis(segment.cell_centers, 2)[-1]
+        depths = segment.get_depths(sd.shape)
 
         rise_times = self.get_rise_times(depths, sd.values)
         average_rt = self.get_average_rise_time(
@@ -757,6 +646,9 @@ class SlipRateCalculator(Object):
 
     def __init__(self, d, rtc, nsrc):
         """
+        d: time_delta
+        rtc: 'RiseTimeCalculator' instance
+        nsrc: 'NormalizedSlipRateCalculator' instance
         """
         self._d, self._rtc, self._nsrc = d, rtc, nsrc
 

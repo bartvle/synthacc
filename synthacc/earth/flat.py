@@ -472,7 +472,7 @@ def plot_paths(paths, points=False, size=None, filespec=None, validate=True):
         ax.plot(p.ys, p.xs, c='k', lw=2)
 
         if points is True:
-            ax.scatter(p.ys, p.xs, c='k')
+            ax.scatter(p.ys, p.xs, c='r')
 
     plt.axis('equal')
 

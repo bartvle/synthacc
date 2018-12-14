@@ -10,7 +10,7 @@ import numpy as np
 
 from ...apy import PRECISION, Object, is_non_neg_number
 from ... import space2
-from ..faults import SimpleFault
+from ..faults import SimpleFault, ComposedFault
 
 
 class HypoCenterCalculator(ABC, Object):
@@ -27,7 +27,7 @@ class HypoCenterCalculator(ABC, Object):
         """
         """
         if validate is True:
-            assert(type(segment) is SimpleFault)
+            assert(type(segment) in [SimpleFault, ComposedFault])
 
         sin = math.sin(math.radians(segment.dip))
         xmin = (segment.upper_sd - segment.upper_depth) / sin
@@ -49,7 +49,7 @@ class RandomHCC(HypoCenterCalculator):
         """
         """
         if validate is True:
-            assert(type(segment) is SimpleFault)
+            assert(type(segment) in [SimpleFault, ComposedFault])
 
         xmin, xmax = self.get_xrange(segment)
 
@@ -78,7 +78,7 @@ class MaiEtAl2005HCC(HypoCenterCalculator):
         """
         """
         if validate is True:
-            assert(type(segment) is SimpleFault)
+            assert(type(segment) in [SimpleFault, ComposedFault])
 
         indices1 = np.where(sd.values >= (self._slip1 * sd.max))
         indices2 = np.where(sd.values >= (self._slip2 * sd.max))

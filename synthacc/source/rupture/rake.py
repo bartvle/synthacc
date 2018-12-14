@@ -8,7 +8,7 @@ from abc import ABC, abstractmethod
 import numpy as np
 
 from ...apy import Object, is_pos_number, is_2d_numeric_array
-from ... import space2
+from ... import stats
 from .surface import Distribution
 from .slip import MaiBeroza2002RFSDC
 
@@ -26,7 +26,6 @@ class RakeDistribution(Distribution):
             assert(is_pos_number(w))
             assert(is_pos_number(l))
             assert(is_2d_numeric_array(rake))
-            # assert(np.all(slip >= 0))
 
         super().__init__(w, l, *rake.shape, validate=False)
 
@@ -80,26 +79,10 @@ class RandomFieldRDC(RakeDistributionCalculator):
         aw = rfc.get_aw(sd.w)
         al = rfc.get_al(sd.l)
 
-        srfg = space2.SpatialRandomFieldGenerator(sd.w, sd.l, sd.nw, sd.nl,
+        srfg = stats.SpatialRandomFieldGenerator(sd.w, sd.l, sd.nw, sd.nl,
             acf, aw, al, validate=validate)
 
         field = srfg(seed=None, validate=False)
-
-        # c=1
-
-        # sd_values = (sd.values - sd.avg) / np.std(sd.values, ddof=1)
-        # sd_values = sd.values
-
-        # print(field.mean(), field.std())
-        # print(sd_values.mean(), sd_values.std())
-
-        # dft = c*np.fft.rfft2(sd_values)+np.sqrt(1-c**2)*np.fft.rfft2(field)
-        # dft[0,0] = 0
-        # field = np.fft.irfft2(dft, s=sd.values.shape)
-
-        # field = field / np.std(field, ddof=1)
-
-        # print(field.mean(), field.std())
 
         rake = rake + field * self._sd
 
