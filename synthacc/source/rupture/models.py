@@ -14,6 +14,7 @@ from ..moment import (MomentRateFunction, NormalizedMomentRateFunction,
 from ..mechanism import FocalMechanism, is_rake
 from ..faults import RIGIDITY, ComposedFault
 from .slip import SlipDistribution
+from .rake import RakeDistribution
 
 
 class PointRupture(Object):
@@ -311,7 +312,7 @@ class SimpleFiniteRupture(Object):
     def rake(self):
         """
         """
-        return self._rake
+        return RakeDistribution(self.width, self.length, self._rake)
 
     @property
     def time_delta(self):
@@ -457,7 +458,7 @@ class ComposedFiniteRupture(Object):
     def rake(self):
         """
         """
-        return self._rake
+        return RakeDistribution(self.width, self.length, self._rake)
 
     @property
     def time_delta(self):

@@ -66,7 +66,7 @@ class Distribution(ABC, space2.DiscretizedRectangularSurface):
 
         return i(xs, ys)
 
-    def plot(self, contours=False, cmap=None, title=None, size=None, png_filespec=None, validate=True):
+    def plot(self, contours=False, cmap=None, title=None, size=None, filespec=None, validate=True):
         """
         """
         if validate is True:
@@ -94,7 +94,7 @@ class Distribution(ABC, space2.DiscretizedRectangularSurface):
         if title is not None:
             plt.title(title)
 
-        if png_filespec is not None:
-            plt.savefig(png_filespec, bbox_inches='tight')
+        if filespec is not None:
+            plt.savefig(filespec, bbox_inches='tight')
         else:
             plt.show()

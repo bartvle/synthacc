@@ -1,7 +1,7 @@
 # Synthacc
 A Python toolbox for kinematic earthquake ground motion modelling!
 
-The current version is 0.0.1, which means *totally not ready to be used by someone else*, but if you want you can try and help me improving the library! For the moment, I will only add the things I need for my PhD.
+The current version is 0.0.1, which means *totally not ready to be used by someone else*, but if you want you can try and help me improving the library!
 
 Bart Vleminckx @ Royal Observatory of Belgium (bart . vleminckx @ observatory . be)
 
@@ -34,9 +34,11 @@ Clone the Synthacc repository and add its folder to the PYTHONPATH environment v
 * Graves R. and Pitarka A. (2016). Kinematic Ground-Motion Simulations on Rough Faults Including Effects of 3D Stochastic Velocity Perturbations. Bulletin of the Seismological Society of America, 106(5), 2136-2153.
 * Hanks T. and Kanamori H. (1979). A Moment Magnitude Scale. Journal of Geophysical Research, 84(B5), 2348-2350.
 * Havskov J. and Ottemöller L. (2010). Routine Data Processing in Earthquake Seismology. Springer.
+* Johnston A. and Schneider J. (1994). Seismotectonic interpretations and conclusions from the stable continental region seismicity database, in The Earthquake of Stable Continental Regions. Volume 1: Assessment of Large Earthquake Potential. Report to Electric Power Research Institute, TR-102261-V1.
 * Jost M. and Herrmann R. (1989). A Student's Guide to and Review of Moment Tensors. Seismological Research Letters, 60(2), 37-57.
 * Kikuchi M. and Kanamori H. (1991). Inversion of complex body waves - part III. Bulletin of the Seismological Society of America, 81(6), 2335-2350.
 * Krischer L., Hutko A., van Driel M., Stähler S., Bahavar M., Trabant C. and Nissen-Meyer T. (2017). On-demand custom broadband synthetic seismograms. Seismological Research Lettets, 88(4), 1127-1140.
+* Leonard M. (2014). Self-Consistent Earthquake Fault-Scaling Relations: Update and Extension to Stable Continental Strike-Slip Faults. Bulletin of the Seismological Society of America 104(6), 2953-2965.
 * Liu P. and Archuleta R. (2004). A new nonlinear finite fault inversion with three-dimensional Green’s functions: Application to the 1989 Loma Prieta, California, earthquake. Journal of Geophysical Research, 109, B02318.1-15.
 * Liu P., Archuleta R. and Hartzell S. (2006). Prediction of Broadband Ground-Motion Time Histories: Hybrid Low/High-Frequency Method with Correlated Random Source Parameters. Bulletin of the Seismological Society of America, 96(6), 2118-2130.
 * Mai P. and Beroza G. (2002). A spatial random field model to characterize complexity in earthquake slip. Journal of Geophysical Research, 107, B11, ESE 10 1-21.
@@ -46,8 +48,10 @@ Clone the Synthacc repository and add its folder to the PYTHONPATH environment v
 * Nigam N. and Jennings P. (1969). Calculation of response spectra from strong-motion earthquake records. Bulletin of the Seismological Society of America, 59(2), 909-922.
 * Nissen-Meyer T., van Driel M., Stähler S., Hosseini K., Hempel S., Auer L., Colombi A. and Fournier A. (2014). AxiSEM: broadband 3-D seismic wavefields in axisymmetric media. Solid Earth, 5, 425-445.
 * Pagani M., Monelli D., Weatherill G., Danciu L., Crowley H., Silva V., Henshaw, P. Butler L., Nastasi M., Panzeri L., Simionato M. and Vigano D. (2014). OpenQuake Engine: An Open Hazard (and Risk) Software for the Global Earthquake Model. Seismological Research Letters, 85(3), 692–202.
+* Schmedes J., Archuleta R. and Lavallée D. (2010). Correlation of earthquake source parameters inferred from dynamic rupture simulations. Journal of Geophysical Research, 115, B03304.1-B03304.12
 * Shearer P. (2009). Introduction to Seismology (2nd edition). Cambridge University Press.
 * Somerville P., Irikura K., Graves R., Sawada S., Wald D., Abrahamson N., Iwasaki Y., Kagawa T., Smith N. and Kowada A. (1999). Characterizing Crustal Earthquake Slip Models for the Prediction of Strong Ground Motion. Seismological Research Letters, 70(1), 59-80.
+* Somerville P., Collins N., Abrahamson N., Graves R. and Saikia C. (2001). Ground motion attenuation relations for the central and eastern United States. Report to U.S. Geological Survey.
 * Stein S. and Wyession M. (2003). An Introduction to Seismology, Earthquakes, and Earth Structure. Blackwell Publishing.
 * Thingbaijam K., Mai P. and Goda K. (2017). New Empirical Earthquake Source-Scaling Laws. Bulletin of the Seismological Society of America, 107(5), 2225-2246.
 * Vallée M. and Douet V. (2016). A new database of source time functions (STFs) extracted from the SCARDEC method. Physics of the Earth and Planetary Interiors, 257, 149-157.
@@ -57,4 +61,4 @@ Clone the Synthacc repository and add its folder to the PYTHONPATH environment v
 * Wells D. and Coppersmith K. (1994). New Empirical Relationships among Magnitude, Rupture Length, Rupture Width, Rupture Area, and Surface Displacement. Bulletin of the Seismological Society of America, 84(4), 974-1002.
 * Wesnousky, S. (2008). Displacement and Geometrical Characteristics of Earthquake Surface Ruptures: Issues and Implications for Seismic-Hazard Analysis and the Process of Earthquake Rupture. Bulletin of the Seismological Society of America, 98(4), 1609-1632.
 
-<!-- * Schmedes J., Archuleta R. and Lavallée D. (2010). Correlation of earthquake source parameters inferred from dynamic rupture simulations. Journal of Geophysical Research, 115, B03304.1-B03304.12 -->
+

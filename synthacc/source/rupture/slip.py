@@ -299,7 +299,7 @@ class CompositeSourceSD(SlipDistribution):
         """
         return self._sources[:,-1]
 
-    def plot_sources(self, n=1000, size=None, png_filespec=None, validate=True):
+    def plot_sources(self, n=1000, size=None, filespec=None, validate=True):
         """
         """
         _, ax = plt.subplots(figsize=size)
@@ -319,8 +319,8 @@ class CompositeSourceSD(SlipDistribution):
         ax.set_xlabel(xlabel)
         ax.set_ylabel(ylabel)
 
-        if png_filespec is not None:
-            plt.savefig(png_filespec, bbox_inches='tight')
+        if filespec is not None:
+            plt.savefig(filespec, bbox_inches='tight')
         else:
             plt.show()
 

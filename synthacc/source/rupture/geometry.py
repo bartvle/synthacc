@@ -7,7 +7,7 @@ import math
 import random
 
 from ...apy import Object, is_number, is_pos_number
-from ..faults import ComposedFault
+from ..faults import SimpleFault, ComposedFault
 from ..scaling import ScalingRelationship
 
 
@@ -44,7 +44,7 @@ class FaultSegmentCalculator(Object):
         return: 'source.faults.ComposedFault' instance
         """
         if validate is True:
-            assert(type(fault) is ComposedFault)
+            assert(type(fault) in [SimpleFault, ComposedFault])
 
         w, l = self._get_dimensions(fault, magnitude)
 

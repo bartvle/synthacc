@@ -8,8 +8,8 @@ import os
 import numpy as np
 from obspy.taup.taup_create import build_taup_model as _build_taup_model
 
-from .apy import (Object, is_boolean, is_non_neg_number, is_pos_number,
-    is_integer, is_1d_numeric_array, is_string)
+from .apy import (Object, is_boolean, is_integer, is_non_neg_number,
+    is_pos_number, is_1d_numeric_array, is_string)
 
 
 class Material(Object):
@@ -72,7 +72,7 @@ class Material(Object):
 
     def to_layer(self, thickness, validate=True):
         """
-        return: instance of 'ground_models.Layer'
+        return: 'ground_models.Layer' instance
         """
         if validate is True:
             assert(is_pos_number(thickness))
@@ -533,6 +533,7 @@ def qk_qm_to_qp_qs(qk, qm, vp, vs, validate=True):
 
 def build_taup_model(folder, ground_model, name=None, validate=True):
     """
+    Create input file for ground model that can be read by Obspy Taup.
     """
     if validate is True:
         assert(os.path.exists(folder))

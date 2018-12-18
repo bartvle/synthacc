@@ -43,6 +43,12 @@ class SimpleFault(earth.SimpleSurface):
         self._upper_sd = upper_sd
         self._lower_sd = lower_sd
 
+    def __iter__(self):
+        """
+        """
+        for f in [self]:
+            yield f
+
     @property
     def rigidity(self):
         """

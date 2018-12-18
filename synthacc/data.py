@@ -83,6 +83,7 @@ class DataBase(ABC, Object):
 
 class LogicTreeLeaf(Object):
     """
+    End point of logic tree.
     """
 
     def __init__(self, path, prob, validate=True):
